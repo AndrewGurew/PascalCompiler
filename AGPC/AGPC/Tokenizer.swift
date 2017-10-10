@@ -94,6 +94,7 @@ class LexicalAnalyzer {
     }
     
     private var text: String
+    private var errorMessages = [String]()
     private var currentState: State = .BEGIN
     private var newState: State = .BEGIN
     var lexems = [Lexem]()
@@ -189,7 +190,7 @@ class LexicalAnalyzer {
             stateTable[State.COMMENT_LONG.hashValue][i] = .COMMENT_LONG
         }
         
-        stateTable[State.STRING.hashValue][Character("'").asciiValue] = .END;
+        stateTable[State.STRING.hashValue][Character("'").asciiValue] = .END
         stateTable[State.COMMENT.hashValue][Character("\n").asciiValue] = .END
         stateTable[State.COMMENT_LONG.hashValue][Character("}").asciiValue] = .END
         
@@ -201,6 +202,11 @@ class LexicalAnalyzer {
     func lexemTable(_ lexems: [Lexem]) ->  String {
         let column1PadLength = 20
         let columnDefaultPadLength = 20
+        
+        var errors = ""
+        for error in errorMessages {
+            errors += error + "\n"
+        }
         
         let headerString = "Position".padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + "Type".padding(toLength: column1PadLength, withPad: " ", startingAt: 0) +
             "Text".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
@@ -215,7 +221,7 @@ class LexicalAnalyzer {
                 lexem.value.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
             dataString.append("\n")
         }
-        return "\(headerString)\n\(lineString)\n\(dataString)"
+        return "\(errors)\(headerString)\n\(lineString)\n\(dataString)"
     }
     
     private func isKeyWord(_ text: String) -> Bool {
@@ -280,7 +286,7 @@ class LexicalAnalyzer {
                 case .COMMENT:
                     lexems.append(Lexem(lexemText, "Comments", symbolPosition))
                 default:
-                    print("Unknown symbol - \(symbol) in \(symbolPosition.row, currentCol) position")
+                    errorMessages.append("Unknown symbol - \"\(symbol)\" in \(symbolPosition.row, currentCol) position")
                     lexemText = ""
                     i+=1
                     currentCol+=1
@@ -302,7 +308,7 @@ class LexicalAnalyzer {
                 }
                 lexemText.append(symbol)
             }
-            i+=1;
+            i+=1
             currentCol+=1
         }
     }
