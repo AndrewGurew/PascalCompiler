@@ -1,0 +1,31 @@
+Position            Type                Text                Value               
+--------------------------------------------------------------------------------
+(1,1)               Key word            for                 for                 
+(1,5)               ID                  x                   x                   
+(1,6)               Special symbol      :=                  :=                  
+(1,8)               Number              1                   1                   
+(1,10)              ID                  to                  to                  
+(1,13)              Number              10                  10                  
+(1,16)              Key word            do                  do                  
+(1,19)              Key word            begin               begin               
+(2,7)               ID                  y                   y                   
+(2,8)               Special symbol      :=                  :=                  
+(2,10)              Number              2                   2                   
+(2,11)              Special symbol      *                   *                   
+(2,12)              ID                  x                   x                   
+(2,13)              Special symbol      +                   +                   
+(2,14)              Number              3                   3                   
+(2,15)              Special symbol      ;                   ;                   
+(3,7)               ID                  WriteLn             WriteLn             
+(3,14)              Special symbol      (                   (                   
+(3,15)              String              'f('                f(                  
+(3,18)              Special symbol      ,                   ,                   
+(3,19)              ID                  x                   x                   
+(3,20)              Special symbol      ,                   ,                   
+(3,21)              String              ')='                )=                  
+(3,24)              Special symbol      ,                   ,                   
+(3,25)              ID                  y                   y                   
+(3,26)              Special symbol      )                   )                   
+(3,27)              Special symbol      ;                   ;                   
+(4,5)               Key word            end                 end                 
+(4,8)               Special symbol      ;                   ;                   

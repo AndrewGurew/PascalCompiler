@@ -1,0 +1,17 @@
+Position            Type                Text                Value               
+--------------------------------------------------------------------------------
+(1,1)               ID                  eps                 eps                 
+(1,4)               Special symbol      :=                  :=                  
+(1,6)               Double              0.001               0.001               
+(1,11)              Special symbol      ;                   ;                   
+(2,2)               Key word            while               while               
+(2,8)               ID                  x                   x                   
+(2,10)              Special symbol      >                   >                   
+(2,12)              ID                  eps                 eps                 
+(2,16)              Key word            do                  do                  
+(2,19)              ID                  x                   x                   
+(2,20)              Special symbol      :=                  :=                  
+(2,22)              ID                  x                   x                   
+(2,23)              Special symbol      /                   /                   
+(2,24)              Number              2                   2                   
+(2,25)              Special symbol      ;                   ;                   

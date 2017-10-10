@@ -1,0 +1,96 @@
+Position            Type                Text                Value               
+--------------------------------------------------------------------------------
+(1,1)               Key word            var                 var                 
+(1,5)               ID                  x                   x                   
+(1,6)               Special symbol      ,                   ,                   
+(1,7)               ID                  y                   y                   
+(1,8)               Special symbol      ,                   ,                   
+(1,9)               ID                  m                   m                   
+(1,10)              Special symbol      ,                   ,                   
+(1,11)              ID                  n                   n                   
+(1,12)              Special symbol      :                   :                   
+(1,14)              ID                  integer             integer             
+(1,21)              Special symbol      ;                   ;                   
+(3,2)               Key word            function            function            
+(3,11)              ID                  MaxNumber           MaxNumber           
+(3,20)              Special symbol      (                   (                   
+(3,21)              ID                  a                   a                   
+(3,22)              Special symbol      ,                   ,                   
+(3,23)              ID                  b                   b                   
+(3,24)              Special symbol      :                   :                   
+(3,26)              ID                  integer             integer             
+(3,33)              Special symbol      )                   )                   
+(3,34)              Special symbol      :                   :                   
+(3,36)              ID                  integer             integer             
+(3,43)              Special symbol      ;                   ;                   
+(4,5)               Key word            var                 var                 
+(4,9)               ID                  max                 max                 
+(4,12)              Special symbol      :                   :                   
+(4,14)              ID                  integer             integer             
+(4,21)              Special symbol      ;                   ;                   
+(5,2)               Key word            begin               begin               
+(6,5)               Key word            if                  if                  
+(6,8)               ID                  a                   a                   
+(6,9)               Special symbol      >                   >                   
+(6,10)              ID                  b                   b                   
+(6,12)              ID                  then                then                
+(6,17)              ID                  max                 max                 
+(6,20)              Special symbol      :=                  :=                  
+(6,22)              ID                  a                   a                   
+(6,24)              Key word            else                else                
+(6,29)              ID                  max                 max                 
+(6,32)              Special symbol      :=                  :=                  
+(6,34)              ID                  b                   b                   
+(6,35)              Special symbol      ;                   ;                   
+(7,5)               ID                  MaxNumber           MaxNumber           
+(7,15)              Special symbol      :=                  :=                  
+(7,18)              ID                  max                 max                 
+(7,21)              Special symbol      ;                   ;                   
+(8,2)               Key word            end                 end                 
+(8,5)               Special symbol      ;                   ;                   
+(10,2)              Key word            begin               begin               
+(11,5)              ID                  write               write               
+(11,10)             Special symbol      (                   (                   
+(11,11)             String              'Input x,y '        Input x,y           
+(11,22)             Special symbol      )                   )                   
+(11,23)             Special symbol      ;                   ;                   
+(12,5)              ID                  readln              readln              
+(12,11)             Special symbol      (                   (                   
+(12,12)             ID                  x                   x                   
+(12,13)             Special symbol      ,                   ,                   
+(12,14)             ID                  y                   y                   
+(12,15)             Special symbol      )                   )                   
+(12,16)             Special symbol      ;                   ;                   
+(13,5)              ID                  m                   m                   
+(13,7)              Special symbol      :=                  :=                  
+(13,10)             ID                  MaxNumber           MaxNumber           
+(13,19)             Special symbol      (                   (                   
+(13,20)             ID                  x                   x                   
+(13,21)             Special symbol      ,                   ,                   
+(13,22)             ID                  y                   y                   
+(13,23)             Special symbol      )                   )                   
+(13,24)             Special symbol      ;                   ;                   
+(14,5)              ID                  n                   n                   
+(14,7)              Special symbol      :=                  :=                  
+(14,10)             ID                  MaxNumber           MaxNumber           
+(14,19)             Special symbol      (                   (                   
+(14,20)             Number              2                   2                   
+(14,21)             Special symbol      ,                   ,                   
+(14,22)             ID                  x                   x                   
+(14,23)             Special symbol      +                   +                   
+(14,24)             ID                  y                   y                   
+(14,25)             Special symbol      )                   )                   
+(14,26)             Special symbol      ;                   ;                   
+(15,5)              ID                  writeln             writeln             
+(15,12)             Special symbol      (                   (                   
+(15,13)             String              'm='                m=                  
+(15,16)             Special symbol      ,                   ,                   
+(15,17)             ID                  m                   m                   
+(15,18)             Special symbol      ,                   ,                   
+(15,19)             String              'n='                n=                  
+(15,22)             Special symbol      ,                   ,                   
+(15,23)             ID                  n                   n                   
+(15,24)             Special symbol      )                   )                   
+(15,25)             Special symbol      ;                   ;                   
+(16,2)              Key word            end                 end                 
+(16,5)              Dot                 .                   .                   

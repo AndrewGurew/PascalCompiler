@@ -1,0 +1,1 @@
+for ch:='A' to 'Z' do Writeln(ch);

@@ -1,0 +1,10 @@
+Position            Type                Text                Value               
+--------------------------------------------------------------------------------
+(1,1)               Key word            program             program             
+(1,9)               ID                  test                test                
+(1,13)              Special symbol      ;                   ;                   
+(2,2)               Key word            var                 var                 
+(2,6)               ID                  a                   a                   
+(2,7)               Special symbol      :                   :                   
+(2,8)               ID                  Integer             Integer             
+(2,15)              Special symbol      ;                   ;                   

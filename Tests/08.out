@@ -1,0 +1,26 @@
+Position            Type                Text                Value               
+--------------------------------------------------------------------------------
+(1,1)               ID                  a                   a                   
+(1,2)               Special symbol      :=                  :=                  
+(1,4)               Number              1                   1                   
+(2,2)               ID                  b                   b                   
+(2,3)               Special symbol      +=                  +=                  
+(2,5)               Number              2                   2                   
+(3,2)               ID                  c                   c                   
+(3,3)               Special symbol      -=                  -=                  
+(3,5)               Number              3                   3                   
+(4,2)               ID                  g                   g                   
+(4,3)               Special symbol      *=                  *=                  
+(4,5)               Exponential double  5.6e3               5600.0              
+(5,2)               ID                  f                   f                   
+(5,3)               Special symbol      /=                  /=                  
+(5,5)               Double              5.1                 5.1                 
+(6,2)               Key word            if                  if                  
+(6,4)               Special symbol      (                   (                   
+(6,5)               ID                  a                   a                   
+(6,6)               Special symbol      <>                  <>                  
+(6,8)               ID                  b                   b                   
+(6,9)               Special symbol      )                   )                   
+(6,11)              ID                  being               being               
+(7,2)               Key word            end                 end                 
+(7,5)               Dot                 .                   .                   

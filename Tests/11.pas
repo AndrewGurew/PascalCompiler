@@ -1,0 +1,1 @@
+a = array[1001..12123] of integer;

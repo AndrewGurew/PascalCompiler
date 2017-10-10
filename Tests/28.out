@@ -1,0 +1,18 @@
+Position            Type                Text                Value               
+--------------------------------------------------------------------------------
+(1,1)               Key word            type                type                
+(1,7)               ID                  Traffic_Light       Traffic_Light       
+(1,20)              Special symbol      =                   =                   
+(1,22)              Special symbol      (                   (                   
+(1,23)              ID                  RED                 RED                 
+(1,26)              Special symbol      ,                   ,                   
+(1,28)              ID                  YELLOW              YELLOW              
+(1,34)              Special symbol      ,                   ,                   
+(1,36)              ID                  GREEN               GREEN               
+(1,41)              Special symbol      )                   )                   
+(1,42)              Special symbol      ;                   ;                   
+(2,2)               Key word            var                 var                 
+(2,8)               ID                  Section             Section             
+(2,15)              Special symbol      :                   :                   
+(2,17)              ID                  Traffic_Light       Traffic_Light       
+(2,30)              Special symbol      ;                   ;                   
