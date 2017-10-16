@@ -3,15 +3,15 @@
 //  AGPC
 //
 //  Created by Andrey Gurev on 06.10.17.
-//  Copyright © 2k17 Andrey Gurev. All rights reserved.
-//
+//  Copyright © 2017 Andrey Gurev. All rights reserved.
+//  
 import Foundation
 
 extension String {
     var length: Int {
         return self.characters.count
     }
-
+    
     subscript (i: Int) -> String {
         return self[i..<i + 1]
     }
@@ -44,18 +44,19 @@ extension Character {
     }
 }
 
-class LexicalAnalyzer {
+class Tokenizer {
+    private var index = 0
     
     struct Lexem {
-        var number:(row: Int, col: Int)
+        var position:(row: Int, col: Int)
+        var type: TokenType
         var text: String
-        var type: String
         var value: String
-        init(_ text:String,_ type: String,_ number:(Int, Int),_ value:String = "") {
+        init(_ text: String,_ type: TokenType,_ position:(Int, Int),_ value:String = "") {
+            self.type = type
             self.text = text
             self.value = (value.isEmpty) ? self.text : value
-            self.type = type
-            self.number = number
+            self.position = position
         }
     }
     
@@ -66,29 +67,11 @@ class LexicalAnalyzer {
         analyze()
     }
     
-    private var keyWords = ["begin", "end", "program", "var", "and", "array", "break", "case", "const", "div", "do", "while", "for", "if", "else", "false", "true", "function", "procedure", "goto", "mod", "not", "nil", "object", "or", "until", "type"]
-    
-    private enum State {
-        case BEGIN
-        case INTEGER
-        case EXP_NUMBER
-        case DOUBLE_NUMBER
-        case DOUBLE_NUMBER_DOT
-        case WORD
-        case SLASH
-        case SPECIAL
-        case BINARY_INT
-        case HEX_INT
-        case OCTAL_INT
-        case SPECIAL_MAX
-        case SPECIAL_DERELICT
-        case DOUBLE_DOT
-        case DOT
-        case STRING
-        case COMMENT
-        case COMMENT_LONG
-        case SHIFT
-        case END
+    private enum State: String {
+        case BEGIN, INTEGER, EXP_NUMBER, DOUBLE_NUMBER, DOUBLE_NUMBER_DOT,
+        WORD, SLASH, SPECIAL, BINARY_INT, HEX_INT, OCTAL_INT,
+        SPECIAL_MAX, SPECIAL_DERELICT, DOUBLE_DOT, DOT, STRING,
+        COMMENT, COMMENT_LONG, SHIFT, END
         
         static var count: Int { return State.END.hashValue + 1}
     }
@@ -100,12 +83,22 @@ class LexicalAnalyzer {
     var lexems = [Lexem]()
     
     private var stateTable = Array(repeating: Array<State>(repeating: .END, count: 128), count: State.count)
-
+    
+    func previousToken() { self.index-=1 }
+    func nextToken() { self.index+=1 }
+    
+    func currentToken() -> Lexem {
+        return lexems[self.index]
+    }
+    
+    func toTokenWith(index: Int) -> Lexem {
+        self.index = index
+        return lexems[self.index]
+    }
+    
     // MARK: Init state table
     
     private func initTable() {
-        
-        
         stateTable[State.BEGIN.hashValue][Character("$").asciiValue] = .HEX_INT
         stateTable[State.BEGIN.hashValue][Character("&").asciiValue] = .OCTAL_INT
         stateTable[State.BEGIN.hashValue][Character("%").asciiValue] = .BINARY_INT
@@ -208,7 +201,7 @@ class LexicalAnalyzer {
             errors += error + "\n"
         }
         
-        let headerString = "Position".padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + "Type".padding(toLength: column1PadLength, withPad: " ", startingAt: 0) +
+        let headerString = "Position".padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + "Type".padding(toLength: column1PadLength + 5, withPad: " ", startingAt: 0) +
             "Text".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
             "Value".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
         
@@ -216,16 +209,12 @@ class LexicalAnalyzer {
         
         var dataString = ""
         for lexem in lexems {
-            let number = "(\(lexem.number.row),\(lexem.number.col))"
-            dataString += number.padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + lexem.type.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) + lexem.text.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
+            let number = "(\(lexem.position.row),\(lexem.position.col))"
+            dataString += number.padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + lexem.type.strType.padding(toLength: columnDefaultPadLength + 5, withPad: " ", startingAt: 0) + lexem.text.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
                 lexem.value.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
             dataString.append("\n")
         }
         return "\(errors)\(headerString)\n\(lineString)\n\(dataString)"
-    }
-    
-    private func isKeyWord(_ text: String) -> Bool {
-        return keyWords.index(of: text.lowercased()) != nil
     }
     
     private func analyze(){
@@ -243,48 +232,42 @@ class LexicalAnalyzer {
             case .END:
                 switch(currentState) {
                 case .WORD:
-                    isKeyWord(lexemText) ? lexems.append(Lexem(lexemText, "Key word", symbolPosition)) : lexems.append(Lexem(lexemText, "ID", symbolPosition))
+                    isKeyWord(lexemText) ? lexems.append(Lexem(lexemText, TokenType(.KEYWORD), symbolPosition)) : lexems.append(Lexem(lexemText, TokenType(.ID), symbolPosition))
                 case .SHIFT:
                     newState = .BEGIN
-                case .SPECIAL_DERELICT:
-                    lexems.append(Lexem(lexemText, "Special symbol", symbolPosition))
                 case .DOUBLE_NUMBER_DOT:
                     i-=1
                     currentCol-=1
                     lexemText = lexemText[0..<lexemText.count - 1]
-                    lexems.append(Lexem(lexemText, "Integer", symbolPosition))
+                    lexems.append(Lexem(lexemText, TokenType(.INT), symbolPosition))
                 case .DOT:
-                    lexems.append(Lexem(lexemText, "Dot", symbolPosition))
+                    lexems.append(Lexem(lexemText, getType(lexemText), symbolPosition))
                 case .DOUBLE_DOT:
-                    lexems.append(Lexem(lexemText, "Double dot", symbolPosition))
+                    lexems.append(Lexem(lexemText, getType(lexemText), symbolPosition))
                 case .INTEGER:
-                    lexems.append(Lexem(lexemText, "Number", symbolPosition))
+                    lexems.append(Lexem(lexemText, TokenType(.INT), symbolPosition))
                 case .DOUBLE_NUMBER:
-                    lexems.append(Lexem(lexemText, "Double", symbolPosition))
+                    lexems.append(Lexem(lexemText, TokenType(.DOUBLE), symbolPosition))
                 case .EXP_NUMBER:
-                    lexems.append(Lexem(lexemText, "Exponential double", symbolPosition, String(Double(lexemText)!)))
+                    lexems.append(Lexem(lexemText, TokenType(.EX_DOUBLE), symbolPosition, String(Double(lexemText)!)))
                 case .HEX_INT:
-                    lexems.append(Lexem(lexemText, "Hex", symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "$", with: ""), nil, 16)))))
+                    lexems.append(Lexem(lexemText, TokenType(.HEX), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "$", with: ""), nil, 16)))))
                 case .BINARY_INT:
-                    lexems.append(Lexem(lexemText, "Binary", symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "%", with: ""), nil, 2)))))
+                    lexems.append(Lexem(lexemText, TokenType(.BINARY), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "%", with: ""), nil, 2)))))
                 case .OCTAL_INT:
-                    lexems.append(Lexem(lexemText, "Octal", symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "&", with: ""), nil, 8)))))
-                case .SPECIAL_MAX:
-                    lexems.append(Lexem(lexemText, "Special symbol", symbolPosition))
-                case .SPECIAL:
-                    lexems.append(Lexem(lexemText, "Special symbol", symbolPosition))
-                case .SLASH:
-                    lexems.append(Lexem(lexemText, "Special symbol", symbolPosition))
+                    lexems.append(Lexem(lexemText, TokenType(.OCTAL), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "&", with: ""), nil, 8)))))
+                case .SPECIAL_MAX, .SPECIAL, .SLASH, .SPECIAL_DERELICT:
+                    lexems.append(Lexem(lexemText, getType(lexemText), symbolPosition))
                 case .STRING:
                     lexemText.append(symbol)
                     i+=1
-                    lexems.append(Lexem(lexemText, "String", symbolPosition, lexemText.replacingOccurrences(of: "'", with: "")))
+                    lexems.append(Lexem(lexemText, TokenType(.STRING), symbolPosition, lexemText.replacingOccurrences(of: "'", with: "")))
                 case .COMMENT_LONG:
                     lexemText.append(symbol)
                     i+=1
-                    lexems.append(Lexem(lexemText, "Long comments", symbolPosition))
+                    lexems.append(Lexem(lexemText, TokenType(.LONG_COMMENT), symbolPosition))
                 case .COMMENT:
-                    lexems.append(Lexem(lexemText, "Comments", symbolPosition))
+                    lexems.append(Lexem(lexemText, TokenType(.COMMENT), symbolPosition))
                 default:
                     errorMessages.append("Unknown symbol - \"\(symbol)\" in \(symbolPosition.row, currentCol) position")
                     lexemText = ""
