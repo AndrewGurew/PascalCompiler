@@ -1,0 +1,26 @@
+Position            Type                     Text                Value               
+-------------------------------------------------------------------------------------
+(1,1)               Id                       a                   a                   
+(1,2)               Assign                   :=                  :=                  
+(1,4)               Integer                  1                   1                   
+(2,2)               Id                       b                   b                   
+(2,3)               Plus and assign          +=                  +=                  
+(2,5)               Integer                  2                   2                   
+(3,2)               Id                       c                   c                   
+(3,3)               Minus and assign         -=                  -=                  
+(3,5)               Integer                  3                   3                   
+(4,2)               Id                       g                   g                   
+(4,3)               Mult and assign          *=                  *=                  
+(4,5)               Exponential double       5.6e3               5600.0              
+(5,2)               Id                       f                   f                   
+(5,3)               Div and assign           /=                  /=                  
+(5,5)               Double                   5.1                 5.1                 
+(6,2)               Keyword                  if                  if                  
+(6,4)               Left bracket             (                   (                   
+(6,5)               Id                       a                   a                   
+(6,6)               Not assign               <>                  <>                  
+(6,8)               Id                       b                   b                   
+(6,9)               Right bracket            )                   )                   
+(6,11)              Id                       being               being               
+(7,2)               Keyword                  end                 end                 
+(7,5)               Dot                      .                   .                   

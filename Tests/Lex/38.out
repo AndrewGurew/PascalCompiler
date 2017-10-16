@@ -1,0 +1,8 @@
+Unknown symbol - "#" in (1, 4) position
+Unknown symbol - "|" in (3, 5) position
+Position            Type                     Text                Value               
+-------------------------------------------------------------------------------------
+(1,1)               Id                       int                 int                 
+(2,2)               Comments                 // coments          // coments          
+(3,2)               Id                       a                   a                   
+(3,3)               Assign                   :=                  :=                  

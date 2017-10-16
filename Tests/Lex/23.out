@@ -1,0 +1,17 @@
+Position            Type                     Text                Value               
+-------------------------------------------------------------------------------------
+(1,1)               Id                       eps                 eps                 
+(1,4)               Assign                   :=                  :=                  
+(1,6)               Double                   0.001               0.001               
+(1,11)              SemiColon                ;                   ;                   
+(2,2)               Keyword                  while               while               
+(2,8)               Id                       x                   x                   
+(2,10)              More                     >                   >                   
+(2,12)              Id                       eps                 eps                 
+(2,16)              Keyword                  do                  do                  
+(2,19)              Id                       x                   x                   
+(2,20)              Assign                   :=                  :=                  
+(2,22)              Id                       x                   x                   
+(2,23)              Div                      /                   /                   
+(2,24)              Integer                  2                   2                   
+(2,25)              SemiColon                ;                   ;                   

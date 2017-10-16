@@ -1,0 +1,66 @@
+Position            Type                     Text                Value               
+-------------------------------------------------------------------------------------
+(1,1)               Keyword                  program             program             
+(1,9)               Id                       name                name                
+(1,13)              SemiColon                ;                   ;                   
+(2,2)               Keyword                  var                 var                 
+(3,3)               Id                       a                   a                   
+(3,4)               Comma                    ,                   ,                   
+(3,5)               Id                       b                   b                   
+(3,6)               Comma                    ,                   ,                   
+(3,7)               Id                       c                   c                   
+(3,8)               Colon                    :                   :                   
+(3,9)               Id                       SomeType            SomeType            
+(3,17)              SemiColon                ;                   ;                   
+(4,3)               Id                       a                   a                   
+(4,4)               Colon                    :                   :                   
+(4,6)               Id                       arrray              arrray              
+(4,12)              Left square bracket      [                   [                   
+(4,13)              Integer                  0                   0                   
+(4,14)              Double dot               ..                  ..                  
+(4,16)              Integer                  123                 123                 
+(4,19)              Right square bracket     ]                   ]                   
+(4,21)              Id                       of                  of                  
+(4,24)              Id                       someType            someType            
+(5,2)               Keyword                  begin               begin               
+(6,4)               Id                       a                   a                   
+(6,5)               Assign                   :=                  :=                  
+(6,7)               Binary                   %1011101            93                  
+(6,15)              SemiColon                ;                   ;                   
+(7,4)               Id                       b                   b                   
+(7,5)               Assign                   :=                  :=                  
+(7,7)               Hex                      $ff132              1044786             
+(7,13)              SemiColon                ;                   ;                   
+(8,4)               Id                       c                   c                   
+(8,5)               Assign                   :=                  :=                  
+(8,7)               Octal                    &7623               3987                
+(8,12)              SemiColon                ;                   ;                   
+(10,3)              Id                       a                   a                   
+(10,4)              Plus and assign          +=                  +=                  
+(10,6)              Id                       b                   b                   
+(10,8)              Plus                     +                   +                   
+(10,10)             Id                       c                   c                   
+(10,12)             Plus                     +                   +                   
+(10,14)             Double                   1.5233              1.5233              
+(10,21)             Plus                     +                   +                   
+(10,23)             Exponential double       1.23e3              1230.0              
+(10,29)             SemiColon                ;                   ;                   
+(11,3)              Keyword                  if                  if                  
+(11,5)              Left bracket             (                   (                   
+(11,6)              Id                       a                   a                   
+(11,7)              Not assign               <>                  <>                  
+(11,9)              Id                       b                   b                   
+(11,10)             Right bracket            )                   )                   
+(11,12)             Id                       writeln             writeln             
+(11,19)             Left bracket             (                   (                   
+(11,20)             String                   'Ok'                Ok                  
+(11,23)             Right bracket            )                   )                   
+(11,24)             SemiColon                ;                   ;                   
+(12,3)              Keyword                  else                else                
+(12,8)              Id                       writeln             writeln             
+(12,15)             Left bracket             (                   (                   
+(12,16)             String                   'Error'             Error               
+(12,22)             Right bracket            )                   )                   
+(12,23)             SemiColon                ;                   ;                   
+(14,2)              Keyword                  end                 end                 
+(14,5)              Dot                      .                   .                   

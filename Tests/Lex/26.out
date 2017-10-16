@@ -1,0 +1,33 @@
+Position            Type                     Text                Value               
+-------------------------------------------------------------------------------------
+(1,1)               Keyword                  procedure           procedure           
+(1,11)              Id                       MaxNumber           MaxNumber           
+(1,20)              Left bracket             (                   (                   
+(1,21)              Id                       a                   a                   
+(1,22)              Comma                    ,                   ,                   
+(1,23)              Id                       b                   b                   
+(1,24)              Colon                    :                   :                   
+(1,26)              Id                       integer             integer             
+(1,33)              SemiColon                ;                   ;                   
+(1,35)              Keyword                  var                 var                 
+(1,39)              Id                       max                 max                 
+(1,42)              Colon                    :                   :                   
+(1,44)              Id                       integer             integer             
+(1,51)              Right bracket            )                   )                   
+(1,52)              SemiColon                ;                   ;                   
+(2,2)               Keyword                  begin               begin               
+(3,5)               Keyword                  if                  if                  
+(3,8)               Id                       a                   a                   
+(3,9)               More                     >                   >                   
+(3,10)              Id                       b                   b                   
+(3,12)              Id                       then                then                
+(3,17)              Id                       max                 max                 
+(3,20)              Assign                   :=                  :=                  
+(3,22)              Id                       a                   a                   
+(3,24)              Keyword                  else                else                
+(3,29)              Id                       max                 max                 
+(3,32)              Assign                   :=                  :=                  
+(3,34)              Id                       b                   b                   
+(3,35)              SemiColon                ;                   ;                   
+(4,2)               Keyword                  end                 end                 
+(4,5)               SemiColon                ;                   ;                   

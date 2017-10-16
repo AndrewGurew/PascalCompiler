@@ -1,0 +1,90 @@
+Position            Type                     Text                Value               
+-------------------------------------------------------------------------------------
+(1,1)               Keyword                  var                 var                 
+(1,5)               Id                       x                   x                   
+(1,6)               Comma                    ,                   ,                   
+(1,7)               Id                       y                   y                   
+(1,8)               Comma                    ,                   ,                   
+(1,9)               Id                       m                   m                   
+(1,10)              Comma                    ,                   ,                   
+(1,11)              Id                       n                   n                   
+(1,12)              Colon                    :                   :                   
+(1,14)              Id                       integer             integer             
+(1,21)              SemiColon                ;                   ;                   
+(3,2)               Keyword                  procedure           procedure           
+(3,12)              Id                       MaxNumber           MaxNumber           
+(3,21)              Left bracket             (                   (                   
+(3,22)              Id                       a                   a                   
+(3,23)              Comma                    ,                   ,                   
+(3,24)              Id                       b                   b                   
+(3,25)              Colon                    :                   :                   
+(3,27)              Id                       integer             integer             
+(3,34)              SemiColon                ;                   ;                   
+(3,36)              Keyword                  var                 var                 
+(3,40)              Id                       max                 max                 
+(3,43)              Colon                    :                   :                   
+(3,45)              Id                       integer             integer             
+(3,52)              Right bracket            )                   )                   
+(3,53)              SemiColon                ;                   ;                   
+(4,2)               Keyword                  begin               begin               
+(5,5)               Keyword                  if                  if                  
+(5,8)               Id                       a                   a                   
+(5,9)               More                     >                   >                   
+(5,10)              Id                       b                   b                   
+(5,12)              Id                       then                then                
+(5,17)              Id                       max                 max                 
+(5,20)              Assign                   :=                  :=                  
+(5,22)              Id                       a                   a                   
+(5,24)              Keyword                  else                else                
+(5,29)              Id                       max                 max                 
+(5,32)              Assign                   :=                  :=                  
+(5,34)              Id                       b                   b                   
+(5,35)              SemiColon                ;                   ;                   
+(6,2)               Keyword                  end                 end                 
+(6,5)               SemiColon                ;                   ;                   
+(8,2)               Keyword                  begin               begin               
+(9,5)               Id                       write               write               
+(9,10)              Left bracket             (                   (                   
+(9,11)              String                   'Input x,y '        Input x,y           
+(9,22)              Right bracket            )                   )                   
+(9,23)              SemiColon                ;                   ;                   
+(10,5)              Id                       readln              readln              
+(10,11)             Left bracket             (                   (                   
+(10,12)             Id                       x                   x                   
+(10,13)             Comma                    ,                   ,                   
+(10,14)             Id                       y                   y                   
+(10,15)             Right bracket            )                   )                   
+(10,16)             SemiColon                ;                   ;                   
+(11,5)              Id                       MaxNumber           MaxNumber           
+(11,14)             Left bracket             (                   (                   
+(11,15)             Id                       x                   x                   
+(11,16)             Comma                    ,                   ,                   
+(11,17)             Id                       y                   y                   
+(11,18)             Comma                    ,                   ,                   
+(11,19)             Id                       m                   m                   
+(11,20)             Right bracket            )                   )                   
+(11,21)             SemiColon                ;                   ;                   
+(12,5)              Id                       MaxNumber           MaxNumber           
+(12,14)             Left bracket             (                   (                   
+(12,15)             Integer                  2                   2                   
+(12,16)             Comma                    ,                   ,                   
+(12,17)             Id                       x                   x                   
+(12,18)             Plus                     +                   +                   
+(12,19)             Id                       y                   y                   
+(12,20)             Comma                    ,                   ,                   
+(12,21)             Id                       n                   n                   
+(12,22)             Right bracket            )                   )                   
+(12,23)             SemiColon                ;                   ;                   
+(13,5)              Id                       writeln             writeln             
+(13,12)             Left bracket             (                   (                   
+(13,13)             String                   'm='                m=                  
+(13,16)             Comma                    ,                   ,                   
+(13,17)             Id                       m                   m                   
+(13,18)             Comma                    ,                   ,                   
+(13,19)             String                   'n='                n=                  
+(13,22)             Comma                    ,                   ,                   
+(13,23)             Id                       n                   n                   
+(13,24)             Right bracket            )                   )                   
+(13,25)             SemiColon                ;                   ;                   
+(14,2)              Keyword                  end                 end                 
+(14,5)              Dot                      .                   .                   

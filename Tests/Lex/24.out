@@ -1,0 +1,18 @@
+Position            Type                     Text                Value               
+-------------------------------------------------------------------------------------
+(1,1)               Id                       repeat              repeat              
+(2,5)               Id                       WriteLn             WriteLn             
+(2,12)              Left bracket             (                   (                   
+(2,13)              String                   'Input number'      Input number        
+(2,26)              Right bracket            )                   )                   
+(2,27)              SemiColon                ;                   ;                   
+(3,5)               Id                       ReadLn              ReadLn              
+(3,11)              Left bracket             (                   (                   
+(3,12)              Id                       x                   x                   
+(3,13)              Right bracket            )                   )                   
+(3,14)              SemiColon                ;                   ;                   
+(4,2)               Keyword                  until               until               
+(4,8)               Id                       x                   x                   
+(4,9)               More                     >                   >                   
+(4,10)              Integer                  0                   0                   
+(4,11)              SemiColon                ;                   ;                   
