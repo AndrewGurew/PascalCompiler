@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5555601B1F9060D6006BB03E /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5555601A1F9060D6006BB03E /* Parser.swift */; };
+		5555601D1F943531006BB03E /* TokenType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5555601C1F943531006BB03E /* TokenType.swift */; };
 		5581ADB61F871E5A009ABB57 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5581ADB51F871E5A009ABB57 /* main.swift */; };
 		5581ADBD1F87250F009ABB57 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5581ADBC1F87250F009ABB57 /* Tokenizer.swift */; };
 /* End PBXBuildFile section */
@@ -26,6 +27,7 @@
 
 /* Begin PBXFileReference section */
 		5555601A1F9060D6006BB03E /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
+		5555601C1F943531006BB03E /* TokenType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenType.swift; sourceTree = "<group>"; };
 		5581ADB21F871E5A009ABB57 /* AGPC */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AGPC; sourceTree = BUILT_PRODUCTS_DIR; };
 		5581ADB51F871E5A009ABB57 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		5581ADBC1F87250F009ABB57 /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
@@ -63,6 +65,7 @@
 			children = (
 				5581ADB51F871E5A009ABB57 /* main.swift */,
 				5581ADBC1F87250F009ABB57 /* Tokenizer.swift */,
+				5555601C1F943531006BB03E /* TokenType.swift */,
 				5555601A1F9060D6006BB03E /* Parser.swift */,
 			);
 			path = AGPC;
@@ -127,6 +130,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5581ADB61F871E5A009ABB57 /* main.swift in Sources */,
+				5555601D1F943531006BB03E /* TokenType.swift in Sources */,
 				5581ADBD1F87250F009ABB57 /* Tokenizer.swift in Sources */,
 				5555601B1F9060D6006BB03E /* Parser.swift in Sources */,
 			);
