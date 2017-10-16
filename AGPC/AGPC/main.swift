@@ -4,9 +4,20 @@
 //
 //  Created by Andrey Gurev on 06.10.17.
 //  Copyright © 2017 Andrey Gurev. All rights reserved.
-//
+//  
 
 import Foundation
+
+func lexTabale(progText: String) -> String {
+    let lexAnalyzer = Tokenizer(text: progText)
+    return lexAnalyzer.lexemTable(lexAnalyzer.lexems)
+}
+
+func exTree(progText: String) -> String {
+    let lexAnalyzer = Tokenizer(text: progText)
+    let expressionParser = Parser(tokenizer: lexAnalyzer)
+    return expressionParser.getTreeAsStr()
+}
 
 enum Mod {
     case RELEASE
@@ -15,7 +26,25 @@ enum Mod {
     case HELP
 }
 
-let testText  = "Program Lesson1_Program3; c :=a + b;"
+let testText  = "1.5 + 3.3333;"
+
+typealias Method = (String) -> String
+
+struct Test {
+    var text: String
+    var method: Method
+    var testPath: String
+    init(_ text: String,_ method: @escaping Method,_ testPath: String) {
+        self.text = text
+        self.method = method
+        self.testPath = testPath
+    }
+}
+
+let testParts:[Test] = [
+    Test("Lexical tests:\n", lexTabale, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Lex"),
+    Test("Expression tests:\n", exTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Expressions")
+]
 
 var mod:Mod = .RELEASE
 var keys = [String]()
@@ -60,45 +89,46 @@ case .HELP:
     print("Options:")
     print("\t-h: Show help banner of specified command")
     print("\t-l: Lexical code analysis")
+     print("\t-e: Expression parse")
 case .TEST:
-    let testPath = "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/"
-    let allTextFiles = extractAllFile(atPath: testPath, withExtension: "pas")
-    
-    for file in allTextFiles {
-        do {
-            let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
-            let lexAnalyzer = LexicalAnalyzer(text: progText)
-            let result = lexAnalyzer.lexemTable(lexAnalyzer.lexems)
-            
-            let outPut = (file.replacingOccurrences(of: ".pas", with: ".out"))
-            let ansText = try String(contentsOf: NSURL.fileURL(withPath: outPut))
-            
-            var testResult = "Test number \(allTextFiles.index(of: file)! + 1) - "
-            (result == ansText) ? testResult.append("OK") : testResult.append("NO")
-            print(testResult)
-            
-        } catch {
-            print("Error loading contents of:", file, error)
+    for testPart in testParts {
+        let allTextFiles = extractAllFile(atPath: testPart.testPath, withExtension: "pas")
+        for file in allTextFiles {
+            do {
+                let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
+                let result = testPart.method(progText)
+                
+                let outPut = (file.replacingOccurrences(of: ".pas", with: ".out"))
+                let ansText = try String(contentsOf: NSURL.fileURL(withPath: outPut))
+                
+                var testResult = "Test number \(allTextFiles.index(of: file)! + 1) - "
+                (result == ansText) ? testResult.append("OK") : testResult.append("NO")
+                print(testResult)
+                
+            } catch {
+                print("Error loading contents of:", file, error)
+            }
         }
     }
 case .GEN_TEST_ANSWERS:
-    let testPath = "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/"
-    let allTextFiles = extractAllFile(atPath: testPath, withExtension: "pas")
-    print(allTextFiles)
-    for file in allTextFiles {
-        do {
-            let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
-            let LexAnalyzer = LexicalAnalyzer(text: progText)
-            let outPut = (file.replacingOccurrences(of: ".pas", with: ".out"))
-            
+    for testPart in testParts {
+        let allTextFiles = extractAllFile(atPath: testPart.testPath, withExtension: "pas")
+        for file in allTextFiles {
+                    print(file)
             do {
-                try LexAnalyzer.lexemTable(LexAnalyzer.lexems).write(to: NSURL.fileURL(withPath: outPut), atomically: true, encoding: .utf8)
+                let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
+                let result = testPart.method(progText)
+                let outPut = (file.replacingOccurrences(of: ".pas", with: ".out"))
+                
+                do {
+                    try result.write(to: NSURL.fileURL(withPath: outPut), atomically: true, encoding: .utf8)
+                }
+                catch {
+                    print("Can't create file: \(file)")
+                }
+            } catch {
+                print("Error loading contents of:", file, error)
             }
-            catch {
-                print("Can't create file: \(file)")
-            }
-        } catch {
-            print("Error loading contents of:", file, error)
         }
     }
 default:
@@ -108,15 +138,24 @@ default:
             let path = fileManager.currentDirectoryPath
             let progText = try String(contentsOf: NSURL.fileURL(withPath: path + "/" + fileName!))
             print(progText)
-            let LexAnalyzer = LexicalAnalyzer(text: progText)
+            let LexAnalyzer = Tokenizer(text: progText)
+            
             if(keys.index(of: "-l") != nil) {
                 print(LexAnalyzer.lexemTable(LexAnalyzer.lexems))
+            }
+            if(keys.index(of: "-e") != nil) {
+                let ExpressionParser = Parser(tokenizer: LexAnalyzer)
+                print(ExpressionParser.getTreeAsStr())
             }
         }
     } catch {
         print("Error loading contents of:", fileName!, error)
     }
 }
+
+//let LexAnalyzer = Tokenizer(text: testText)
+//let ExpressionParser = Parser(tokenizer: LexAnalyzer)
+//print(ExpressionParser.getTreeAsStr())
 
 
 
