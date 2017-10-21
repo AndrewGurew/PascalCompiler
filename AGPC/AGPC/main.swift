@@ -26,8 +26,6 @@ enum Mod {
     case HELP
 }
 
-let testText  = "1.5 + 3.3333;"
-
 typealias Method = (String) -> String
 
 struct Test {
@@ -89,9 +87,10 @@ case .HELP:
     print("Options:")
     print("\t-h: Show help banner of specified command")
     print("\t-l: Lexical code analysis")
-     print("\t-e: Expression parse")
+    print("\t-e: Expression parse")
 case .TEST:
     for testPart in testParts {
+        print("\n\(testPart.text)")
         let allTextFiles = extractAllFile(atPath: testPart.testPath, withExtension: "pas")
         for file in allTextFiles {
             do {
@@ -152,7 +151,7 @@ default:
         print("Error loading contents of:", fileName!, error)
     }
 }
-
+//let testText  = "1.5 + 3.3333;"
 //let LexAnalyzer = Tokenizer(text: testText)
 //let ExpressionParser = Parser(tokenizer: LexAnalyzer)
 //print(ExpressionParser.getTreeAsStr())

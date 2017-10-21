@@ -7,52 +7,53 @@
 //  
 
 import Foundation
-enum Type:String {
+enum TokenEnum:String {
     
     //Special symbols
-    case PLUS, MINUS, DIV, MULT, EQUAL,
+    case PLUS, MINUS, DIV, MOD, MULT, EQUAL,
     COMMA, COLON, SEMICOLON, LESS, MORE, DOT, L_BRACKET, R_BRACKET,
-    LSQR_BRACKET, RSQR_BRACKET
+    LSQR_BRACKET, RSQR_BRACKET, POINTER, DOG
     
     //Double special symbols
     case PLUS_ASSIGN, MINUS_ASSIGN, DIV_ASSIGN, MULT_ASSIGN, NOT_EQUAL,
     LESS_EQUAL, MORE_EQUAL, ASSIGN, D_DOT
     
-    //Numbers
-    case INT = "Integer", DOUBLE = "Double", EX_DOUBLE = "Exponential double",
-    HEX = "Hex", OCTAL = "Octal", BINARY = "Binary"
+    //Types
+    case INT = "Integer", DOUBLE = "Double", STRING = "String"
+    
+    //Keywords
+    case PROCEDURE, RECORD, IF, THEN, ELSE, FOR, TO, REPEAT, UNTIL,
+    BREAK, CONTINUE, CASE, VAR, TYPE, ARRAY, OF, CONST, TRUE, PROGRAM,
+    FALSE, AND, NOT, OR, DOWNTO, EOF, WHILE, BEGIN, END,
+    FORWARD, DO, FUNCTION, UNTILL
     
     //Other
-    case ID = "Id", KEYWORD = "Keyword", STRING = "String",
-    COMMENT = "Comments", LONG_COMMENT = "Long comments"
+    case ID = "Id", COMMENT = "Comments", LONG_COMMENT = "Long comments",
+    ENDOFFILE = "End of file"
 }
 
 struct TokenType {
-    var enumType: Type
+    var enumType: TokenEnum
     var strType: String
-    init(_ type: Type,_ name: String) {
+    init(_ type: TokenEnum,_ name: String) {
         self.enumType = type
         self.strType = name
     }
     
-    init(_ type: Type) {
+    init(_ type: TokenEnum) {
         self.enumType = type
         self.strType = self.enumType.rawValue
     }
 }
 
-private var keyWords = ["begin", "end", "program", "var", "and", "array", "break", "case", "const", "div", "do", "while", "for", "if", "else", "false", "true", "function", "procedure", "goto", "mod", "not", "nil", "object", "or", "until", "type"]
-
-func isKeyWord(_ text: String) -> Bool {
-    return keyWords.index(of: text.lowercased()) != nil
-}
-
-private var tokenInfos:[String:TokenType] = [
+private var symbolsInfo:[String:TokenType] = [
     //MARK:Special symbols
     "+": TokenType(.PLUS, "Plus"),
     "-": TokenType(.MINUS, "Minus"),
     "*": TokenType(.MULT, "Mult"),
     "/": TokenType(.DIV, "Div"),
+    "^": TokenType(.POINTER, "Pointer"),
+    "@": TokenType(.DOG, "Dog"),
     "=": TokenType(.EQUAL, "Equal"),
     ":": TokenType(.COLON, "Colon"),
     ";": TokenType(.SEMICOLON, "SemiColon"),
@@ -76,6 +77,19 @@ private var tokenInfos:[String:TokenType] = [
     ":=": TokenType(.ASSIGN, "Assign"),
 ]
 
+private var keyWordInfo:[String: TokenEnum] = [
+    "begin": .BEGIN, "end": .END, "program": .PROGRAM, "var": .VAR,
+    "and": .AND, "array": .ARRAY, "break": .BREAK, "case": .CASE,
+    "const": .CONST, "div": .DIV, "while": .WHILE, "for": .FOR,
+    "if": .IF, "else": .ELSE, "true": .TRUE, "function": .FUNCTION,
+    "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT,
+    "or": .OR, "until": .UNTILL, "type": .TYPE
+]
+
 func getType(_ key: String) -> TokenType {
-    return tokenInfos[key]!
+    return symbolsInfo[key]!
+}
+
+func getKeyWordType(_ text: String) -> TokenEnum? {
+    return keyWordInfo[text]
 }

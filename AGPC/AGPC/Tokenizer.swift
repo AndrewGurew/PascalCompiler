@@ -47,7 +47,7 @@ extension Character {
 class Tokenizer {
     private var index = 0
     
-    struct Lexem {
+    struct Token {
         var position:(row: Int, col: Int)
         var type: TokenType
         var text: String
@@ -62,7 +62,7 @@ class Tokenizer {
     
     init(text: String) {
         self.text = text
-        self.text.append(" ")
+        self.text.append(" \0")
         initTable()
         analyze()
     }
@@ -71,7 +71,7 @@ class Tokenizer {
         case BEGIN, INTEGER, EXP_NUMBER, DOUBLE_NUMBER, DOUBLE_NUMBER_DOT,
         WORD, SLASH, SPECIAL, BINARY_INT, HEX_INT, OCTAL_INT,
         SPECIAL_MAX, SPECIAL_DERELICT, DOUBLE_DOT, DOT, STRING,
-        COMMENT, COMMENT_LONG, SHIFT, END
+        COMMENT, COMMENT_LONG, SHIFT, END, ENDOFFILE
         
         static var count: Int { return State.END.hashValue + 1}
     }
@@ -80,19 +80,13 @@ class Tokenizer {
     private var errorMessages = [String]()
     private var currentState: State = .BEGIN
     private var newState: State = .BEGIN
-    var lexems = [Lexem]()
+    var lexems = [Token]()
     
     private var stateTable = Array(repeating: Array<State>(repeating: .END, count: 128), count: State.count)
-    
-    func previousToken() { self.index-=1 }
+
     func nextToken() { self.index+=1 }
     
-    func currentToken() -> Lexem {
-        return lexems[self.index]
-    }
-    
-    func toTokenWith(index: Int) -> Lexem {
-        self.index = index
+    func currentToken() -> Token {
         return lexems[self.index]
     }
     
@@ -177,6 +171,8 @@ class Tokenizer {
         stateTable[State.BEGIN.hashValue][Character("{").asciiValue] = .COMMENT_LONG
         stateTable[State.BEGIN.hashValue][Character("'").asciiValue] = .STRING
         
+        stateTable[State.BEGIN.hashValue][Character("\0").asciiValue] = .ENDOFFILE
+        
         for i in 0..<128 {
             stateTable[State.STRING.hashValue][i] = .STRING
             stateTable[State.COMMENT.hashValue][i] = .COMMENT
@@ -192,7 +188,7 @@ class Tokenizer {
 
     }
     
-    func lexemTable(_ lexems: [Lexem]) ->  String {
+    func lexemTable(_ lexems: [Token]) ->  String {
         let column1PadLength = 20
         let columnDefaultPadLength = 20
         
@@ -232,42 +228,44 @@ class Tokenizer {
             case .END:
                 switch(currentState) {
                 case .WORD:
-                    isKeyWord(lexemText) ? lexems.append(Lexem(lexemText, TokenType(.KEYWORD), symbolPosition)) : lexems.append(Lexem(lexemText, TokenType(.ID), symbolPosition))
+                    let lexem = getKeyWordType(lexemText)
+                    lexem == nil ? lexems.append(Token(lexemText, TokenType(.ID), symbolPosition)) :
+                        lexems.append(Token(lexemText, TokenType(lexem!, "Keyword"), symbolPosition))
                 case .SHIFT:
                     newState = .BEGIN
                 case .DOUBLE_NUMBER_DOT:
                     i-=1
                     currentCol-=1
                     lexemText = lexemText[0..<lexemText.count - 1]
-                    lexems.append(Lexem(lexemText, TokenType(.INT), symbolPosition))
+                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition))
                 case .DOT:
-                    lexems.append(Lexem(lexemText, getType(lexemText), symbolPosition))
+                    lexems.append(Token(lexemText, getType(lexemText), symbolPosition))
                 case .DOUBLE_DOT:
-                    lexems.append(Lexem(lexemText, getType(lexemText), symbolPosition))
+                    lexems.append(Token(lexemText, getType(lexemText), symbolPosition))
                 case .INTEGER:
-                    lexems.append(Lexem(lexemText, TokenType(.INT), symbolPosition))
+                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition))
                 case .DOUBLE_NUMBER:
-                    lexems.append(Lexem(lexemText, TokenType(.DOUBLE), symbolPosition))
+                    lexems.append(Token(lexemText, TokenType(.DOUBLE), symbolPosition))
                 case .EXP_NUMBER:
-                    lexems.append(Lexem(lexemText, TokenType(.EX_DOUBLE), symbolPosition, String(Double(lexemText)!)))
+                    lexems.append(Token(lexemText, TokenType(.DOUBLE), symbolPosition, String(Double(lexemText)!)))
                 case .HEX_INT:
-                    lexems.append(Lexem(lexemText, TokenType(.HEX), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "$", with: ""), nil, 16)))))
+                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "$", with: ""), nil, 16)))))
                 case .BINARY_INT:
-                    lexems.append(Lexem(lexemText, TokenType(.BINARY), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "%", with: ""), nil, 2)))))
+                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "%", with: ""), nil, 2)))))
                 case .OCTAL_INT:
-                    lexems.append(Lexem(lexemText, TokenType(.OCTAL), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "&", with: ""), nil, 8)))))
+                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "&", with: ""), nil, 8)))))
                 case .SPECIAL_MAX, .SPECIAL, .SLASH, .SPECIAL_DERELICT:
-                    lexems.append(Lexem(lexemText, getType(lexemText), symbolPosition))
+                    lexems.append(Token(lexemText, getType(lexemText), symbolPosition))
                 case .STRING:
                     lexemText.append(symbol)
                     i+=1
-                    lexems.append(Lexem(lexemText, TokenType(.STRING), symbolPosition, lexemText.replacingOccurrences(of: "'", with: "")))
+                    lexems.append(Token(lexemText, TokenType(.STRING), symbolPosition, lexemText.replacingOccurrences(of: "'", with: "")))
                 case .COMMENT_LONG:
                     lexemText.append(symbol)
                     i+=1
-                    lexems.append(Lexem(lexemText, TokenType(.LONG_COMMENT), symbolPosition))
+                    lexems.append(Token(lexemText, TokenType(.LONG_COMMENT), symbolPosition))
                 case .COMMENT:
-                    lexems.append(Lexem(lexemText, TokenType(.COMMENT), symbolPosition))
+                    lexems.append(Token(lexemText, TokenType(.COMMENT), symbolPosition))
                 default:
                     errorMessages.append("Unknown symbol - \"\(symbol)\" in \(symbolPosition.row, currentCol) position")
                     lexemText = ""
@@ -285,6 +283,8 @@ class Tokenizer {
                     currentCol = 1
                 }
                 newState = .BEGIN
+            case .ENDOFFILE:
+                lexems.append(Token("EndOfFile", TokenType(.ENDOFFILE), symbolPosition))
             default:
                 if (lexemText.isEmpty){
                     symbolPosition = (symbolPosition.row, currentCol)
