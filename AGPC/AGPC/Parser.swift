@@ -19,7 +19,6 @@ class Expression {
     
     let leftChild: Expression?
     let rightChild: Expression?
-    let parent: Expression? = nil
     
     init(_ position: (Int, Int),_ kind: Kind,_ text: String, _ leftChild: Expression? = nil,_ rightChild: Expression? = nil) {
         self.text = text
@@ -28,9 +27,6 @@ class Expression {
         self.rightChild = rightChild
         
         self.kind = kind
-        
-        self.leftChild?.parent = self
-        self.rightChild?.parent = self
     }
 }
 
@@ -72,11 +68,41 @@ class Parser {
     
     init(tokenizer: Tokenizer) {
         self.tokenizer = tokenizer
-        self.root = parseExpr()
+        self.root = parseBoolExpr()
+    }
+    
+    private func require(_ token: TokenType) -> Bool {
+        if(token.enumType != tokenizer.currentToken().type.enumType) {
+            print("Expected: \(token.strType) in \(tokenizer.currentToken().position)")
+            return false
+        }
+        return true
+    }
+    
+    private func parseBoolExpr() -> Expression? {
+        var result = parseExpr()
+        if (result == nil) {
+            return nil
+        }
+        while(tokenizer.currentToken().type.enumType == .MORE || tokenizer.currentToken().type.enumType == .LESS ||
+            tokenizer.currentToken().type.enumType == .MORE_EQUAL || tokenizer.currentToken().type.enumType == .LESS_EQUAL ||
+            tokenizer.currentToken().type.enumType == .EQUAL) {
+            let pos = tokenizer.currentToken().position
+            let text = tokenizer.currentToken().text
+            tokenizer.nextToken()
+            result = BinaryExpr(pos, text, leftChild: result, rightChild: parseExpr())
+        }
+        
+        
+        return result
     }
     
     private func parseExpr() -> Expression?  {
         var result = parseTerm()
+        if (result == nil) {
+            return nil
+        }
+        
         while(tokenizer.currentToken().type.enumType == .PLUS || tokenizer.currentToken().type.enumType == .MINUS) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
@@ -89,7 +115,10 @@ class Parser {
     
     private func parseTerm() -> Expression? {
         var result = parseFactor()
-        
+        if (result == nil) {
+            return nil
+        }
+            
         while(tokenizer.currentToken().type.enumType == .MULT || tokenizer.currentToken().type.enumType == .DIV) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
@@ -106,17 +135,23 @@ class Parser {
             let result = IDExpr(name: tokenizer.currentToken().text, tokenizer.currentToken().position)
             tokenizer.nextToken()
             return result
-        case .INT, .HEX, .BINARY, .OCTAL:
+        case .INT:
             let result = IntegerExp(value: UInt64(tokenizer.currentToken().value)!, tokenizer.currentToken().position)
             tokenizer.nextToken()
             return result
-        case .DOUBLE, .EX_DOUBLE:
+        case .DOUBLE:
             let result = DoubleExp(value: Double(tokenizer.currentToken().value)!, tokenizer.currentToken().position)
             tokenizer.nextToken()
             return result
         case .L_BRACKET:
             tokenizer.nextToken()
-            let result = parseExpr()
+            let result = parseBoolExpr()
+            if (result == nil) {
+                return nil
+            }
+            if !require(getType(")")) {
+                return nil
+            }
             tokenizer.nextToken()
             return result
         default:
@@ -128,6 +163,9 @@ class Parser {
 
     private var separatorIndexes = [Int]()
     func getTreeAsStr(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
+        if (self.root == nil) {
+            return ""
+        }
         let expr:Expression! = expr ?? self.root!
         var result = "⎬\(expr.text)"
         
