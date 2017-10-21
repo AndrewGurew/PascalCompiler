@@ -11,7 +11,7 @@ Position            Type                     Text                Value
 (3,5)               Integer                  3                   3                   
 (4,2)               Id                       g                   g                   
 (4,3)               Mult and assign          *=                  *=                  
-(4,5)               Exponential double       5.6e3               5600.0              
+(4,5)               Double                   5.6e3               5600.0              
 (5,2)               Id                       f                   f                   
 (5,3)               Div and assign           /=                  /=                  
 (5,5)               Double                   5.1                 5.1                 
@@ -24,3 +24,4 @@ Position            Type                     Text                Value
 (6,11)              Id                       being               being               
 (7,2)               Keyword                  end                 end                 
 (7,5)               Dot                      .                   .                   
+(8,5)               End of file              EndOfFile           EndOfFile           

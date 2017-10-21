@@ -28,3 +28,4 @@ Position            Type                     Text                Value
 (2,35)              Minus                    -                   -                   
 (2,36)              Id                       x                   x                   
 (2,37)              SemiColon                ;                   ;                   
+(2,37)              End of file              EndOfFile           EndOfFile           

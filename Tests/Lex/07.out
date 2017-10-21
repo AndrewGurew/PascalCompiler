@@ -20,3 +20,4 @@ Position            Type                     Text                Value
 (19,12)             Colon                    :                   :                   
 (19,13)             Id                       String              String              
 (19,19)             SemiColon                ;                   ;                   
+(19,19)             End of file              EndOfFile           EndOfFile           

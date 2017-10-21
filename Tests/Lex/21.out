@@ -6,9 +6,10 @@ Position            Type                     Text                Value
 (1,9)               String                   'A'                 A                   
 (1,12)              Id                       to                  to                  
 (1,15)              String                   'Z'                 Z                   
-(1,18)              Keyword                  do                  do                  
+(1,18)              Id                       do                  do                  
 (1,21)              Id                       Writeln             Writeln             
 (1,28)              Left bracket             (                   (                   
 (1,29)              Id                       ch                  ch                  
 (1,31)              Right bracket            )                   )                   
 (1,32)              SemiColon                ;                   ;                   
+(1,32)              End of file              EndOfFile           EndOfFile           

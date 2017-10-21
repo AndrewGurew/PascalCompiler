@@ -6,3 +6,4 @@ Position            Type                     Text                Value
 (1,4)               Plus                     +                   +                   
 (1,5)               Id                       b                   b                   
 (1,6)               Right bracket            )                   )                   
+(1,6)               End of file              EndOfFile           EndOfFile           

@@ -1,9 +1,10 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Hex                      $0000               0                   
-(2,2)               Hex                      $000e               14                  
-(3,2)               Hex                      $000f               15                  
-(4,2)               Hex                      $0012               18                  
-(5,2)               Hex                      $00a0               160                 
-(6,2)               Hex                      $00ff               255                 
-(7,2)               Hex                      $0101               257                 
+(1,1)               Integer                  $0000               0                   
+(2,2)               Integer                  $000e               14                  
+(3,2)               Integer                  $000f               15                  
+(4,2)               Integer                  $0012               18                  
+(5,2)               Integer                  $00a0               160                 
+(6,2)               Integer                  $00ff               255                 
+(7,2)               Integer                  $0101               257                 
+(8,2)               End of file              EndOfFile           EndOfFile           

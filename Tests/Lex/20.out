@@ -18,3 +18,4 @@ Position            Type                     Text                Value
 (6,2)               Id                       a                   a                   
 (6,4)               Less or equal            <=                  <=                  
 (6,7)               Id                       b                   b                   
+(6,7)               End of file              EndOfFile           EndOfFile           

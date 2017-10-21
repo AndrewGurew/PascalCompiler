@@ -2,3 +2,4 @@ Position            Type                     Text                Value
 -------------------------------------------------------------------------------------
 (1,1)               Minus                    -                   -                   
 (1,2)               Id                       a                   a                   
+(1,2)               End of file              EndOfFile           EndOfFile           

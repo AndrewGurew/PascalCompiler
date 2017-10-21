@@ -88,3 +88,4 @@ Position            Type                     Text                Value
 (13,25)             SemiColon                ;                   ;                   
 (14,2)              Keyword                  end                 end                 
 (14,5)              Dot                      .                   .                   
+(15,5)              End of file              EndOfFile           EndOfFile           

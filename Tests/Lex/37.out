@@ -25,15 +25,15 @@ Position            Type                     Text                Value
 (5,2)               Keyword                  begin               begin               
 (6,4)               Id                       a                   a                   
 (6,5)               Assign                   :=                  :=                  
-(6,7)               Binary                   %1011101            93                  
+(6,7)               Integer                  %1011101            93                  
 (6,15)              SemiColon                ;                   ;                   
 (7,4)               Id                       b                   b                   
 (7,5)               Assign                   :=                  :=                  
-(7,7)               Hex                      $ff132              1044786             
+(7,7)               Integer                  $ff132              1044786             
 (7,13)              SemiColon                ;                   ;                   
 (8,4)               Id                       c                   c                   
 (8,5)               Assign                   :=                  :=                  
-(8,7)               Octal                    &7623               3987                
+(8,7)               Integer                  &7623               3987                
 (8,12)              SemiColon                ;                   ;                   
 (10,3)              Id                       a                   a                   
 (10,4)              Plus and assign          +=                  +=                  
@@ -43,7 +43,7 @@ Position            Type                     Text                Value
 (10,12)             Plus                     +                   +                   
 (10,14)             Double                   1.5233              1.5233              
 (10,21)             Plus                     +                   +                   
-(10,23)             Exponential double       1.23e3              1230.0              
+(10,23)             Double                   1.23e3              1230.0              
 (10,29)             SemiColon                ;                   ;                   
 (11,3)              Keyword                  if                  if                  
 (11,5)              Left bracket             (                   (                   
@@ -64,3 +64,4 @@ Position            Type                     Text                Value
 (12,23)             SemiColon                ;                   ;                   
 (14,2)              Keyword                  end                 end                 
 (14,5)              Dot                      .                   .                   
+(14,5)              End of file              EndOfFile           EndOfFile           

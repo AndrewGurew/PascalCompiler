@@ -6,3 +6,4 @@ Position            Type                     Text                Value
 (2,2)               Comments                 // coments          // coments          
 (3,2)               Id                       a                   a                   
 (3,3)               Assign                   :=                  :=                  
+(3,3)               End of file              EndOfFile           EndOfFile           

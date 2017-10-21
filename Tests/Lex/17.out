@@ -11,3 +11,4 @@ Position            Type                     Text                Value
 (1,9)               Right bracket            )                   )                   
 (1,10)              Minus                    -                   -                   
 (1,11)              Integer                  3                   3                   
+(1,11)              End of file              EndOfFile           EndOfFile           

@@ -1,9 +1,10 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Octal                    &1                  1                   
-(2,2)               Octal                    &2                  2                   
-(3,2)               Octal                    &10                 8                   
-(4,2)               Octal                    &20                 16                  
-(5,2)               Octal                    &15                 13                  
-(6,2)               Octal                    &123                83                  
-(7,2)               Octal                    &4752               2538                
+(1,1)               Integer                  &1                  1                   
+(2,2)               Integer                  &2                  2                   
+(3,2)               Integer                  &10                 8                   
+(4,2)               Integer                  &20                 16                  
+(5,2)               Integer                  &15                 13                  
+(6,2)               Integer                  &123                83                  
+(7,2)               Integer                  &4752               2538                
+(8,2)               End of file              EndOfFile           EndOfFile           

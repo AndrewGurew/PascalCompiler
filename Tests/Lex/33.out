@@ -1,6 +1,7 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Binary                   %10                 2                   
-(2,2)               Binary                   %1011101            93                  
-(3,2)               Binary                   %01                 1                   
-(4,2)               Binary                   %11                 3                   
+(1,1)               Integer                  %10                 2                   
+(2,2)               Integer                  %1011101            93                  
+(3,2)               Integer                  %01                 1                   
+(4,2)               Integer                  %11                 3                   
+(4,2)               End of file              EndOfFile           EndOfFile           

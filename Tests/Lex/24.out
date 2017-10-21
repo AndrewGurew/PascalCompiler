@@ -16,3 +16,4 @@ Position            Type                     Text                Value
 (4,9)               More                     >                   >                   
 (4,10)              Integer                  0                   0                   
 (4,11)              SemiColon                ;                   ;                   
+(4,11)              End of file              EndOfFile           EndOfFile           

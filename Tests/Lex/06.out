@@ -8,3 +8,4 @@ Position            Type                     Text                Value
 (2,7)               Colon                    :                   :                   
 (2,8)               Id                       Integer             Integer             
 (2,15)              SemiColon                ;                   ;                   
+(3,15)              End of file              EndOfFile           EndOfFile           

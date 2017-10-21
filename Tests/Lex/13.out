@@ -2,3 +2,4 @@ Position            Type                     Text                Value
 -------------------------------------------------------------------------------------
 (1,1)               Comments                 // comment          // comment          
 (2,2)               Long comments            {comment}           {comment}           
+(2,2)               End of file              EndOfFile           EndOfFile           

@@ -3,3 +3,4 @@ Position            Type                     Text                Value
 (1,1)               Id                       str                 str                 
 (1,4)               Assign                   :=                  :=                  
 (1,6)               String                   'ABC'               ABC                 
+(1,6)               End of file              EndOfFile           EndOfFile           

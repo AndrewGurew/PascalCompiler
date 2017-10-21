@@ -6,7 +6,7 @@ Position            Type                     Text                Value
 (1,8)               Integer                  1                   1                   
 (1,10)              Id                       to                  to                  
 (1,13)              Integer                  10                  10                  
-(1,16)              Keyword                  do                  do                  
+(1,16)              Id                       do                  do                  
 (1,19)              Keyword                  begin               begin               
 (2,7)               Id                       y                   y                   
 (2,8)               Assign                   :=                  :=                  
@@ -29,3 +29,4 @@ Position            Type                     Text                Value
 (3,27)              SemiColon                ;                   ;                   
 (4,5)               Keyword                  end                 end                 
 (4,8)               SemiColon                ;                   ;                   
+(4,8)               End of file              EndOfFile           EndOfFile           

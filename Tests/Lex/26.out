@@ -31,3 +31,4 @@ Position            Type                     Text                Value
 (3,35)              SemiColon                ;                   ;                   
 (4,2)               Keyword                  end                 end                 
 (4,5)               SemiColon                ;                   ;                   
+(4,5)               End of file              EndOfFile           EndOfFile           

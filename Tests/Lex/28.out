@@ -16,3 +16,4 @@ Position            Type                     Text                Value
 (2,15)              Colon                    :                   :                   
 (2,17)              Id                       Traffic_Light       Traffic_Light       
 (2,30)              SemiColon                ;                   ;                   
+(2,30)              End of file              EndOfFile           EndOfFile           

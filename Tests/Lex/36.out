@@ -14,12 +14,13 @@ Position            Type                     Text                Value
 (2,19)              SemiColon                ;                   ;                   
 (3,2)               Id                       a                   a                   
 (3,3)               Assign                   :=                  :=                  
-(3,5)               Binary                   %101                5                   
+(3,5)               Integer                  %101                5                   
 (3,9)               Integer                  212                 212                 
 (3,12)              SemiColon                ;                   ;                   
 (4,2)               Id                       b                   b                   
 (4,3)               Assign                   :=                  :=                  
-(4,5)               Octal                    &12345              5349                
+(4,5)               Integer                  &12345              5349                
 (5,2)               Id                       c                   c                   
 (5,3)               Assign                   :=                  :=                  
-(5,5)               Hex                      $01ff12             130834              
+(5,5)               Integer                  $01ff12             130834              
+(6,5)               End of file              EndOfFile           EndOfFile           

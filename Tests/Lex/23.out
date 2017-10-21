@@ -8,10 +8,11 @@ Position            Type                     Text                Value
 (2,8)               Id                       x                   x                   
 (2,10)              More                     >                   >                   
 (2,12)              Id                       eps                 eps                 
-(2,16)              Keyword                  do                  do                  
+(2,16)              Id                       do                  do                  
 (2,19)              Id                       x                   x                   
 (2,20)              Assign                   :=                  :=                  
 (2,22)              Id                       x                   x                   
 (2,23)              Div                      /                   /                   
 (2,24)              Integer                  2                   2                   
 (2,25)              SemiColon                ;                   ;                   
+(2,25)              End of file              EndOfFile           EndOfFile           
