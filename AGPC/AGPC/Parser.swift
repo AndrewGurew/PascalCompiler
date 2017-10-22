@@ -10,31 +10,36 @@ import Foundation
 
 class Expression {
     enum Kind {
-        case BINARY, INT, DOUBLE, ID
+        case UNARY, BINARY, INT, DOUBLE, ID
     }
     
     var text: String
     var kind: Kind
     var position:(col: Int, row: Int)
     
-    let leftChild: Expression?
-    let rightChild: Expression?
-    
     init(_ position: (Int, Int),_ kind: Kind,_ text: String, _ leftChild: Expression? = nil,_ rightChild: Expression? = nil) {
         self.text = text
         self.position = position
-        self.leftChild = leftChild
-        self.rightChild = rightChild
-        
+    
         self.kind = kind
     }
 }
 
 class BinaryExpr: Expression {
-    var special: String
-    init(_ position: (Int, Int),_ special: String, leftChild: Expression?, rightChild: Expression?) {
-        self.special = special
-        super.init(position, .BINARY, self.special, leftChild, rightChild)
+    let leftChild: Expression
+    let rightChild: Expression
+    init(_ position: (Int, Int),_ text: String, leftChild: Expression, rightChild: Expression) {
+        self.leftChild = leftChild
+        self.rightChild = rightChild
+        super.init(position, .BINARY, text)
+    }
+}
+
+class UnaryExpr: Expression {
+    let child: Expression
+    init(_ position: (Int, Int),_ text: String, child: Expression) {
+        self.child = child
+        super.init(position, .UNARY, text)
     }
 }
 
@@ -81,7 +86,7 @@ class Parser {
     
     private func parseBoolExpr() -> Expression? {
         var result = parseExpr()
-        if (result == nil) {
+        if(result == nil) {
             return nil
         }
         while(tokenizer.currentToken().type.enumType == .MORE || tokenizer.currentToken().type.enumType == .LESS ||
@@ -90,7 +95,7 @@ class Parser {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()
-            result = BinaryExpr(pos, text, leftChild: result, rightChild: parseExpr())
+                result = BinaryExpr(pos, text, leftChild: result!, rightChild: parseExpr()!)
         }
         
         
@@ -107,7 +112,7 @@ class Parser {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()
-            result = BinaryExpr(pos, text, leftChild: result, rightChild: parseTerm())
+            result = BinaryExpr(pos, text, leftChild: result!, rightChild: parseTerm()!)
         }
        
         return result
@@ -123,7 +128,7 @@ class Parser {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()
-            result = BinaryExpr(pos, text, leftChild: result, rightChild: parseFactor())
+            result = BinaryExpr(pos, text, leftChild: result!, rightChild: parseFactor()!)
         }
         
         return result
@@ -131,6 +136,10 @@ class Parser {
     
     private func parseFactor() -> Expression? {
         switch tokenizer.currentToken().type.enumType {
+        case .MINUS, .PLUS:
+            let operation = tokenizer.currentToken()
+            tokenizer.nextToken()
+            return UnaryExpr(operation.position, operation.text, child: parseTerm()!)
         case .ID:
             let result = IDExpr(name: tokenizer.currentToken().text, tokenizer.currentToken().position)
             tokenizer.nextToken()
@@ -163,33 +172,41 @@ class Parser {
 
     private var separatorIndexes = [Int]()
     func getTreeAsStr(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
-        if (self.root == nil) {
+        if(self.root == nil) {
             return ""
         }
         let expr:Expression! = expr ?? self.root!
         var result = "⎬\(expr.text)"
         
-        if(expr.leftChild != nil) {
+        if let binaryExpr = expr as? BinaryExpr {
+            // Draw left
             result += "\n";
             for i in 0...tabNumber {
                 result += ((separatorIndexes.index(of: i)) != nil) ? "⎪" : " "
             }
-            if(expr.leftChild?.leftChild != nil) {
+            if((binaryExpr.leftChild as? BinaryExpr) != nil) {
                 separatorIndexes.append(tabNumber + 1)
             }
-            result += getTreeAsStr(expr.leftChild!, tabNumber + 1)
-        }
-        if(expr.rightChild != nil) {
+            result += getTreeAsStr(binaryExpr.leftChild, tabNumber + 1)
+            
+            //Draw right
             result += "\n";
             for i in 0...tabNumber {
                 result += ((separatorIndexes.index(of: i)) != nil) ? "⎪" : " "
             }
-            if let index = (separatorIndexes.index(of: tabNumber + 1)) {
+            if let index = separatorIndexes.index(of: tabNumber + 1) {
                 separatorIndexes.remove(at: index)
             }
-            result += getTreeAsStr(expr.rightChild!, tabNumber + 1)
+            result += getTreeAsStr(binaryExpr.rightChild, tabNumber + 1)
         }
         
+        if let unaryExpr = expr as? UnaryExpr {
+            result += "\n";
+            for i in 0...tabNumber {
+                result += ((separatorIndexes.index(of: i)) != nil) ? "⎪" : " "
+            }
+            result += getTreeAsStr(unaryExpr.child, tabNumber + 1)
+        }
         
         return result
     }
