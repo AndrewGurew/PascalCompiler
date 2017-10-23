@@ -8,72 +8,43 @@
 
 import Foundation
 
-class Expression {
-    enum Kind {
-        case UNARY, BINARY, INT, DOUBLE, ID
-    }
-    
-    var text: String
-    var kind: Kind
-    var position:(col: Int, row: Int)
-    
-    init(_ position: (Int, Int),_ kind: Kind,_ text: String, _ leftChild: Expression? = nil,_ rightChild: Expression? = nil) {
-        self.text = text
-        self.position = position
-    
-        self.kind = kind
-    }
-}
-
-class BinaryExpr: Expression {
-    let leftChild: Expression
-    let rightChild: Expression
-    init(_ position: (Int, Int),_ text: String, leftChild: Expression, rightChild: Expression) {
-        self.leftChild = leftChild
-        self.rightChild = rightChild
-        super.init(position, .BINARY, text)
-    }
-}
-
-class UnaryExpr: Expression {
-    let child: Expression
-    init(_ position: (Int, Int),_ text: String, child: Expression) {
-        self.child = child
-        super.init(position, .UNARY, text)
-    }
-}
-
-class IDExpr: Expression {
-    var name: String
-    init(name: String,_ position: (Int, Int)) {
-        self.name = name
-        super.init(position, .ID, self.name)
-    }
-}
-
-class IntegerExp: Expression {
-    var value: UInt64
-    init(value: UInt64,_ position: (Int, Int)) {
-        self.value = value
-        super.init(position, .INT, String(self.value))
-    }
-}
-
-class DoubleExp: Expression {
-    var value: Double
-    init(value: Double,_ position: (Int, Int)) {
-        self.value = value
-        super.init(position, .DOUBLE, String(self.value))
-    }
-}
-
 class Parser {
     private var tokenizer:Tokenizer
-    private var root: Expression?
     
     init(tokenizer: Tokenizer) {
         self.tokenizer = tokenizer
-        self.root = parseBoolExpr()
+    }
+    
+    private func parseBlock() -> StatementNode? {
+        return parseStatements()
+    }
+    
+    private func parseIfElse() -> StatementNode {
+        let position = tokenizer.currentToken().position
+        
+        tokenizer.nextToken()
+        let cond = parseBoolExpr()
+        tokenizer.nextToken()
+        let block = parseBlock()
+        tokenizer.nextToken()
+        if(tokenizer.currentToken().type.enumType == .ELSE) {
+            tokenizer.nextToken()
+            return IFElseStmt(position, "ifelseStmt", cond!, block!, parseBlock())
+        }
+        
+        return IFElseStmt(position, "ifelseStmt", cond!, block!, nil)
+    }
+    
+    private func parseStatements() -> StatementNode? {
+        let token = tokenizer.currentToken()
+        switch token.type.enumType {
+        case .IF:
+            return parseIfElse()
+        case .BEGIN:
+            return parseBlock()
+        default:
+            return nil
+        }
     }
     
     private func require(_ token: TokenType) -> Bool {
@@ -168,14 +139,13 @@ class Parser {
             return nil
         }
     }
-    
 
     private var separatorIndexes = [Int]()
-    func getTreeAsStr(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
-        if(self.root == nil) {
+    func getExprTreeAsStr(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
+        if(expr == nil) {
             return ""
         }
-        let expr:Expression! = expr ?? self.root!
+        let expr:Expression! = expr!
         var result = "⎬\(expr.text)"
         
         if let binaryExpr = expr as? BinaryExpr {
@@ -187,7 +157,7 @@ class Parser {
             if((binaryExpr.leftChild as? BinaryExpr) != nil) {
                 separatorIndexes.append(tabNumber + 1)
             }
-            result += getTreeAsStr(binaryExpr.leftChild, tabNumber + 1)
+            result += getExprTreeAsStr(binaryExpr.leftChild, tabNumber + 1)
             
             //Draw right
             result += "\n";
@@ -197,7 +167,7 @@ class Parser {
             if let index = separatorIndexes.index(of: tabNumber + 1) {
                 separatorIndexes.remove(at: index)
             }
-            result += getTreeAsStr(binaryExpr.rightChild, tabNumber + 1)
+            result += getExprTreeAsStr(binaryExpr.rightChild, tabNumber + 1)
         }
         
         if let unaryExpr = expr as? UnaryExpr {
@@ -205,9 +175,14 @@ class Parser {
             for i in 0...tabNumber {
                 result += ((separatorIndexes.index(of: i)) != nil) ? "⎪" : " "
             }
-            result += getTreeAsStr(unaryExpr.child, tabNumber + 1)
+            result += getExprTreeAsStr(unaryExpr.child, tabNumber + 1)
         }
         
         return result
     }
+    
+    public func testExpressions() -> String {
+        return getExprTreeAsStr(parseBoolExpr())
+    }
 }
+
