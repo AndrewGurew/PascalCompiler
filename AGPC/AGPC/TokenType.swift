@@ -7,6 +7,7 @@
 //  
 
 import Foundation
+
 enum TokenEnum:String {
     
     //Special symbols
@@ -83,7 +84,8 @@ private var keyWordInfo:[String: TokenEnum] = [
     "const": .CONST, "div": .DIV, "while": .WHILE, "for": .FOR,
     "if": .IF, "else": .ELSE, "true": .TRUE, "function": .FUNCTION,
     "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT,
-    "or": .OR, "until": .UNTILL, "type": .TYPE
+    "or": .OR, "until": .UNTILL, "type": .TYPE,
+    "integer": .INT, "double": .DOUBLE
 ]
 
 func getType(_ key: String) -> TokenType {
