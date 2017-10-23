@@ -8,43 +8,25 @@
 
 import Foundation
 
+extension Dictionary {
+    mutating func update(other:Dictionary?) {
+        if(other != nil) {
+            for (key,value) in other! {
+                self.updateValue(value, forKey:key)
+            }
+        }
+    }
+}
+
 class Parser {
     private var tokenizer:Tokenizer
+    private var testDecl:DeclarationScope?
     
     init(tokenizer: Tokenizer) {
         self.tokenizer = tokenizer
-    }
-    
-    private func parseBlock() -> StatementNode? {
-        return parseStatements()
-    }
-    
-    private func parseIfElse() -> StatementNode {
-        let position = tokenizer.currentToken().position
+        self.testDecl = parseDeclaration()
+        print(drawDeclTree(self.testDecl, 0))
         
-        tokenizer.nextToken()
-        let cond = parseBoolExpr()
-        tokenizer.nextToken()
-        let block = parseBlock()
-        tokenizer.nextToken()
-        if(tokenizer.currentToken().type.enumType == .ELSE) {
-            tokenizer.nextToken()
-            return IFElseStmt(position, "ifelseStmt", cond!, block!, parseBlock())
-        }
-        
-        return IFElseStmt(position, "ifelseStmt", cond!, block!, nil)
-    }
-    
-    private func parseStatements() -> StatementNode? {
-        let token = tokenizer.currentToken()
-        switch token.type.enumType {
-        case .IF:
-            return parseIfElse()
-        case .BEGIN:
-            return parseBlock()
-        default:
-            return nil
-        }
     }
     
     private func require(_ token: TokenType) -> Bool {
@@ -53,6 +35,57 @@ class Parser {
             return false
         }
         return true
+    }
+    
+    private func require(_ token: TokenEnum) -> Bool {
+        if(token != tokenizer.currentToken().type.enumType) {
+            print("Expected another token on \(tokenizer.currentToken().position)")
+            return false
+        }
+        return true
+    }
+    
+    private func parseDeclaration() -> DeclarationScope? {
+        let declarationScope = DeclarationScope()
+        for _ in 0..<tokenizer.lexems.count {
+            if(tokenizer.currentToken().type.enumType == .VAR) {
+                tokenizer.nextToken()
+                declarationScope.declList.update(other: parseVarBlock())
+            }
+        }
+
+        return declarationScope.declList.isEmpty ? nil : declarationScope
+    }
+    
+    private func parseVarBlock() -> [String: Declaration]? {
+        var result = [String: Declaration]()
+        while (tokenizer.currentToken().type.enumType == .ID) {
+            let IDs = getIndefenders()
+            tokenizer.nextToken()
+            let identType = IdentType(tokenizer.currentToken().position, tokenizer.currentToken().type.enumType)
+            for i in 0..<IDs.0.count {
+                let decl = VarType(IDs.pos[i], IDs.name[i], identType)
+                result.update(other: [IDs.name[i]: decl])
+            }
+            tokenizer.nextToken()
+            tokenizer.nextToken()
+        }
+        return result.isEmpty ? nil : result
+    }
+    
+    private func getIndefenders() -> (name: [String], pos: [(Int, Int)]) {
+        var result = [String]()
+        var positions = [(Int, Int)]()
+        while (tokenizer.currentToken().type.enumType == .ID) {
+            result.append(tokenizer.currentToken().text)
+            positions.append(tokenizer.currentToken().position)
+            tokenizer.nextToken()
+            if(tokenizer.currentToken().type.enumType == .COMMA) {
+                tokenizer.nextToken()
+            }
+        }
+        
+        return (result, positions)
     }
     
     private func parseBoolExpr() -> Expression? {
@@ -139,9 +172,21 @@ class Parser {
             return nil
         }
     }
-
+    
+    func drawDeclTree(_ a: DeclarationScope? = nil,_ tabNumber: Int = 0) -> String {
+        if(a == nil) {
+            return ""
+        }
+        let expr:DeclarationScope! = a!
+        var result = "⎬Declarations"
+        for (key,value) in expr.declList {
+            result += "\n ⎬\(key) - \(value.type.type.rawValue)(\(value.declType.rawValue))"
+        }
+        return result
+    }
+    
     private var separatorIndexes = [Int]()
-    func getExprTreeAsStr(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
+    func drawExprTree(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
         if(expr == nil) {
             return ""
         }
@@ -157,7 +202,7 @@ class Parser {
             if((binaryExpr.leftChild as? BinaryExpr) != nil) {
                 separatorIndexes.append(tabNumber + 1)
             }
-            result += getExprTreeAsStr(binaryExpr.leftChild, tabNumber + 1)
+            result += drawExprTree(binaryExpr.leftChild, tabNumber + 1)
             
             //Draw right
             result += "\n";
@@ -167,7 +212,7 @@ class Parser {
             if let index = separatorIndexes.index(of: tabNumber + 1) {
                 separatorIndexes.remove(at: index)
             }
-            result += getExprTreeAsStr(binaryExpr.rightChild, tabNumber + 1)
+            result += drawExprTree(binaryExpr.rightChild, tabNumber + 1)
         }
         
         if let unaryExpr = expr as? UnaryExpr {
@@ -175,14 +220,14 @@ class Parser {
             for i in 0...tabNumber {
                 result += ((separatorIndexes.index(of: i)) != nil) ? "⎪" : " "
             }
-            result += getExprTreeAsStr(unaryExpr.child, tabNumber + 1)
+            result += drawExprTree(unaryExpr.child, tabNumber + 1)
         }
         
         return result
     }
     
     public func testExpressions() -> String {
-        return getExprTreeAsStr(parseBoolExpr())
+        return drawExprTree(parseBoolExpr())
     }
 }
 

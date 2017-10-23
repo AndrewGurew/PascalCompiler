@@ -24,23 +24,37 @@ class StatementNode {
     }
 }
 
-class Declaration {
-    enum DeclType {
-        case VAR, TYPE, CONST
+class IdentType {
+    var position:(col: Int, row: Int)
+    var type:TokenEnum
+    init(_ position: (Int, Int), _ type:TokenEnum) {
+        self.position = position
+        self.type = type
     }
-    var type: DeclType
+}
+
+
+class Declaration {
+    enum DeclType: String {
+        case VAR = "Var", TYPE = "Type",
+        CONST = "Const"
+    }
+    
+    var declType: DeclType
+    var type: IdentType
     var text: String
     var position:(col: Int, row: Int)
-    init(_ position: (Int, Int),_ text: String, _ type:DeclType) {
-        self.type = type
+    init(_ position: (Int, Int),_ text: String,_ declType:DeclType,_ type: IdentType) {
+        self.declType = declType
         self.text = text
+        self.type = type
         self.position = position
     }
 }
 
 class VarType: Declaration {
-    init(_ position: (Int, Int), _ text: String) {
-        super.init(position, text, .VAR)
+    init(_ position: (Int, Int), _ text: String,_ type: IdentType) {
+        super.init(position, text, .VAR, type)
     }
 }
 
