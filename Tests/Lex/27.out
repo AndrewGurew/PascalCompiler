@@ -7,15 +7,15 @@ Position            Type                     Text                Value
 (1,21)              Comma                    ,                   ,                   
 (1,22)              Id                       b                   b                   
 (1,23)              Colon                    :                   :                   
-(1,25)              Id                       integer             integer             
+(1,25)              Keyword                  integer             integer             
 (1,32)              Right bracket            )                   )                   
 (1,33)              Colon                    :                   :                   
-(1,35)              Id                       integer             integer             
+(1,35)              Keyword                  integer             integer             
 (1,42)              SemiColon                ;                   ;                   
 (2,5)               Keyword                  var                 var                 
 (2,9)               Id                       max                 max                 
 (2,12)              Colon                    :                   :                   
-(2,14)              Id                       integer             integer             
+(2,14)              Keyword                  integer             integer             
 (2,21)              SemiColon                ;                   ;                   
 (3,2)               Keyword                  begin               begin               
 (4,5)               Keyword                  if                  if                  

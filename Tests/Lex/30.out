@@ -9,7 +9,7 @@ Position            Type                     Text                Value
 (1,10)              Comma                    ,                   ,                   
 (1,11)              Id                       n                   n                   
 (1,12)              Colon                    :                   :                   
-(1,14)              Id                       integer             integer             
+(1,14)              Keyword                  integer             integer             
 (1,21)              SemiColon                ;                   ;                   
 (3,2)               Keyword                  procedure           procedure           
 (3,12)              Id                       MaxNumber           MaxNumber           
@@ -18,12 +18,12 @@ Position            Type                     Text                Value
 (3,23)              Comma                    ,                   ,                   
 (3,24)              Id                       b                   b                   
 (3,25)              Colon                    :                   :                   
-(3,27)              Id                       integer             integer             
+(3,27)              Keyword                  integer             integer             
 (3,34)              SemiColon                ;                   ;                   
 (3,36)              Keyword                  var                 var                 
 (3,40)              Id                       max                 max                 
 (3,43)              Colon                    :                   :                   
-(3,45)              Id                       integer             integer             
+(3,45)              Keyword                  integer             integer             
 (3,52)              Right bracket            )                   )                   
 (3,53)              SemiColon                ;                   ;                   
 (4,2)               Keyword                  begin               begin               

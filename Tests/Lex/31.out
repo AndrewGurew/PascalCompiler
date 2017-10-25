@@ -9,7 +9,7 @@ Position            Type                     Text                Value
 (1,10)              Comma                    ,                   ,                   
 (1,11)              Id                       n                   n                   
 (1,12)              Colon                    :                   :                   
-(1,14)              Id                       integer             integer             
+(1,14)              Keyword                  integer             integer             
 (1,21)              SemiColon                ;                   ;                   
 (3,2)               Keyword                  function            function            
 (3,11)              Id                       MaxNumber           MaxNumber           
@@ -18,15 +18,15 @@ Position            Type                     Text                Value
 (3,22)              Comma                    ,                   ,                   
 (3,23)              Id                       b                   b                   
 (3,24)              Colon                    :                   :                   
-(3,26)              Id                       integer             integer             
+(3,26)              Keyword                  integer             integer             
 (3,33)              Right bracket            )                   )                   
 (3,34)              Colon                    :                   :                   
-(3,36)              Id                       integer             integer             
+(3,36)              Keyword                  integer             integer             
 (3,43)              SemiColon                ;                   ;                   
 (4,5)               Keyword                  var                 var                 
 (4,9)               Id                       max                 max                 
 (4,12)              Colon                    :                   :                   
-(4,14)              Id                       integer             integer             
+(4,14)              Keyword                  integer             integer             
 (4,21)              SemiColon                ;                   ;                   
 (5,2)               Keyword                  begin               begin               
 (6,5)               Keyword                  if                  if                  
