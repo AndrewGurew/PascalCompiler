@@ -16,7 +16,13 @@ func lexTabale(progText: String) -> String {
 func exTree(progText: String) -> String {
     let lexAnalyzer = Tokenizer(text: progText)
     let expressionParser = Parser(tokenizer: lexAnalyzer)
-    return expressionParser.getTreeAsStr()
+    return expressionParser.testExpressions()
+}
+
+func stmtTree(progText: String) -> String {
+    let lexAnalyzer = Tokenizer(text: progText)
+    let stmtParser = Parser(tokenizer: lexAnalyzer)
+    return stmtParser.testStmt()
 }
 
 enum Mod {
@@ -41,7 +47,8 @@ struct Test {
 
 let testParts:[Test] = [
     Test("Lexical tests:\n", lexTabale, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Lex"),
-    Test("Expression tests:\n", exTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Expressions")
+    Test("Expression tests:\n", exTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Expressions"),
+    Test("Statement tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Statements")
 ]
 
 var mod:Mod = .RELEASE
@@ -144,14 +151,17 @@ default:
             }
             if(keys.index(of: "-e") != nil) {
                 let ExpressionParser = Parser(tokenizer: LexAnalyzer)
-                print(ExpressionParser.getTreeAsStr())
+                print(ExpressionParser.testStmt())
             }
         }
     } catch {
         print("Error loading contents of:", fileName!, error)
     }
 }
-//let testText  = "1.5 + 3.3333;"
+//let testText  = """
+//var
+//a:Integer;
+//"""
 //let LexAnalyzer = Tokenizer(text: testText)
 //let ExpressionParser = Parser(tokenizer: LexAnalyzer)
 //print(ExpressionParser.getTreeAsStr())
