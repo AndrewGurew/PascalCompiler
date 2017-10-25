@@ -41,20 +41,28 @@ class Declaration {
     }
     
     var declType: DeclType
-    var type: IdentType
     var text: String
     var position:(col: Int, row: Int)
-    init(_ position: (Int, Int),_ text: String,_ declType:DeclType,_ type: IdentType) {
+    init(_ position: (Int, Int),_ text: String,_ declType:DeclType) {
         self.declType = declType
         self.text = text
-        self.type = type
         self.position = position
     }
 }
 
-class VarType: Declaration {
+class VarDecl: Declaration {
+    var type: IdentType
     init(_ position: (Int, Int), _ text: String,_ type: IdentType) {
-        super.init(position, text, .VAR, type)
+        self.type = type
+        super.init(position, text, .VAR)
+    }
+}
+
+class ConstDecl: Declaration {
+    let value: Expression
+    init(_ position: (Int, Int), _ text: String,_ value: Expression) {
+        self.value = value
+        super.init(position, text, .CONST)
     }
 }
 

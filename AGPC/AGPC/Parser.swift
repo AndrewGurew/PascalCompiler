@@ -24,10 +24,8 @@ class Parser {
     
     init(tokenizer: Tokenizer) {
         self.tokenizer = tokenizer
-        self.testDecl = parseDeclaration()
-        print(drawDeclTree(self.testDecl, 0))
-        
     }
+    
     
     private func require(_ token: TokenType) -> Bool {
         if(token.enumType != tokenizer.currentToken().type.enumType) {
@@ -52,6 +50,11 @@ class Parser {
                 tokenizer.nextToken()
                 declarationScope.declList.update(other: parseVarBlock())
             }
+            
+            if(tokenizer.currentToken().type.enumType == .CONST) {
+                tokenizer.nextToken()
+                declarationScope.declList.update(other: parsConstBlock())
+            }
         }
 
         return declarationScope.declList.isEmpty ? nil : declarationScope
@@ -63,11 +66,26 @@ class Parser {
             let IDs = getIndefenders()
             tokenizer.nextToken()
             let identType = IdentType(tokenizer.currentToken().position, tokenizer.currentToken().type.enumType)
-            for i in 0..<IDs.0.count {
-                let decl = VarType(IDs.pos[i], IDs.name[i], identType)
+            for i in 0..<IDs.name.count {
+                let decl = VarDecl(IDs.pos[i], IDs.name[i], identType)
                 result.update(other: [IDs.name[i]: decl])
             }
             tokenizer.nextToken()
+            tokenizer.nextToken()
+        }
+        return result.isEmpty ? nil : result
+    }
+    
+    private func parsConstBlock() -> [String: Declaration]? {
+        var result = [String: Declaration]()
+        while(tokenizer.currentToken().type.enumType == .ID) {
+            let IDs = getIndefenders()
+            tokenizer.nextToken()
+            let expr = parseBoolExpr()
+            for i in 0..<IDs.name.count {
+                let decl = ConstDecl(IDs.pos[i], IDs.name[i], expr!)
+                result.update(other: [IDs.name[i]: decl])
+            }
             tokenizer.nextToken()
         }
         return result.isEmpty ? nil : result
@@ -180,7 +198,14 @@ class Parser {
         let expr:DeclarationScope! = a!
         var result = "⎬Declarations"
         for (key,value) in expr.declList {
-            result += "\n ⎬\(key) - \(value.type.type.rawValue)(\(value.declType.rawValue))"
+            if value is VarDecl {
+                result += "\n ⎬\(key) - \((value as! VarDecl).type.type.rawValue)(\(value.declType.rawValue))"
+            }
+            else {
+                var exprTree = drawExprTree((value as! ConstDecl).value, key.length + 4)
+                exprTree.removeFirst()
+                result += "\n ⎬\(key) - \(exprTree)(\(value.declType.rawValue))"
+            }
         }
         return result
     }
@@ -228,6 +253,11 @@ class Parser {
     
     public func testExpressions() -> String {
         return drawExprTree(parseBoolExpr())
+    }
+    
+    public func testStmt() -> String {
+        self.testDecl = parseDeclaration()
+        return drawDeclTree(self.testDecl, 0)
     }
 }
 
