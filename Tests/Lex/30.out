@@ -1,6 +1,6 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Keyword                  var                 var                 
+(1,1)               Var                      var                 var                 
 (1,5)               Id                       x                   x                   
 (1,6)               Comma                    ,                   ,                   
 (1,7)               Id                       y                   y                   
@@ -9,25 +9,25 @@ Position            Type                     Text                Value
 (1,10)              Comma                    ,                   ,                   
 (1,11)              Id                       n                   n                   
 (1,12)              Colon                    :                   :                   
-(1,14)              Keyword                  integer             integer             
-(1,21)              SemiColon                ;                   ;                   
-(3,2)               Keyword                  procedure           procedure           
+(1,14)              Integer                  integer             integer             
+(1,21)              Semicolon                ;                   ;                   
+(3,2)               Procedure                procedure           procedure           
 (3,12)              Id                       MaxNumber           MaxNumber           
 (3,21)              Left bracket             (                   (                   
 (3,22)              Id                       a                   a                   
 (3,23)              Comma                    ,                   ,                   
 (3,24)              Id                       b                   b                   
 (3,25)              Colon                    :                   :                   
-(3,27)              Keyword                  integer             integer             
-(3,34)              SemiColon                ;                   ;                   
-(3,36)              Keyword                  var                 var                 
+(3,27)              Integer                  integer             integer             
+(3,34)              Semicolon                ;                   ;                   
+(3,36)              Var                      var                 var                 
 (3,40)              Id                       max                 max                 
 (3,43)              Colon                    :                   :                   
-(3,45)              Keyword                  integer             integer             
+(3,45)              Integer                  integer             integer             
 (3,52)              Right bracket            )                   )                   
-(3,53)              SemiColon                ;                   ;                   
-(4,2)               Keyword                  begin               begin               
-(5,5)               Keyword                  if                  if                  
+(3,53)              Semicolon                ;                   ;                   
+(4,2)               Begin                    begin               begin               
+(5,5)               If                       if                  if                  
 (5,8)               Id                       a                   a                   
 (5,9)               More                     >                   >                   
 (5,10)              Id                       b                   b                   
@@ -35,26 +35,26 @@ Position            Type                     Text                Value
 (5,17)              Id                       max                 max                 
 (5,20)              Assign                   :=                  :=                  
 (5,22)              Id                       a                   a                   
-(5,24)              Keyword                  else                else                
+(5,24)              Else                     else                else                
 (5,29)              Id                       max                 max                 
 (5,32)              Assign                   :=                  :=                  
 (5,34)              Id                       b                   b                   
-(5,35)              SemiColon                ;                   ;                   
-(6,2)               Keyword                  end                 end                 
-(6,5)               SemiColon                ;                   ;                   
-(8,2)               Keyword                  begin               begin               
+(5,35)              Semicolon                ;                   ;                   
+(6,2)               End                      end                 end                 
+(6,5)               Semicolon                ;                   ;                   
+(8,2)               Begin                    begin               begin               
 (9,5)               Id                       write               write               
 (9,10)              Left bracket             (                   (                   
 (9,11)              String                   'Input x,y '        Input x,y           
 (9,22)              Right bracket            )                   )                   
-(9,23)              SemiColon                ;                   ;                   
+(9,23)              Semicolon                ;                   ;                   
 (10,5)              Id                       readln              readln              
 (10,11)             Left bracket             (                   (                   
 (10,12)             Id                       x                   x                   
 (10,13)             Comma                    ,                   ,                   
 (10,14)             Id                       y                   y                   
 (10,15)             Right bracket            )                   )                   
-(10,16)             SemiColon                ;                   ;                   
+(10,16)             Semicolon                ;                   ;                   
 (11,5)              Id                       MaxNumber           MaxNumber           
 (11,14)             Left bracket             (                   (                   
 (11,15)             Id                       x                   x                   
@@ -63,7 +63,7 @@ Position            Type                     Text                Value
 (11,18)             Comma                    ,                   ,                   
 (11,19)             Id                       m                   m                   
 (11,20)             Right bracket            )                   )                   
-(11,21)             SemiColon                ;                   ;                   
+(11,21)             Semicolon                ;                   ;                   
 (12,5)              Id                       MaxNumber           MaxNumber           
 (12,14)             Left bracket             (                   (                   
 (12,15)             Integer                  2                   2                   
@@ -74,7 +74,7 @@ Position            Type                     Text                Value
 (12,20)             Comma                    ,                   ,                   
 (12,21)             Id                       n                   n                   
 (12,22)             Right bracket            )                   )                   
-(12,23)             SemiColon                ;                   ;                   
+(12,23)             Semicolon                ;                   ;                   
 (13,5)              Id                       writeln             writeln             
 (13,12)             Left bracket             (                   (                   
 (13,13)             String                   'm='                m=                  
@@ -85,7 +85,7 @@ Position            Type                     Text                Value
 (13,22)             Comma                    ,                   ,                   
 (13,23)             Id                       n                   n                   
 (13,24)             Right bracket            )                   )                   
-(13,25)             SemiColon                ;                   ;                   
-(14,2)              Keyword                  end                 end                 
+(13,25)             Semicolon                ;                   ;                   
+(14,2)              End                      end                 end                 
 (14,5)              Dot                      .                   .                   
 (15,5)              End of file              EndOfFile           EndOfFile           

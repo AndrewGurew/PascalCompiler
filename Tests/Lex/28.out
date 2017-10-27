@@ -1,6 +1,6 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Keyword                  type                type                
+(1,1)               Type                     type                type                
 (1,7)               Id                       Traffic_Light       Traffic_Light       
 (1,20)              Equal                    =                   =                   
 (1,22)              Left bracket             (                   (                   
@@ -10,10 +10,10 @@ Position            Type                     Text                Value
 (1,34)              Comma                    ,                   ,                   
 (1,36)              Id                       GREEN               GREEN               
 (1,41)              Right bracket            )                   )                   
-(1,42)              SemiColon                ;                   ;                   
-(2,2)               Keyword                  var                 var                 
+(1,42)              Semicolon                ;                   ;                   
+(2,2)               Var                      var                 var                 
 (2,8)               Id                       Section             Section             
 (2,15)              Colon                    :                   :                   
 (2,17)              Id                       Traffic_Light       Traffic_Light       
-(2,30)              SemiColon                ;                   ;                   
+(2,30)              Semicolon                ;                   ;                   
 (2,30)              End of file              EndOfFile           EndOfFile           

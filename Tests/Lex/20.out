@@ -10,12 +10,12 @@ Position            Type                     Text                Value
 (3,4)               Equal                    =                   =                   
 (3,6)               Id                       b                   b                   
 (4,2)               Id                       a                   a                   
-(4,4)               Not assign               <>                  <>                  
+(4,4)               Not equal                <>                  <>                  
 (4,7)               Id                       b                   b                   
 (5,2)               Id                       a                   a                   
-(5,4)               More or equal            >=                  >=                  
+(5,4)               More and equal           >=                  >=                  
 (5,7)               Id                       b                   b                   
 (6,2)               Id                       a                   a                   
-(6,4)               Less or equal            <=                  <=                  
+(6,4)               Less and equal           <=                  <=                  
 (6,7)               Id                       b                   b                   
 (6,7)               End of file              EndOfFile           EndOfFile           

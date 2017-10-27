@@ -1,6 +1,6 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Keyword                  for                 for                 
+(1,1)               For                      for                 for                 
 (1,5)               Id                       ch                  ch                  
 (1,7)               Assign                   :=                  :=                  
 (1,9)               String                   'A'                 A                   
@@ -11,5 +11,5 @@ Position            Type                     Text                Value
 (1,28)              Left bracket             (                   (                   
 (1,29)              Id                       ch                  ch                  
 (1,31)              Right bracket            )                   )                   
-(1,32)              SemiColon                ;                   ;                   
+(1,32)              Semicolon                ;                   ;                   
 (1,32)              End of file              EndOfFile           EndOfFile           

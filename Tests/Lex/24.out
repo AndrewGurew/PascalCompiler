@@ -5,15 +5,15 @@ Position            Type                     Text                Value
 (2,12)              Left bracket             (                   (                   
 (2,13)              String                   'Input number'      Input number        
 (2,26)              Right bracket            )                   )                   
-(2,27)              SemiColon                ;                   ;                   
+(2,27)              Semicolon                ;                   ;                   
 (3,5)               Id                       ReadLn              ReadLn              
 (3,11)              Left bracket             (                   (                   
 (3,12)              Id                       x                   x                   
 (3,13)              Right bracket            )                   )                   
-(3,14)              SemiColon                ;                   ;                   
-(4,2)               Keyword                  until               until               
+(3,14)              Semicolon                ;                   ;                   
+(4,2)               Untill                   until               until               
 (4,8)               Id                       x                   x                   
 (4,9)               More                     >                   >                   
 (4,10)              Integer                  0                   0                   
-(4,11)              SemiColon                ;                   ;                   
+(4,11)              Semicolon                ;                   ;                   
 (4,11)              End of file              EndOfFile           EndOfFile           

@@ -1,13 +1,13 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Keyword                  for                 for                 
+(1,1)               For                      for                 for                 
 (1,5)               Id                       x                   x                   
 (1,6)               Assign                   :=                  :=                  
 (1,8)               Integer                  1                   1                   
 (1,10)              Id                       to                  to                  
 (1,13)              Integer                  10                  10                  
 (1,16)              Id                       do                  do                  
-(1,19)              Keyword                  begin               begin               
+(1,19)              Begin                    begin               begin               
 (2,7)               Id                       y                   y                   
 (2,8)               Assign                   :=                  :=                  
 (2,10)              Integer                  2                   2                   
@@ -15,7 +15,7 @@ Position            Type                     Text                Value
 (2,12)              Id                       x                   x                   
 (2,13)              Plus                     +                   +                   
 (2,14)              Integer                  3                   3                   
-(2,15)              SemiColon                ;                   ;                   
+(2,15)              Semicolon                ;                   ;                   
 (3,7)               Id                       WriteLn             WriteLn             
 (3,14)              Left bracket             (                   (                   
 (3,15)              String                   'f('                f(                  
@@ -26,7 +26,7 @@ Position            Type                     Text                Value
 (3,24)              Comma                    ,                   ,                   
 (3,25)              Id                       y                   y                   
 (3,26)              Right bracket            )                   )                   
-(3,27)              SemiColon                ;                   ;                   
-(4,5)               Keyword                  end                 end                 
-(4,8)               SemiColon                ;                   ;                   
+(3,27)              Semicolon                ;                   ;                   
+(4,5)               End                      end                 end                 
+(4,8)               Semicolon                ;                   ;                   
 (4,8)               End of file              EndOfFile           EndOfFile           

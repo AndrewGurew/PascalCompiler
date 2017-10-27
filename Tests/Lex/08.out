@@ -15,13 +15,13 @@ Position            Type                     Text                Value
 (5,2)               Id                       f                   f                   
 (5,3)               Div and assign           /=                  /=                  
 (5,5)               Double                   5.1                 5.1                 
-(6,2)               Keyword                  if                  if                  
+(6,2)               If                       if                  if                  
 (6,4)               Left bracket             (                   (                   
 (6,5)               Id                       a                   a                   
-(6,6)               Not assign               <>                  <>                  
+(6,6)               Not equal                <>                  <>                  
 (6,8)               Id                       b                   b                   
 (6,9)               Right bracket            )                   )                   
 (6,11)              Id                       being               being               
-(7,2)               Keyword                  end                 end                 
+(7,2)               End                      end                 end                 
 (7,5)               Dot                      .                   .                   
 (8,5)               End of file              EndOfFile           EndOfFile           

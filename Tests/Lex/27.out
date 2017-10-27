@@ -1,24 +1,24 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Keyword                  function            function            
+(1,1)               Function                 function            function            
 (1,10)              Id                       MaxNumber           MaxNumber           
 (1,19)              Left bracket             (                   (                   
 (1,20)              Id                       a                   a                   
 (1,21)              Comma                    ,                   ,                   
 (1,22)              Id                       b                   b                   
 (1,23)              Colon                    :                   :                   
-(1,25)              Keyword                  integer             integer             
+(1,25)              Integer                  integer             integer             
 (1,32)              Right bracket            )                   )                   
 (1,33)              Colon                    :                   :                   
-(1,35)              Keyword                  integer             integer             
-(1,42)              SemiColon                ;                   ;                   
-(2,5)               Keyword                  var                 var                 
+(1,35)              Integer                  integer             integer             
+(1,42)              Semicolon                ;                   ;                   
+(2,5)               Var                      var                 var                 
 (2,9)               Id                       max                 max                 
 (2,12)              Colon                    :                   :                   
-(2,14)              Keyword                  integer             integer             
-(2,21)              SemiColon                ;                   ;                   
-(3,2)               Keyword                  begin               begin               
-(4,5)               Keyword                  if                  if                  
+(2,14)              Integer                  integer             integer             
+(2,21)              Semicolon                ;                   ;                   
+(3,2)               Begin                    begin               begin               
+(4,5)               If                       if                  if                  
 (4,8)               Id                       a                   a                   
 (4,9)               More                     >                   >                   
 (4,10)              Id                       b                   b                   
@@ -26,15 +26,15 @@ Position            Type                     Text                Value
 (4,17)              Id                       max                 max                 
 (4,20)              Assign                   :=                  :=                  
 (4,22)              Id                       a                   a                   
-(4,24)              Keyword                  else                else                
+(4,24)              Else                     else                else                
 (4,29)              Id                       max                 max                 
 (4,32)              Assign                   :=                  :=                  
 (4,34)              Id                       b                   b                   
-(4,35)              SemiColon                ;                   ;                   
+(4,35)              Semicolon                ;                   ;                   
 (5,5)               Id                       MaxNumber           MaxNumber           
 (5,15)              Assign                   :=                  :=                  
 (5,18)              Id                       max                 max                 
-(5,21)              SemiColon                ;                   ;                   
-(6,2)               Keyword                  end                 end                 
-(6,5)               SemiColon                ;                   ;                   
+(5,21)              Semicolon                ;                   ;                   
+(6,2)               End                      end                 end                 
+(6,5)               Semicolon                ;                   ;                   
 (6,5)               End of file              EndOfFile           EndOfFile           
