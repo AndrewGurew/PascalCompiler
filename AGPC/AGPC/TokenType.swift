@@ -8,78 +8,53 @@
 
 import Foundation
 
-enum TokenEnum:String {
+enum TokenType: String {
     
     //Special symbols
-    case PLUS, MINUS, DIV, MOD, MULT, EQUAL,
-    COMMA, COLON, SEMICOLON, LESS, MORE, DOT, L_BRACKET, R_BRACKET,
-    LSQR_BRACKET, RSQR_BRACKET, POINTER, DOG
+    case PLUS = "Plus", MINUS = "Minus", DIV = "Div", MOD = "Mod",
+    MULT = "Mult", EQUAL = "Equal", COMMA = "Comma", COLON = "Colon", SEMICOLON = "Semicolon",
+    LESS = "Less", MORE = "More", DOT = "Dot", L_BRACKET = "Left bracket", R_BRACKET = "Right bracket",
+    LSQR_BRACKET = "Left square bracket", RSQR_BRACKET = "Right square bracket",
+    POINTER = "Pointer", DOG = "Dog"
     
     //Double special symbols
-    case PLUS_ASSIGN, MINUS_ASSIGN, DIV_ASSIGN, MULT_ASSIGN, NOT_EQUAL,
-    LESS_EQUAL, MORE_EQUAL, ASSIGN, D_DOT
+    case PLUS_ASSIGN = "Plus and assign", MINUS_ASSIGN = "Minus and assign",
+    DIV_ASSIGN = "Div and assign", MULT_ASSIGN = "Mult and assign", NOT_EQUAL = "Not equal",
+    LESS_EQUAL = "Less and equal", MORE_EQUAL = "More and equal", ASSIGN = "Assign" ,
+    D_DOT = "Double dot"
     
     //Types
     case INT = "Integer", DOUBLE = "Double", STRING = "String"
     
     //Keywords
-    case PROCEDURE, RECORD, IF, THEN, ELSE, FOR, TO, REPEAT, UNTIL,
-    BREAK, CONTINUE, CASE, VAR, TYPE, ARRAY, OF, CONST, TRUE, PROGRAM,
-    FALSE, AND, NOT, OR, DOWNTO, EOF, WHILE, BEGIN, END,
-    FORWARD, DO, FUNCTION, UNTILL
+    case PROCEDURE = "Procedure", RECORD = "Record", IF = "If", THEN = "Then",
+    ELSE = "Else", FOR = "For", TO = "To", REPEAT = "Repeat", UNTIL = "Until",
+    BREAK = "Break", CONTINUE = "Continue", CASE = "Case", VAR = "Var", TYPE = "Type",
+    ARRAY = "Array", OF = "Of", CONST = "Const", TRUE = "True", PROGRAMM = "Programm",
+    FALSE = "False", AND = "And", NOT = "Not", OR = "Or", DOWNTO = "Downto", EOF = "EOF",
+    WHILE = "While", BEGIN = "Begin", END = "End", FORWARD = "Forward", DO = "Do",
+    FUNCTION = "Function", UNTILL = "Untill"
     
     //Other
     case ID = "Id", COMMENT = "Comments", LONG_COMMENT = "Long comments",
     ENDOFFILE = "End of file"
 }
 
-struct TokenType {
-    var enumType: TokenEnum
-    var strType: String
-    init(_ type: TokenEnum,_ name: String) {
-        self.enumType = type
-        self.strType = name
-    }
-    
-    init(_ type: TokenEnum) {
-        self.enumType = type
-        self.strType = self.enumType.rawValue
-    }
-}
-
 private var symbolsInfo:[String:TokenType] = [
     //MARK:Special symbols
-    "+": TokenType(.PLUS, "Plus"),
-    "-": TokenType(.MINUS, "Minus"),
-    "*": TokenType(.MULT, "Mult"),
-    "/": TokenType(.DIV, "Div"),
-    "^": TokenType(.POINTER, "Pointer"),
-    "@": TokenType(.DOG, "Dog"),
-    "=": TokenType(.EQUAL, "Equal"),
-    ":": TokenType(.COLON, "Colon"),
-    ";": TokenType(.SEMICOLON, "SemiColon"),
-    ">": TokenType(.MORE, "More"),
-    "<": TokenType(.LESS, "Less"),
-    ".": TokenType(.DOT, "Dot"),
-    ",": TokenType(.COMMA, "Comma"),
-    "(": TokenType(.L_BRACKET, "Left bracket"),
-    ")": TokenType(.R_BRACKET, "Right bracket"),
-    "[": TokenType(.LSQR_BRACKET, "Left square bracket"),
-    "]": TokenType(.RSQR_BRACKET, "Right square bracket"),
-    //MARK:Double special symbols
-    "<>": TokenType(.NOT_EQUAL, "Not assign"),
-    "*=": TokenType(.MULT_ASSIGN, "Mult and assign"),
-    "+=": TokenType(.PLUS_ASSIGN, "Plus and assign"),
-    "/=": TokenType(.DIV_ASSIGN, "Div and assign"),
-    "-=": TokenType(.MINUS_ASSIGN, "Minus and assign"),
-    ">=": TokenType(.MORE_EQUAL, "More or equal"),
-    "<=": TokenType(.LESS_EQUAL, "Less or equal"),
-    "..": TokenType(.D_DOT, "Double dot"),
-    ":=": TokenType(.ASSIGN, "Assign"),
+    "+": .PLUS, "-": .MINUS, "*": .MULT, "/": .DIV,
+    "^": .POINTER, "@": .DOG, "=": .EQUAL, ":": .COLON,
+    ";": .SEMICOLON, ">": .MORE, "<": .LESS, ".": .DOT,
+    ",": .COMMA, "(": .L_BRACKET, ")": .R_BRACKET,
+    "[": .LSQR_BRACKET, "]": .RSQR_BRACKET,
+    //MARK:Double special
+    "<>": .NOT_EQUAL, "*=": .MULT_ASSIGN, "+=": .PLUS_ASSIGN,
+    "/=": .DIV_ASSIGN, "-=": .MINUS_ASSIGN, ">=": .MORE_EQUAL,
+    "<=": .LESS_EQUAL, "..": .D_DOT, ":=": .ASSIGN
 ]
 
-private var keyWordInfo:[String: TokenEnum] = [
-    "begin": .BEGIN, "end": .END, "program": .PROGRAM, "var": .VAR,
+private var keyWordInfo:[String: TokenType] = [
+    "begin": .BEGIN, "end": .END, "program": .PROGRAMM, "var": .VAR,
     "and": .AND, "array": .ARRAY, "break": .BREAK, "case": .CASE,
     "const": .CONST, "div": .DIV, "while": .WHILE, "for": .FOR,
     "if": .IF, "else": .ELSE, "true": .TRUE, "function": .FUNCTION,
@@ -92,6 +67,6 @@ func getType(_ key: String) -> TokenType {
     return symbolsInfo[key]!
 }
 
-func getKeyWordType(_ text: String) -> TokenEnum? {
+func getKeyWordType(_ text: String) -> TokenType? {
     return keyWordInfo[text]
 }

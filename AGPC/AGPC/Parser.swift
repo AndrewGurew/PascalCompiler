@@ -26,51 +26,38 @@ class Parser {
         self.tokenizer = tokenizer
     }
     
-    
-    private func require(_ token: TokenType) -> Bool {
-        if(token.enumType != tokenizer.currentToken().type.enumType) {
-            print("Expected: \(token.strType) in \(tokenizer.currentToken().position)")
-            return false
+    private func require(_ token: TokenType) {
+        if(token != tokenizer.currentToken().type) {
+            errorMessages.append("Expected: \(token.rawValue) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
         }
-        return true
-    }
-    
-    private func require(_ token: TokenEnum) -> Bool {
-        if(token != tokenizer.currentToken().type.enumType) {
-            print("Expected another token on \(tokenizer.currentToken().position)")
-            return false
-        }
-        return true
     }
     
     private func parseDeclaration() -> DeclarationScope? {
         let declarationScope = DeclarationScope()
         for _ in 0..<tokenizer.lexems.count {
-            if(tokenizer.currentToken().type.enumType == .VAR) {
-                tokenizer.nextToken()
+            if(tokenizer.currentToken().type == .VAR) {
                 declarationScope.declList.update(other: parseVarBlock())
             }
-            
-            if(tokenizer.currentToken().type.enumType == .CONST) {
-                tokenizer.nextToken()
+            if(tokenizer.currentToken().type == .CONST) {
                 declarationScope.declList.update(other: parsConstBlock())
             }
         }
-
         return declarationScope.declList.isEmpty ? nil : declarationScope
     }
     
     private func parseVarBlock() -> [String: Declaration]? {
         var result = [String: Declaration]()
-        while (tokenizer.currentToken().type.enumType == .ID) {
+        tokenizer.nextToken()
+    
+        while (tokenizer.currentToken().type == .ID) {
             let IDs = getIndefenders()
-            tokenizer.nextToken()
-            let identType = IdentType(tokenizer.currentToken().position, tokenizer.currentToken().type.enumType)
+            let identType = IdentType(tokenizer.currentToken().position, tokenizer.currentToken().type)
             for i in 0..<IDs.name.count {
                 let decl = VarDecl(IDs.pos[i], IDs.name[i], identType)
                 result.update(other: [IDs.name[i]: decl])
             }
             tokenizer.nextToken()
+            require(.SEMICOLON)
             tokenizer.nextToken()
         }
         return result.isEmpty ? nil : result
@@ -78,14 +65,17 @@ class Parser {
     
     private func parsConstBlock() -> [String: Declaration]? {
         var result = [String: Declaration]()
-        while(tokenizer.currentToken().type.enumType == .ID) {
+        tokenizer.nextToken()
+
+        while(tokenizer.currentToken().type == .ID) {
             let IDs = getIndefenders()
-            tokenizer.nextToken()
             let expr = parseBoolExpr()
             for i in 0..<IDs.name.count {
                 let decl = ConstDecl(IDs.pos[i], IDs.name[i], expr!)
                 result.update(other: [IDs.name[i]: decl])
             }
+           // bool do next tokenizer.nextToken()
+            require(.SEMICOLON)
             tokenizer.nextToken()
         }
         return result.isEmpty ? nil : result
@@ -94,11 +84,14 @@ class Parser {
     private func getIndefenders() -> (name: [String], pos: [(Int, Int)]) {
         var result = [String]()
         var positions = [(Int, Int)]()
-        while (tokenizer.currentToken().type.enumType == .ID) {
+        while (tokenizer.currentToken().type == .ID) {
             result.append(tokenizer.currentToken().text)
             positions.append(tokenizer.currentToken().position)
             tokenizer.nextToken()
-            if(tokenizer.currentToken().type.enumType == .COMMA) {
+            if(tokenizer.currentToken().type == .COMMA) {
+                tokenizer.nextToken()
+                require(.ID)
+            } else {
                 tokenizer.nextToken()
             }
         }
@@ -111,13 +104,13 @@ class Parser {
         if(result == nil) {
             return nil
         }
-        while(tokenizer.currentToken().type.enumType == .MORE || tokenizer.currentToken().type.enumType == .LESS ||
-            tokenizer.currentToken().type.enumType == .MORE_EQUAL || tokenizer.currentToken().type.enumType == .LESS_EQUAL ||
-            tokenizer.currentToken().type.enumType == .EQUAL) {
+        while(tokenizer.currentToken().type == .MORE || tokenizer.currentToken().type == .LESS ||
+            tokenizer.currentToken().type == .MORE_EQUAL || tokenizer.currentToken().type == .LESS_EQUAL ||
+            tokenizer.currentToken().type == .EQUAL) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()
-                result = BinaryExpr(pos, text, leftChild: result!, rightChild: parseExpr()!)
+            result = BinaryExpr(pos, text, leftChild: result!, rightChild: parseExpr()!)
         }
         
         
@@ -130,7 +123,7 @@ class Parser {
             return nil
         }
         
-        while(tokenizer.currentToken().type.enumType == .PLUS || tokenizer.currentToken().type.enumType == .MINUS) {
+        while(tokenizer.currentToken().type == .PLUS || tokenizer.currentToken().type == .MINUS) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()
@@ -146,7 +139,7 @@ class Parser {
             return nil
         }
             
-        while(tokenizer.currentToken().type.enumType == .MULT || tokenizer.currentToken().type.enumType == .DIV) {
+        while(tokenizer.currentToken().type == .MULT || tokenizer.currentToken().type == .DIV) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()
@@ -157,7 +150,7 @@ class Parser {
     }
     
     private func parseFactor() -> Expression? {
-        switch tokenizer.currentToken().type.enumType {
+        switch tokenizer.currentToken().type {
         case .MINUS, .PLUS:
             let operation = tokenizer.currentToken()
             tokenizer.nextToken()
@@ -180,9 +173,8 @@ class Parser {
             if (result == nil) {
                 return nil
             }
-            if !require(getType(")")) {
-                return nil
-            }
+            require(.R_BRACKET)
+  
             tokenizer.nextToken()
             return result
         default:

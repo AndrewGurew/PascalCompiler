@@ -7,6 +7,8 @@
 //  
 import Foundation
 
+public var errorMessages = [String]()
+
 extension String {
     var length: Int {
         return self.characters.count
@@ -77,7 +79,6 @@ class Tokenizer {
     }
     
     private var text: String
-    private var errorMessages = [String]()
     private var currentState: State = .BEGIN
     private var newState: State = .BEGIN
     var lexems = [Token]()
@@ -206,7 +207,7 @@ class Tokenizer {
         var dataString = ""
         for lexem in lexems {
             let number = "(\(lexem.position.row),\(lexem.position.col))"
-            dataString += number.padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + lexem.type.strType.padding(toLength: columnDefaultPadLength + 5, withPad: " ", startingAt: 0) + lexem.text.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
+            dataString += number.padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + lexem.type.rawValue.padding(toLength: columnDefaultPadLength + 5, withPad: " ", startingAt: 0) + lexem.text.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
                 lexem.value.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
             dataString.append("\n")
         }
@@ -229,43 +230,43 @@ class Tokenizer {
                 switch(currentState) {
                 case .WORD:
                     let lexem = getKeyWordType(lexemText)
-                    lexem == nil ? lexems.append(Token(lexemText, TokenType(.ID), symbolPosition)) :
-                        lexems.append(Token(lexemText, TokenType(lexem!, "Keyword"), symbolPosition))
+                    lexem == nil ? lexems.append(Token(lexemText, .ID, symbolPosition)) :
+                        lexems.append(Token(lexemText, lexem!, symbolPosition))
                 case .SHIFT:
                     newState = .BEGIN
                 case .DOUBLE_NUMBER_DOT:
                     i-=1
                     currentCol-=1
                     lexemText = lexemText[0..<lexemText.count - 1]
-                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition))
+                    lexems.append(Token(lexemText, .INT, symbolPosition))
                 case .DOT:
-                    lexems.append(Token(lexemText, getType(lexemText), symbolPosition))
+                    lexems.append(Token(lexemText, .DOT, symbolPosition))
                 case .DOUBLE_DOT:
-                    lexems.append(Token(lexemText, getType(lexemText), symbolPosition))
+                    lexems.append(Token(lexemText, .D_DOT, symbolPosition))
                 case .INTEGER:
-                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition))
+                    lexems.append(Token(lexemText, .INT, symbolPosition))
                 case .DOUBLE_NUMBER:
-                    lexems.append(Token(lexemText, TokenType(.DOUBLE), symbolPosition))
+                    lexems.append(Token(lexemText, .DOUBLE, symbolPosition))
                 case .EXP_NUMBER:
-                    lexems.append(Token(lexemText, TokenType(.DOUBLE), symbolPosition, String(Double(lexemText)!)))
+                    lexems.append(Token(lexemText, .DOUBLE, symbolPosition, String(Double(lexemText)!)))
                 case .HEX_INT:
-                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "$", with: ""), nil, 16)))))
+                    lexems.append(Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "$", with: ""), nil, 16)))))
                 case .BINARY_INT:
-                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "%", with: ""), nil, 2)))))
+                    lexems.append(Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "%", with: ""), nil, 2)))))
                 case .OCTAL_INT:
-                    lexems.append(Token(lexemText, TokenType(.INT), symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "&", with: ""), nil, 8)))))
+                    lexems.append(Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "&", with: ""), nil, 8)))))
                 case .SPECIAL_MAX, .SPECIAL, .SLASH, .SPECIAL_DERELICT:
                     lexems.append(Token(lexemText, getType(lexemText), symbolPosition))
                 case .STRING:
                     lexemText.append(symbol)
                     i+=1
-                    lexems.append(Token(lexemText, TokenType(.STRING), symbolPosition, lexemText.replacingOccurrences(of: "'", with: "")))
+                    lexems.append(Token(lexemText, .STRING, symbolPosition, lexemText.replacingOccurrences(of: "'", with: "")))
                 case .COMMENT_LONG:
                     lexemText.append(symbol)
                     i+=1
-                    lexems.append(Token(lexemText, TokenType(.LONG_COMMENT), symbolPosition))
+                    lexems.append(Token(lexemText, .LONG_COMMENT, symbolPosition))
                 case .COMMENT:
-                    lexems.append(Token(lexemText, TokenType(.COMMENT), symbolPosition))
+                    lexems.append(Token(lexemText, .COMMENT, symbolPosition))
                 default:
                     errorMessages.append("Unknown symbol - \"\(symbol)\" in \(symbolPosition.row, currentCol) position")
                     lexemText = ""
@@ -284,7 +285,7 @@ class Tokenizer {
                 }
                 newState = .BEGIN
             case .ENDOFFILE:
-                lexems.append(Token("EndOfFile", TokenType(.ENDOFFILE), symbolPosition))
+                lexems.append(Token("EndOfFile", .ENDOFFILE, symbolPosition))
             default:
                 if (lexemText.isEmpty){
                     symbolPosition = (symbolPosition.row, currentCol)

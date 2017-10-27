@@ -26,8 +26,8 @@ class StatementNode {
 
 class IdentType {
     var position:(col: Int, row: Int)
-    var type:TokenEnum
-    init(_ position: (Int, Int), _ type:TokenEnum) {
+    var type:TokenType
+    init(_ position: (Int, Int), _ type:TokenType) {
         self.position = position
         self.type = type
     }

@@ -123,9 +123,8 @@ case .GEN_TEST_ANSWERS:
                     print(file)
             do {
                 let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
-                let result = testPart.method(progText)
                 let outPut = (file.replacingOccurrences(of: ".pas", with: ".out"))
-                
+                let result = testPart.method(progText)
                 do {
                     try result.write(to: NSURL.fileURL(withPath: outPut), atomically: true, encoding: .utf8)
                 }
@@ -153,6 +152,8 @@ default:
                 let ExpressionParser = Parser(tokenizer: LexAnalyzer)
                 print(ExpressionParser.testStmt())
             }
+            
+            print(errorMessages)
         }
     } catch {
         print("Error loading contents of:", fileName!, error)
