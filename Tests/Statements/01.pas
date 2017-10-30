@@ -1,2 +1,2 @@
-var
-a: integer;
+begin 
+end.

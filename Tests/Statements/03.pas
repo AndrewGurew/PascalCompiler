@@ -1,4 +1,5 @@
-var
-a,b:integer;
-c,a:double;
-
+var 
+a:integer;
+begin
+a:=1;
+end

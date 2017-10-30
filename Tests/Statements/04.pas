@@ -1,5 +1,5 @@
-var
+var 
 a:integer;
-var
-b:double;
-
+begin
+a:=-4*(2+3);
+end

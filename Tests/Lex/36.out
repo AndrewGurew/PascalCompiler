@@ -10,7 +10,7 @@ Position            Type                     Text                Value
 (2,9)               Comma                    ,                   ,                   
 (2,10)              Id                       c                   c                   
 (2,11)              Colon                    :                   :                   
-(2,12)              Id                       Integer             Integer             
+(2,12)              Integer                  Integer             Integer             
 (2,19)              Semicolon                ;                   ;                   
 (3,2)               Id                       a                   a                   
 (3,3)               Assign                   :=                  :=                  

@@ -6,6 +6,6 @@ Position            Type                     Text                Value
 (2,2)               Var                      var                 var                 
 (2,6)               Id                       a                   a                   
 (2,7)               Colon                    :                   :                   
-(2,8)               Id                       Integer             Integer             
+(2,8)               Integer                  Integer             Integer             
 (2,15)              Semicolon                ;                   ;                   
 (3,15)              End of file              EndOfFile           EndOfFile           

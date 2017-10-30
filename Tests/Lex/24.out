@@ -1,6 +1,6 @@
 Position            Type                     Text                Value               
 -------------------------------------------------------------------------------------
-(1,1)               Id                       repeat              repeat              
+(1,1)               Repeat                   repeat              repeat              
 (2,5)               Id                       WriteLn             WriteLn             
 (2,12)              Left bracket             (                   (                   
 (2,13)              String                   'Input number'      Input number        
@@ -11,7 +11,7 @@ Position            Type                     Text                Value
 (3,12)              Id                       x                   x                   
 (3,13)              Right bracket            )                   )                   
 (3,14)              Semicolon                ;                   ;                   
-(4,2)               Untill                   until               until               
+(4,2)               Until                    until               until               
 (4,8)               Id                       x                   x                   
 (4,9)               More                     >                   >                   
 (4,10)              Integer                  0                   0                   

@@ -1,4 +1,7 @@
-⎬Declarations
- ⎬b - Integer(Var)
- ⎬a - Double(Var)
- ⎬c - Double(Var)
+Declaration
+ ⎬a - Integer(Var)
+Main Block
+ ⎬ Assign
+  ⎬a
+  ⎬1
+End of Main Block

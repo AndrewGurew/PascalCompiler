@@ -6,7 +6,7 @@ Position            Type                     Text                Value
 (2,2)               Var                      var                 var                 
 (3,2)               Id                       a                   a                   
 (3,3)               Colon                    :                   :                   
-(3,5)               Id                       Integer             Integer             
+(3,5)               Integer                  Integer             Integer             
 (3,12)              Semicolon                ;                   ;                   
 (4,4)               Id                       b                   b                   
 (4,5)               Colon                    :                   :                   
@@ -14,7 +14,7 @@ Position            Type                     Text                Value
 (4,12)              Semicolon                ;                   ;                   
 (13,2)              Id                       c                   c                   
 (13,3)              Colon                    :                   :                   
-(13,4)              Id                       Integer             Integer             
+(13,4)              Integer                  Integer             Integer             
 (13,11)             Semicolon                ;                   ;                   
 (19,11)             Id                       d                   d                   
 (19,12)             Colon                    :                   :                   

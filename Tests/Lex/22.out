@@ -4,9 +4,9 @@ Position            Type                     Text                Value
 (1,5)               Id                       x                   x                   
 (1,6)               Assign                   :=                  :=                  
 (1,8)               Integer                  1                   1                   
-(1,10)              Id                       to                  to                  
+(1,10)              To                       to                  to                  
 (1,13)              Integer                  10                  10                  
-(1,16)              Id                       do                  do                  
+(1,16)              Do                       do                  do                  
 (1,19)              Begin                    begin               begin               
 (2,7)               Id                       y                   y                   
 (2,8)               Assign                   :=                  :=                  

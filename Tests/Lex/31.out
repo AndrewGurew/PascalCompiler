@@ -33,7 +33,7 @@ Position            Type                     Text                Value
 (6,8)               Id                       a                   a                   
 (6,9)               More                     >                   >                   
 (6,10)              Id                       b                   b                   
-(6,12)              Id                       then                then                
+(6,12)              Then                     then                then                
 (6,17)              Id                       max                 max                 
 (6,20)              Assign                   :=                  :=                  
 (6,22)              Id                       a                   a                   

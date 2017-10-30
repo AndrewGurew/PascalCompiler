@@ -1,10 +1,16 @@
-⎬Declarations
- ⎬b - +
-      ⎬5
-      ⎬/
-       ⎬5
-       ⎬-
-        ⎬2(Const)
- ⎬f - Double(Var)
- ⎬a - Integer(Var)
- ⎬c - 3(Const)
+Main Block
+ ⎬ Repeat satement
+  ⎬<
+   ⎬i
+   ⎬3
+  ⎬ Assign
+   ⎬i
+   ⎬+
+    ⎬i
+    ⎬1
+  ⎬ Assign
+   ⎬a
+   ⎬+
+    ⎬3
+    ⎬i
+End of Main Block

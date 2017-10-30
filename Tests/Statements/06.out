@@ -1,12 +1,20 @@
-⎬Declarations
- ⎬b - *
-      ⎬2
-      ⎬-
-       ⎬3
-       ⎬3(Const)
- ⎬a - -
-      ⎬*
-       ⎬+
-       ⎪⎬2
-       ⎪⎬3
-       ⎬2(Const)
+Main Block
+ ⎬ Assign
+  ⎬a
+  ⎬+
+   ⎬2
+   ⎬2
+ ⎬ If-Esle statement
+  ⎬>=
+   ⎬a
+   ⎬4
+  ⎬ For satement
+   ⎬i
+   ⎬1
+   ⎬n
+   ⎬ Assign
+    ⎬a
+    ⎬+
+     ⎬a
+     ⎬1
+End of Main Block

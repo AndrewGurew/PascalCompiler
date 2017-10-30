@@ -4,7 +4,7 @@ Position            Type                     Text                Value
 (1,4)               Id                       x                   x                   
 (1,6)               More                     >                   >                   
 (1,8)               Integer                  0                   0                   
-(1,10)              Id                       then                then                
+(1,10)              Then                     then                then                
 (1,15)              Id                       modul               modul               
 (1,21)              Assign                   :=                  :=                  
 (1,24)              Id                       x                   x                   
@@ -18,7 +18,7 @@ Position            Type                     Text                Value
 (2,5)               Id                       x                   x                   
 (2,6)               More                     >                   >                   
 (2,7)               Integer                  0                   0                   
-(2,9)               Id                       then                then                
+(2,9)               Then                     then                then                
 (2,14)              Id                       modul               modul               
 (2,19)              Assign                   :=                  :=                  
 (2,21)              Id                       x                   x                   

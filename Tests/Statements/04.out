@@ -1,3 +1,12 @@
-⎬Declarations
- ⎬b - Double(Var)
+Declaration
  ⎬a - Integer(Var)
+Main Block
+ ⎬ Assign
+  ⎬a
+  ⎬-
+   ⎬*
+    ⎬4
+    ⎬+
+     ⎬2
+     ⎬3
+End of Main Block

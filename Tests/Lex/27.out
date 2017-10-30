@@ -22,7 +22,7 @@ Position            Type                     Text                Value
 (4,8)               Id                       a                   a                   
 (4,9)               More                     >                   >                   
 (4,10)              Id                       b                   b                   
-(4,12)              Id                       then                then                
+(4,12)              Then                     then                then                
 (4,17)              Id                       max                 max                 
 (4,20)              Assign                   :=                  :=                  
 (4,22)              Id                       a                   a                   

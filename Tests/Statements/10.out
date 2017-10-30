@@ -1,14 +1,9 @@
 Main Block
- ⎬ Assign
-  ⎬a
-  ⎬+
-   ⎬2
-   ⎬2
  ⎬ If-Esle statement
-  ⎬>=
+  ⎬<
    ⎬a
-   ⎬4
+   ⎬3
   ⎬ Assign
    ⎬a
-   ⎬0
+   ⎬1
 End of Main Block
