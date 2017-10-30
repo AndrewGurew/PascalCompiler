@@ -4,13 +4,13 @@
 //
 //  Created by Andrey Gurev on 22.10.17.
 //  Copyright © 2017 Andrey Gurev. All rights reserved.
-//
+//  
 
 import Foundation
 
 class StatementNode {
     enum Kind {
-        case IFELSE, FOR, WHILE, BLOCK
+        case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT
     }
     
     var text: String
@@ -79,15 +79,57 @@ class Block: StatementNode {
     }
 }
 
+class ForStmt: StatementNode {
+    var startValue: StatementNode
+    var finishValue: Expression
+    var block: StatementNode
+    init(_ position: (Int, Int),_ startValue:StatementNode,_ finishValue:Expression,_ block: StatementNode) {
+        self.startValue = startValue
+        self.block = block
+        self.finishValue = finishValue
+        super.init(position, .FOR, "For satement")
+    }
+}
+
+class WhileStmt: StatementNode {
+    var condition: Expression
+    var block: StatementNode
+    init(_ position: (Int, Int),_ condition: Expression,_ block: StatementNode) {
+        self.condition = condition
+        self.block = block
+        super.init(position, .WHILE, "While satement")
+    }
+}
+
+class RepeatStmt: StatementNode {
+    var condition: Expression
+    var block: StatementNode
+    init(_ position: (Int, Int),_ condition: Expression,_ block: StatementNode) {
+        self.condition = condition
+        self.block = block
+        super.init(position, .REPEAT, "Repeat satement")
+    }
+}
+
 class IfElseStmt: StatementNode {
     var condition: Expression
     var block: StatementNode
     var elseBlock: StatementNode?
-    init(_ position: (Int, Int),_ text: String,_ cond: Expression,_ block: StatementNode,_ elseBlock:StatementNode? = nil) {
+    init(_ position: (Int, Int),_ cond: Expression,_ block: StatementNode,_ elseBlock:StatementNode? = nil) {
         self.condition = cond
         self.block = block
         self.elseBlock = elseBlock
-        super.init(position, .IFELSE, text)
+        super.init(position, .IFELSE, "If-Esle statement")
+    }
+}
+
+class AssignStmt: StatementNode {
+    var id: String
+    var expr: Expression
+    init(_ position: (Int, Int),_ expr: Expression,_ id: String) {
+        self.id = id
+        self.expr = expr
+        super.init(position, .ASSIGN, "Assign")
     }
 }
 

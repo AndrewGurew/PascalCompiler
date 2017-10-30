@@ -21,6 +21,7 @@ extension Dictionary {
 class Parser {
     private var tokenizer:Tokenizer
     private var testDecl:DeclarationScope?
+    private var testBlock:StatementNode?
     
     init(tokenizer: Tokenizer) {
         self.tokenizer = tokenizer
@@ -29,7 +30,17 @@ class Parser {
     private func require(_ token: TokenType) {
         if(token != tokenizer.currentToken().type) {
             errorMessages.append("Expected: \(token.rawValue) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
+            print("Expected \(token.rawValue) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
         }
+    }
+    
+    private func parseProgram() -> StatementNode  {
+        let declScope = parseDeclaration()
+        require(.BEGIN)
+        tokenizer.nextToken()
+        let mainBlock = Block(tokenizer.currentToken().position, "Main Block", declScope)
+        mainBlock.stmtList = parseStmtBlock()
+        return mainBlock
     }
     
     private func parseDeclaration() -> DeclarationScope? {
@@ -40,6 +51,9 @@ class Parser {
             }
             if(tokenizer.currentToken().type == .CONST) {
                 declarationScope.declList.update(other: parsConstBlock())
+            }
+            if(tokenizer.currentToken().type == .BEGIN) {
+                break
             }
         }
         return declarationScope.declList.isEmpty ? nil : declarationScope
@@ -69,12 +83,11 @@ class Parser {
 
         while(tokenizer.currentToken().type == .ID) {
             let IDs = getIndefenders()
-            let expr = parseBoolExpr()
+            let expr = parseExpr()
             for i in 0..<IDs.name.count {
                 let decl = ConstDecl(IDs.pos[i], IDs.name[i], expr!)
                 result.update(other: [IDs.name[i]: decl])
             }
-           // bool do next tokenizer.nextToken()
             require(.SEMICOLON)
             tokenizer.nextToken()
         }
@@ -99,8 +112,117 @@ class Parser {
         return (result, positions)
     }
     
-    private func parseBoolExpr() -> Expression? {
-        var result = parseExpr()
+    private func parseStmtBlock() -> [StatementNode] {
+        var stmtList = [StatementNode]()
+        //tokenizer.nextToken()
+        while (true) {
+            if(tokenizer.currentToken().type == .END || tokenizer.currentToken().type == .UNTIL) {
+                //tokenizer.nextToken()
+                break
+            }
+            let stmt = parseStmt()
+            stmtList.append(stmt!)
+        }
+        return stmtList
+    }
+    
+    private func parseStmt() -> StatementNode? {
+        switch tokenizer.currentToken().type {
+        case .ID:
+            return parseAssign()
+        case .BEGIN:
+            tokenizer.nextToken()
+            let block = Block(tokenizer.currentToken().position, "Block")
+            block.stmtList = parseStmtBlock()
+            tokenizer.nextToken()
+            return block
+        case .IF:
+            return parseIfElse()
+        case .FOR:
+            return parseFor()
+        case .WHILE:
+            return parseWhile()
+        case .REPEAT:
+            return parseRepeat()
+        default:
+            return nil
+        }
+    }
+    
+    private func parseRepeat() -> StatementNode {
+        require(.REPEAT)
+        let pos = tokenizer.currentToken().position
+        let repeatBlock = Block(tokenizer.currentToken().position, "Repeat Block")
+        tokenizer.nextToken()
+        repeatBlock.stmtList = parseStmtBlock()
+        require(.UNTIL)
+        tokenizer.nextToken()
+        let condition = parseExpr()!
+        require(.SEMICOLON)
+        tokenizer.nextToken()
+        
+        return RepeatStmt(pos, condition, repeatBlock)
+    }
+    
+    private func parseIfElse() -> StatementNode {
+        require(.IF)
+        let pos = tokenizer.currentToken().position
+        tokenizer.nextToken()
+        let condition = parseExpr()
+        require(.THEN)
+        tokenizer.nextToken()
+        let stmtNode = parseStmt()!
+        
+        var elseNode: StatementNode? = nil
+        if(tokenizer.currentToken().type == .ELSE) {
+            tokenizer.nextToken()
+            elseNode = parseStmt()
+        }
+        return IfElseStmt(pos, condition!, stmtNode, elseNode)
+    }
+    
+    private func parseAssign(_ parentType: TokenType = .BEGIN) -> StatementNode {
+        require(.ID)
+        let pos = tokenizer.currentToken().position
+        let id = tokenizer.currentToken().text
+        tokenizer.nextToken()
+        require(.ASSIGN)
+        tokenizer.nextToken()
+        let expr = parseExpr()!
+        if(parentType == .BEGIN) {
+            require(.SEMICOLON)
+            tokenizer.nextToken()
+        }
+        return AssignStmt(pos, expr, id)
+    }
+    
+    func parseFor() -> StatementNode {
+        require(.FOR)
+        let position = tokenizer.currentToken().position
+        tokenizer.nextToken()
+        let startValue = parseAssign(.FOR)
+        require(.TO)
+        tokenizer.nextToken()
+        let finishValue = parseExpr()!
+        require(.DO)
+        tokenizer.nextToken()
+        let forNode = parseStmt()!
+        return ForStmt(position, startValue, finishValue, forNode)
+    }
+    
+    func parseWhile() -> StatementNode {
+        require(.WHILE)
+        let position = tokenizer.currentToken().position
+        tokenizer.nextToken()
+        let condition = parseExpr()!
+        require(.DO)
+        tokenizer.nextToken()
+        let whileNode = parseStmt()!
+        return WhileStmt(position, condition, whileNode)
+    }
+    
+    private func parseExpr() -> Expression? {
+        var result = parseSimpleExpr()
         if(result == nil) {
             return nil
         }
@@ -110,14 +232,13 @@ class Parser {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()
-            result = BinaryExpr(pos, text, leftChild: result!, rightChild: parseExpr()!)
+            result = BinaryExpr(pos, text, leftChild: result!, rightChild: parseSimpleExpr()!)
         }
-        
         
         return result
     }
     
-    private func parseExpr() -> Expression?  {
+    private func parseSimpleExpr() -> Expression?  {
         var result = parseTerm()
         if (result == nil) {
             return nil
@@ -169,7 +290,7 @@ class Parser {
             return result
         case .L_BRACKET:
             tokenizer.nextToken()
-            let result = parseBoolExpr()
+            let result = parseExpr()
             if (result == nil) {
                 return nil
             }
@@ -183,73 +304,18 @@ class Parser {
         }
     }
     
-    func drawDeclTree(_ a: DeclarationScope? = nil,_ tabNumber: Int = 0) -> String {
-        if(a == nil) {
-            return ""
-        }
-        let expr:DeclarationScope! = a!
-        var result = "⎬Declarations"
-        for (key,value) in expr.declList {
-            if value is VarDecl {
-                result += "\n ⎬\(key) - \((value as! VarDecl).type.type.rawValue)(\(value.declType.rawValue))"
-            }
-            else {
-                var exprTree = drawExprTree((value as! ConstDecl).value, key.length + 4)
-                exprTree.removeFirst()
-                result += "\n ⎬\(key) - \(exprTree)(\(value.declType.rawValue))"
-            }
-        }
-        return result
-    }
-    
-    private var separatorIndexes = [Int]()
-    func drawExprTree(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
-        if(expr == nil) {
-            return ""
-        }
-        let expr:Expression! = expr!
-        var result = "⎬\(expr.text)"
-        
-        if let binaryExpr = expr as? BinaryExpr {
-            // Draw left
-            result += "\n";
-            for i in 0...tabNumber {
-                result += ((separatorIndexes.index(of: i)) != nil) ? "⎪" : " "
-            }
-            if((binaryExpr.leftChild as? BinaryExpr) != nil) {
-                separatorIndexes.append(tabNumber + 1)
-            }
-            result += drawExprTree(binaryExpr.leftChild, tabNumber + 1)
-            
-            //Draw right
-            result += "\n";
-            for i in 0...tabNumber {
-                result += ((separatorIndexes.index(of: i)) != nil) ? "⎪" : " "
-            }
-            if let index = separatorIndexes.index(of: tabNumber + 1) {
-                separatorIndexes.remove(at: index)
-            }
-            result += drawExprTree(binaryExpr.rightChild, tabNumber + 1)
-        }
-        
-        if let unaryExpr = expr as? UnaryExpr {
-            result += "\n";
-            for i in 0...tabNumber {
-                result += ((separatorIndexes.index(of: i)) != nil) ? "⎪" : " "
-            }
-            result += drawExprTree(unaryExpr.child, tabNumber + 1)
-        }
-        
-        return result
-    }
-    
     public func testExpressions() -> String {
-        return drawExprTree(parseBoolExpr())
+        return drawExprTree(parseExpr())
+    }
+    
+    public func testAllStmt() -> String {
+        self.testBlock = parseProgram()
+        return drawBlockTree(self.testBlock)
     }
     
     public func testStmt() -> String {
         self.testDecl = parseDeclaration()
-        return drawDeclTree(self.testDecl, 0)
+        return drawDeclTree(self.testDecl)
     }
 }
 
