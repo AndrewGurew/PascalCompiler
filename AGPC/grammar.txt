@@ -1,0 +1,37 @@
+program ::= {head} block DOT
+identifierList ::= identifier{COMMA identifier}
+head ::= program identifier {identifierList} SEMI
+identifier ::= letter {(letter-sequence|number-sequence|'_')} 
+
+letter-sequence ::= letter {letter}
+number-sequence ::= number {number}
+
+block ::= (constantDecl-part | varDecl-part) compoundStatement
+
+constantDecl-part ::= const constantDecl
+constantDecl ::= identifier EQUAL constant
+constant ::= expression | constNumber
+constNumber ::= unsignInteger | unsignDouble
+
+varDecl-part ::= VAR varDecl
+varDecl ::= varDef {varDef}
+varDef ::= identifierList COLON type SEMI
+
+unsignInteger ::== number-sequence ('.' number-sequence 'e' number-sequence) | ('e' number-sequence)
+unsignDouble ::= number-sequence '.' number-sequence
+
+expression ::= simple expression {(<=|>=|=|<|>) simple expression}
+simple expression ::= term {(+|-) term}
+term ::= factor {(*|/) factor} 
+factor ::= (LEFT_BRACKET expression RIGHT_BRACKET) | identifier | constNumber
+
+statement ::=  whileStatement | repeatStatement | forStatement | ifStatement | assigStatement
+statements ::= statement {statement}
+compoundStatement ::= BEGIN statements END
+
+whileStatement ::= WHILE expression DO statement
+compoundStatement ::= BEGIN statements END
+repeatStatement :: REPEAT statements UNTIL expression
+forStatement ::= FOR identifier ASSIGN expression (TO | DOWNTO) expression DO statement
+ifStatement ::= IF expression THEN statement { ELSE statement }
+assigStatement ::= identifier ASSIGN expression
