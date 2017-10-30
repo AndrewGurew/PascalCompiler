@@ -10,7 +10,7 @@ import Foundation
 
 func lexTabale(progText: String) -> String {
     let lexAnalyzer = Tokenizer(text: progText)
-    return lexAnalyzer.lexemTable(lexAnalyzer.lexems)
+    return lexemTable(lexAnalyzer.lexems)
 }
 
 func exTree(progText: String) -> String {
@@ -19,10 +19,16 @@ func exTree(progText: String) -> String {
     return expressionParser.testExpressions()
 }
 
-func stmtTree(progText: String) -> String {
+func declTree(progText: String) -> String {
     let lexAnalyzer = Tokenizer(text: progText)
     let stmtParser = Parser(tokenizer: lexAnalyzer)
     return stmtParser.testStmt()
+}
+
+func stmtTree(progText: String) -> String {
+    let lexAnalyzer = Tokenizer(text: progText)
+    let stmtParser = Parser(tokenizer: lexAnalyzer)
+    return stmtParser.testAllStmt()
 }
 
 enum Mod {
@@ -48,6 +54,7 @@ struct Test {
 let testParts:[Test] = [
     Test("Lexical tests:\n", lexTabale, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Lex"),
     Test("Expression tests:\n", exTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Expressions"),
+    Test("Declaration tests:\n", declTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Declarations"),
     Test("Statement tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Statements")
 ]
 
@@ -146,26 +153,28 @@ default:
             let LexAnalyzer = Tokenizer(text: progText)
             
             if(keys.index(of: "-l") != nil) {
-                print(LexAnalyzer.lexemTable(LexAnalyzer.lexems))
+                print(lexemTable(LexAnalyzer.lexems))
             }
             if(keys.index(of: "-e") != nil) {
                 let ExpressionParser = Parser(tokenizer: LexAnalyzer)
-                print(ExpressionParser.testStmt())
+                print(ExpressionParser.testAllStmt())
             }
-            
-            print(errorMessages)
         }
     } catch {
         print("Error loading contents of:", fileName!, error)
     }
 }
 //let testText  = """
-//var
-//a:Integer;
+//begin
+//a:=2+2;
+//if (a >= 4) then begin
+//a:= 0;
+//end
+//end
 //"""
 //let LexAnalyzer = Tokenizer(text: testText)
 //let ExpressionParser = Parser(tokenizer: LexAnalyzer)
-//print(ExpressionParser.getTreeAsStr())
+//print(ExpressionParser.testAllStmt())
 
 
 
