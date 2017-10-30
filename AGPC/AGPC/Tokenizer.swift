@@ -49,19 +49,6 @@ extension Character {
 class Tokenizer {
     private var index = 0
     
-    struct Token {
-        var position:(row: Int, col: Int)
-        var type: TokenType
-        var text: String
-        var value: String
-        init(_ text: String,_ type: TokenType,_ position:(Int, Int),_ value:String = "") {
-            self.type = type
-            self.text = text
-            self.value = (value.isEmpty) ? self.text : value
-            self.position = position
-        }
-    }
-    
     init(text: String) {
         self.text = text
         self.text.append(" \0")
@@ -189,31 +176,6 @@ class Tokenizer {
 
     }
     
-    func lexemTable(_ lexems: [Token]) ->  String {
-        let column1PadLength = 20
-        let columnDefaultPadLength = 20
-        
-        var errors = ""
-        for error in errorMessages {
-            errors += error + "\n"
-        }
-        
-        let headerString = "Position".padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + "Type".padding(toLength: column1PadLength + 5, withPad: " ", startingAt: 0) +
-            "Text".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
-            "Value".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
-        
-        let lineString = "".padding(toLength: headerString.characters.count, withPad: "-", startingAt: 0)
-        
-        var dataString = ""
-        for lexem in lexems {
-            let number = "(\(lexem.position.row),\(lexem.position.col))"
-            dataString += number.padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + lexem.type.rawValue.padding(toLength: columnDefaultPadLength + 5, withPad: " ", startingAt: 0) + lexem.text.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
-                lexem.value.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
-            dataString.append("\n")
-        }
-        return "\(errors)\(headerString)\n\(lineString)\n\(dataString)"
-    }
-    
     private func analyze(){
         var i = 0
         var symbolPosition = (row: 1, col: 1)
@@ -229,7 +191,7 @@ class Tokenizer {
             case .END:
                 switch(currentState) {
                 case .WORD:
-                    let lexem = getKeyWordType(lexemText)
+                    let lexem = getKeyWordType(lexemText.lowercased())
                     lexem == nil ? lexems.append(Token(lexemText, .ID, symbolPosition)) :
                         lexems.append(Token(lexemText, lexem!, symbolPosition))
                 case .SHIFT:

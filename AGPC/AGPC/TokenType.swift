@@ -8,6 +8,19 @@
 
 import Foundation
 
+struct Token {
+    var position:(row: Int, col: Int)
+    var type: TokenType
+    var text: String
+    var value: String
+    init(_ text: String,_ type: TokenType,_ position:(Int, Int),_ value:String = "") {
+        self.type = type
+        self.text = text
+        self.value = (value.isEmpty) ? self.text : value
+        self.position = position
+    }
+}
+
 enum TokenType: String {
     
     //Special symbols
@@ -33,7 +46,7 @@ enum TokenType: String {
     ARRAY = "Array", OF = "Of", CONST = "Const", TRUE = "True", PROGRAMM = "Programm",
     FALSE = "False", AND = "And", NOT = "Not", OR = "Or", DOWNTO = "Downto", EOF = "EOF",
     WHILE = "While", BEGIN = "Begin", END = "End", FORWARD = "Forward", DO = "Do",
-    FUNCTION = "Function", UNTILL = "Untill"
+    FUNCTION = "Function"
     
     //Other
     case ID = "Id", COMMENT = "Comments", LONG_COMMENT = "Long comments",
@@ -58,9 +71,9 @@ private var keyWordInfo:[String: TokenType] = [
     "and": .AND, "array": .ARRAY, "break": .BREAK, "case": .CASE,
     "const": .CONST, "div": .DIV, "while": .WHILE, "for": .FOR,
     "if": .IF, "else": .ELSE, "true": .TRUE, "function": .FUNCTION,
-    "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT,
-    "or": .OR, "until": .UNTILL, "type": .TYPE,
-    "integer": .INT, "double": .DOUBLE
+    "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT, "do": .DO,
+    "or": .OR, "until": .UNTIL, "type": .TYPE, "to": .TO,
+    "integer": .INT, "double": .DOUBLE, "then": .THEN, "repeat": .REPEAT
 ]
 
 func getType(_ key: String) -> TokenType {
