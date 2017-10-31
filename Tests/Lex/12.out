@@ -8,7 +8,7 @@ Position            Type                     Text                Value
 (1,13)              Double dot               ..                  ..                  
 (1,16)              Integer                  5                   5                   
 (1,17)              Right square bracket     ]                   ]                   
-(1,19)              Id                       of                  of                  
+(1,19)              Of                       of                  of                  
 (1,22)              Integer                  integer             integer             
 (1,29)              Semicolon                ;                   ;                   
 (1,29)              End of file              EndOfFile           EndOfFile           

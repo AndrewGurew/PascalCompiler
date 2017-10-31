@@ -20,7 +20,7 @@ Position            Type                     Text                Value
 (4,14)              Double dot               ..                  ..                  
 (4,16)              Integer                  123                 123                 
 (4,19)              Right square bracket     ]                   ]                   
-(4,21)              Id                       of                  of                  
+(4,21)              Of                       of                  of                  
 (4,24)              Id                       someType            someType            
 (5,2)               Begin                    begin               begin               
 (6,4)               Id                       a                   a                   

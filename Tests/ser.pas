@@ -1,6 +1,6 @@
 var
 a,b:Integer;
-a:double;
+a: array [1..9] of integer;
 const 
 c = 3 + 3;
 begin

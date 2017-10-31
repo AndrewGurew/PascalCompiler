@@ -1,0 +1,17 @@
+Main Block
+ ⎬ If-Esle statement
+  ⎬and
+   ⎬and
+   ⎪⎬<
+   ⎪⎪⎬a
+   ⎪⎪⎬3
+   ⎪⎬>
+   ⎪ ⎬a
+   ⎪ ⎬0
+   ⎬=
+    ⎬a
+    ⎬2
+  ⎬ Assign
+   ⎬a
+   ⎬3
+End of Main Block
