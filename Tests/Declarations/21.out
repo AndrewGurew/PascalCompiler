@@ -1,0 +1,7 @@
+Declaration
+ ⎬a - record
+  ⎬b - Integer
+  ⎬c - record
+   ⎬d - Integer
+   ⎬e - record
+    ⎬f - Integer(Var)

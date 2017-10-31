@@ -1,0 +1,17 @@
+Declaration
+ ⎬b - Integer(Var)
+ ⎬per - Integer(Var)
+ ⎬a - record
+  ⎬b - Integer
+  ⎬c - Double
+  ⎬a - Array
+   from 1
+   to 2 of Array
+    from 1
+    to 2 of Array
+     from +
+          ⎬1
+          ⎬2
+     to -
+        ⎬3 of Integer(Var)
+ ⎬c - 2(Const)
