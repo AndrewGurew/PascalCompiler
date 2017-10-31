@@ -73,9 +73,6 @@ class Parser {
                 let decl = VarDecl(IDs.pos[i], IDs.name[i], type)
                 result.update(other: [IDs.name[i]: decl])
             }
-            tokenizer.nextToken()
-            require(.SEMICOLON)
-            tokenizer.nextToken()
         }
         return result.isEmpty ? nil : result
     }
@@ -109,10 +106,6 @@ class Parser {
             
             let decl = TypeDecl(newType.position, newType.text, type)
             result.update(other: [newType.text: decl])
-            
-            tokenizer.nextToken()
-            require(.SEMICOLON)
-            tokenizer.nextToken()
         }
         
         return result.isEmpty ? nil : result
@@ -120,6 +113,8 @@ class Parser {
     
     private func parseType() -> TypeNode {
         switch tokenizer.currentToken().type {
+        case .RECORD:
+            return parseRecordType()
         case .ARRAY:
             return parseArrayType()
         default:
@@ -127,16 +122,36 @@ class Parser {
         }
     }
     
+    private func parseRecordType() -> TypeNode {
+        require(.RECORD)
+        let position = tokenizer.currentToken().position
+        let record = RecordType(position)
+        for (key, value) in parseVarBlock()! {
+            record.idList.update(other: [key: (value as! VarDecl).type])
+        }
+        
+        require(.END)
+        tokenizer.nextToken()
+        require(.SEMICOLON)
+        tokenizer.nextToken()
+        
+        return record
+    }
+    
     // Need to fix
     private func parseSimpleType() -> TypeNode {
-        let position = tokenizer.currentToken().position
-        switch tokenizer.currentToken().type {
+        let token = tokenizer.currentToken()
+        tokenizer.nextToken()
+        require(.SEMICOLON)
+        tokenizer.nextToken()
+        
+        switch token.type {
         case .INT:
-            return SimpleType(position, .INT)
+            return SimpleType(token.position, .INT)
         case .DOUBLE:
-            return SimpleType(position, .DOUBLE)
+            return SimpleType(token.position, .DOUBLE)
         default:
-            return SimpleType(position, .ID)
+            return SimpleType(token.position, .ID)
         }
     }
     

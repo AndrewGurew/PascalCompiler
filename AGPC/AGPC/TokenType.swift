@@ -73,7 +73,8 @@ private var keyWordInfo:[String: TokenType] = [
     "if": .IF, "else": .ELSE, "true": .TRUE, "function": .FUNCTION,
     "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT, "do": .DO,
     "or": .OR, "until": .UNTIL, "type": .TYPE, "to": .TO, "of": .OF,
-    "integer": .INT, "double": .DOUBLE, "then": .THEN, "repeat": .REPEAT
+    "integer": .INT, "double": .DOUBLE, "then": .THEN, "repeat": .REPEAT,
+    "record": .RECORD
 ]
 
 private var types:[TokenType] = [.INT, .DOUBLE, .STRING]

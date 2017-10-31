@@ -166,11 +166,15 @@ default:
 }
 //let testText  = """
 //var
-//a: array [1..2] of integer;
+//a: record
+//a:integer;
+//end;
+//begin
+//end.
 //"""
 //let LexAnalyzer = Tokenizer(text: testText)
 //let ExpressionParser = Parser(tokenizer: LexAnalyzer)
-//print(ExpressionParser.testStmt())
+//print(ExpressionParser.testAllStmt())
 
 
 

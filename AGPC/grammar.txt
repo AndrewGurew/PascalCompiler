@@ -10,9 +10,16 @@ block ::= (constantDecl-part | varDecl-part | typeDecl-part) compoundStatement
 
 typeDecl-part ::= TYPE typeDecl
 typeDecl ::= identifier EQUAL type
-type ::= simpleType | arrayType
+type ::= simpleType | arrayType | recordType
+
 simpleType ::= INT | DOUBLE
 arrayType ::= ARRAY RSQR_BRACKET expression D_DOT expression LSQR_BRACKET OF type
+
+recordType ::= RECORD fieldList END
+fieldList ::= fixedPart
+fixedPart ::= recordSection {recordSection}
+recordSection ::= identifierList COLON type
+   
 
 constantDecl-part ::= CONST constantDecl
 constantDecl ::= identifier EQUAL constant

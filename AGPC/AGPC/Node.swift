@@ -61,6 +61,13 @@ class ArrayType: TypeNode {
     }
 }
 
+class RecordType: TypeNode {
+    var idList = [String: TypeNode]()
+    init(_ position: (Int, Int)) {
+        super.init(position, .RECORD, "Record")
+    }
+}
+
 class Declaration {
     enum DeclType: String {
         case VAR = "Var", TYPE = "Type",

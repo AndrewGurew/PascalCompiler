@@ -118,6 +118,13 @@ func drawType(_ type: TypeNode,_ tabNumber: Int = 0) -> String {
         finIndex += expTree
         
         return (type as! ArrayType).text + startIndex + finIndex + " of \(drawType((type as! ArrayType).type, tabNumber + 1))"
+    case is RecordType:
+        let record = (type as! RecordType)
+        var result = "record"
+        for (key, value) in record.idList {
+            result += "\n\(tabstr) ⎬\(key) - \(drawType(value, tabNumber + 1))"
+        }
+        return result
     default:
         return type.text
     }
