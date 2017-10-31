@@ -165,16 +165,12 @@ default:
     }
 }
 //let testText  = """
-//begin
-//a:=2+2;
-//if (a >= 4) then begin
-//a:= 0;
-//end
-//end
+//var
+//a: array [1..2] of integer;
 //"""
 //let LexAnalyzer = Tokenizer(text: testText)
 //let ExpressionParser = Parser(tokenizer: LexAnalyzer)
-//print(ExpressionParser.testAllStmt())
+//print(ExpressionParser.testStmt())
 
 
 

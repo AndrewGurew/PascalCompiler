@@ -52,6 +52,9 @@ class Parser {
             if(tokenizer.currentToken().type == .CONST) {
                 declarationScope.declList.update(other: parsConstBlock())
             }
+            if(tokenizer.currentToken().type == .TYPE) {
+                declarationScope.declList.update(other: parseTypeBlock())
+            }
             if(tokenizer.currentToken().type == .BEGIN) {
                 break
             }
@@ -65,9 +68,9 @@ class Parser {
     
         while (tokenizer.currentToken().type == .ID) {
             let IDs = getIndefenders()
-            let identType = IdentType(tokenizer.currentToken().position, tokenizer.currentToken().type)
+            let type = parseType()
             for i in 0..<IDs.name.count {
-                let decl = VarDecl(IDs.pos[i], IDs.name[i], identType)
+                let decl = VarDecl(IDs.pos[i], IDs.name[i], type)
                 result.update(other: [IDs.name[i]: decl])
             }
             tokenizer.nextToken()
@@ -92,6 +95,68 @@ class Parser {
             tokenizer.nextToken()
         }
         return result.isEmpty ? nil : result
+    }
+    
+    private func parseTypeBlock() -> [String: Declaration]? {
+        var result = [String: Declaration]()
+        tokenizer.nextToken()
+        while (tokenizer.currentToken().type == .ID) {
+            let newType = tokenizer.currentToken()
+            tokenizer.nextToken()
+            require(.EQUAL)
+            tokenizer.nextToken()
+            let type = parseType()
+            
+            let decl = TypeDecl(newType.position, newType.text, type)
+            result.update(other: [newType.text: decl])
+            
+            tokenizer.nextToken()
+            require(.SEMICOLON)
+            tokenizer.nextToken()
+        }
+        
+        return result.isEmpty ? nil : result
+    }
+    
+    private func parseType() -> TypeNode {
+        switch tokenizer.currentToken().type {
+        case .ARRAY:
+            return parseArrayType()
+        default:
+            return parseSimpleType()
+        }
+    }
+    
+    // Need to fix
+    private func parseSimpleType() -> TypeNode {
+        let position = tokenizer.currentToken().position
+        switch tokenizer.currentToken().type {
+        case .INT:
+            return SimpleType(position, .INT)
+        case .DOUBLE:
+            return SimpleType(position, .DOUBLE)
+        default:
+            return SimpleType(position, .ID)
+        }
+    }
+    
+    private func parseArrayType() -> TypeNode {
+        require(.ARRAY)
+        let position = tokenizer.currentToken().position
+        tokenizer.nextToken()
+        require(.LSQR_BRACKET)
+        tokenizer.nextToken()
+        let startIndex = parseExpr()!
+        require(.D_DOT)
+        tokenizer.nextToken()
+        let finIndex = parseExpr()!
+        require(.RSQR_BRACKET)
+        tokenizer.nextToken()
+        require(.OF)
+        tokenizer.nextToken()
+        let type = parseType()
+
+        return ArrayType(position, type, startIndex, finIndex)
     }
     
     private func getIndefenders() -> (name: [String], pos: [(Int, Int)]) {
@@ -244,7 +309,8 @@ class Parser {
             return nil
         }
         
-        while(tokenizer.currentToken().type == .PLUS || tokenizer.currentToken().type == .MINUS) {
+        while(tokenizer.currentToken().type == .PLUS || tokenizer.currentToken().type == .MINUS ||
+            tokenizer.currentToken().type == .OR) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()
@@ -260,7 +326,8 @@ class Parser {
             return nil
         }
             
-        while(tokenizer.currentToken().type == .MULT || tokenizer.currentToken().type == .DIV) {
+        while(tokenizer.currentToken().type == .MULT || tokenizer.currentToken().type == .DIV ||
+            tokenizer.currentToken().type == .AND) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             tokenizer.nextToken()

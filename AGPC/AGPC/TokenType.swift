@@ -72,12 +72,18 @@ private var keyWordInfo:[String: TokenType] = [
     "const": .CONST, "div": .DIV, "while": .WHILE, "for": .FOR,
     "if": .IF, "else": .ELSE, "true": .TRUE, "function": .FUNCTION,
     "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT, "do": .DO,
-    "or": .OR, "until": .UNTIL, "type": .TYPE, "to": .TO,
+    "or": .OR, "until": .UNTIL, "type": .TYPE, "to": .TO, "of": .OF,
     "integer": .INT, "double": .DOUBLE, "then": .THEN, "repeat": .REPEAT
 ]
 
+private var types:[TokenType] = [.INT, .DOUBLE, .STRING]
+
 func getType(_ key: String) -> TokenType {
     return symbolsInfo[key]!
+}
+
+func check(tokenType: TokenType) -> Bool {
+    return (types.index(of: tokenType) != nil)
 }
 
 func getKeyWordType(_ text: String) -> TokenType? {

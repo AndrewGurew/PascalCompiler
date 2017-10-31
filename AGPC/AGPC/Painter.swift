@@ -102,6 +102,27 @@ func drawStmtTree(_ stmtList: [StatementNode],_ tabNumber: Int = 0) -> String {
     return result
 }
 
+func drawType(_ type: TypeNode,_ tabNumber: Int = 0) -> String {
+    let tabstr = String(repeating: " ", count: tabNumber)
+    
+    switch type {
+    case is ArrayType:
+        var startIndex = "\n\(tabstr) from "
+        var expTree = drawExprTree((type as! ArrayType).startIndex, startIndex.length - 2)
+        expTree.removeFirst()
+        startIndex += expTree
+        
+        var finIndex = "\n\(tabstr) to "
+        expTree = drawExprTree((type as! ArrayType).finishIndex, finIndex.length - 2)
+        expTree.removeFirst()
+        finIndex += expTree
+        
+        return (type as! ArrayType).text + startIndex + finIndex + " of \(drawType((type as! ArrayType).type, tabNumber + 1))"
+    default:
+        return type.text
+    }
+}
+
 func drawDeclTree(_ declScope: DeclarationScope? = nil,_ tabNumber: Int = 0) -> String {
     if(declScope == nil) { return "" }
     
@@ -110,11 +131,15 @@ func drawDeclTree(_ declScope: DeclarationScope? = nil,_ tabNumber: Int = 0) -> 
     
     for (key,value) in declScope!.declList {
         if value is VarDecl {
-            result += "\n\(tabstr) ⎬\(key) - \((value as! VarDecl).type.type.rawValue)(\(value.declType.rawValue))"
-        } else {
+            result += "\n\(tabstr) ⎬\(key) - \(drawType((value as! VarDecl).type, tabNumber + 1))(\(value.declType.rawValue))"
+        }
+        if value is ConstDecl {
             var exprTree = drawExprTree((value as! ConstDecl).value, key.length + 4)
             exprTree.removeFirst()
             result += "\n\(tabstr) ⎬\(key) - \(exprTree)(\(value.declType.rawValue))"
+        }
+        if value is TypeDecl {
+            result += "\n\(tabstr) ⎬\(key) - \((value as! TypeDecl).type.text)(\(value.declType.rawValue))"
         }
     }
     return result

@@ -24,15 +24,42 @@ class StatementNode {
     }
 }
 
-class IdentType {
+class TypeNode {
+    enum NodeKind {
+        case SIMPLE, ARRAY, RECORD
+    }
     var position:(col: Int, row: Int)
-    var type:TokenType
-    init(_ position: (Int, Int), _ type:TokenType) {
+    var nodeKind:NodeKind
+    var text: String
+    init(_ position: (Int, Int), _ nodeKind: NodeKind,_ text:  String) {
         self.position = position
-        self.type = type
+        self.nodeKind = nodeKind
+        self.text = text
     }
 }
 
+class SimpleType: TypeNode {
+    enum Kind: String {
+        case INT = "Integer", DOUBLE = "Double", ID = "ID"
+    }
+    var kind: Kind
+    init(_ position: (Int, Int), _ kind: Kind) {
+        self.kind = kind
+        super.init(position, .SIMPLE, self.kind.rawValue)
+    }
+}
+
+class ArrayType: TypeNode {
+    var type:TypeNode
+    var startIndex: Expression
+    var finishIndex: Expression
+    init(_ position: (Int, Int),_ type: TypeNode,_ startIndex: Expression,_ finishIndex: Expression) {
+        self.type = type
+        self.startIndex = startIndex
+        self.finishIndex = finishIndex
+        super.init(position, .ARRAY, "Array")
+    }
+}
 
 class Declaration {
     enum DeclType: String {
@@ -51,10 +78,18 @@ class Declaration {
 }
 
 class VarDecl: Declaration {
-    var type: IdentType
-    init(_ position: (Int, Int), _ text: String,_ type: IdentType) {
+    var type: TypeNode
+    init(_ position: (Int, Int), _ text: String,_ type: TypeNode) {
         self.type = type
         super.init(position, text, .VAR)
+    }
+}
+
+class TypeDecl: Declaration {
+    var type: TypeNode
+    init(_ position: (Int, Int), _ text: String,_ type: TypeNode) {
+        self.type = type
+        super.init(position, text, .TYPE)
     }
 }
 
