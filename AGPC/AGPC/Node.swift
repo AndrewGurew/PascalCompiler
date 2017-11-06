@@ -10,7 +10,7 @@ import Foundation
 
 class StatementNode {
     enum Kind {
-        case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT
+        case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT, CALL
     }
     
     var text: String
@@ -21,6 +21,16 @@ class StatementNode {
         self.text = text
         self.position = position
         self.kind = kind
+    }
+}
+
+class ProcFuncCall: StatementNode {
+    var paramList = [Expression]()
+    var name: String
+    init(_ position: (Int, Int),_ name:String,_ paramList:[Expression] = []) {
+        self.paramList = paramList
+        self.name = name
+        super.init(position, .CALL, "Procedure or Function Call")
     }
 }
 
@@ -71,7 +81,7 @@ class RecordType: TypeNode {
 class Declaration {
     enum DeclType: String {
         case VAR = "Var", TYPE = "Type",
-        CONST = "Const"
+        CONST = "Const", PROCEDURE = "Procedure"
     }
     
     var declType: DeclType
@@ -89,6 +99,18 @@ class VarDecl: Declaration {
     init(_ position: (Int, Int), _ text: String,_ type: TypeNode) {
         self.type = type
         super.init(position, text, .VAR)
+    }
+}
+
+class ProcFuncDecl: Declaration {
+    var params = [String: Declaration]()
+    var returnType: TypeNode? = nil
+    var block:StatementNode
+    init(_ position: (Int, Int), _ text: String,_ block: StatementNode,_ params: [String: Declaration] = [:],_ returnType: TypeNode? = nil){
+        self.block = block
+        self.returnType = returnType
+        self.params = params
+        super.init(position, text, .PROCEDURE)
     }
 }
 
@@ -115,8 +137,9 @@ class DeclarationScope {
 class Block: StatementNode {
     var declScope: DeclarationScope?
     var stmtList = [StatementNode]()
-    init(_ position: (Int, Int),_ text: String,_ declaration:DeclarationScope? = nil) {
+    init(_ position: (Int, Int),_ text: String,_ declaration:DeclarationScope? = nil,_ stmtList:[StatementNode] = []) {
         self.declScope = declaration
+        self.stmtList = stmtList
         super.init(position, .BLOCK, text)
     }
 }
@@ -161,7 +184,7 @@ class IfElseStmt: StatementNode {
         self.condition = cond
         self.block = block
         self.elseBlock = elseBlock
-        super.init(position, .IFELSE, "If-Esle statement")
+        super.init(position, .IFELSE, "If-Else statement")
     }
 }
 
@@ -177,7 +200,7 @@ class AssignStmt: StatementNode {
 
 class Expression {
     enum Kind {
-        case UNARY, BINARY, INT, DOUBLE, ID
+        case UNARY, BINARY, INT, DOUBLE, ID, FUNCTION
     }
     
     var text: String
@@ -212,13 +235,13 @@ class UnaryExpr: Expression {
 
 class IDExpr: Expression {
     var name: String
-    init(name: String,_ position: (Int, Int)) {
+    init(_ name: String,_ position: (Int, Int)) {
         self.name = name
         super.init(position, .ID, self.name)
     }
 }
 
-class IntegerExp: Expression {
+class IntegerExpr: Expression {
     var value: UInt64
     init(value: UInt64,_ position: (Int, Int)) {
         self.value = value
@@ -226,10 +249,20 @@ class IntegerExp: Expression {
     }
 }
 
-class DoubleExp: Expression {
+class DoubleExpr: Expression {
     var value: Double
     init(value: Double,_ position: (Int, Int)) {
         self.value = value
         super.init(position, .DOUBLE, String(self.value))
+    }
+}
+
+class FunctionDesig: Expression {
+    var name: String
+    var paramList = [Expression]()
+    init(_ position: (Int, Int),_ name: String,_ paramList:[Expression] = []) {
+        self.name = name
+        self.paramList = paramList
+        super.init(position, .FUNCTION, self.name)
     }
 }

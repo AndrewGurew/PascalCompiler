@@ -1,24 +1,32 @@
 program ::= {head} block DOT
-identifierList ::= identifier{COMMA identifier}
+identifierList ::= identifier {COMMA identifier}
 head ::= program identifier {identifierList} SEMI
-identifier ::= letter {(letter-sequence|number-sequence|'_')} 
+identifier ::= letter {letter-sequence|number-sequence|'_'} 
 
 letter-sequence ::= letter {letter}
 number-sequence ::= number {number}
 
-block ::= (constantDecl-part | varDecl-part | typeDecl-part) compoundStatement
+block ::= {constantDecl-part | varDecl-part | typeDecl-part | procedureAndFunctionDecl-part | forwardProcFuncDecl} compoundStatement
 
 typeDecl-part ::= TYPE typeDecl
 typeDecl ::= identifier EQUAL type
 type ::= simpleType | arrayType | recordType
 
+procedureAndFunctionDecl-part ::= procedureOrFunctionDecl SEMI
+procedureOrFunctionDecl ::= procedureDeclaration | functionDeclaration
+procedureDecl ::= PROCEDURE identifier [parameterList] SEMI (block | forward)
+parameterList ::= LPAREN parameterList [SEMI parameterList] RPAREN
+parameterList ::= identifierList COLON simpleType
+
+functionDecl ::= FUNCTION identifier [parameterList] COLON returnType SEMI (block | forward)
+returnType := simpleType
+
 simpleType ::= INT | DOUBLE
 arrayType ::= ARRAY RSQR_BRACKET expression D_DOT expression LSQR_BRACKET OF type
 
 recordType ::= RECORD fieldList END
-fieldList ::= fixedPart
-fixedPart ::= recordSection {recordSection}
-recordSection ::= identifierList COLON type
+fieldList  ::= recordSection {recordSection}
+recordSection ::= identifierList COLON type SEMI
    
 
 constantDecl-part ::= CONST constantDecl
@@ -36,15 +44,26 @@ unsignDouble ::= number-sequence '.' number-sequence
 expression ::= simple expression {(<=|>=|=|<|>) simple expression}
 simple expression ::= term {(+|-|OR) term}
 term ::= factor {(*|/|AND) factor} 
-factor ::= (LEFT_BRACKET expression RIGHT_BRACKET) | identifier | constNumber
+factor ::= (LEFT_BRACKET expression RIGHT_BRACKET) | identifier | constNumber | functionDesignator
 
-statement ::=  whileStatement | repeatStatement | forStatement | ifStatement | assigStatement
+functionDesignator ::= identifier LPAREN [callParList] RPAREN
+
+statement ::=  whileStatement | repeatStatement | forStatement | ifStatement | assignStatement | compoundStatement | procedureCall
+procedureCall ::= identifier LEFT_BRACKET [callParList] RIGHT_BRACKET SEMI
+callParList ::= expression {COMMA expression}
+
 statements ::= statement {statement}
 compoundStatement ::= BEGIN statements END
 
 whileStatement ::= WHILE expression DO statement
-compoundStatement ::= BEGIN statements END
 repeatStatement :: REPEAT statements UNTIL expression
 forStatement ::= FOR identifier ASSIGN expression (TO | DOWNTO) expression DO statement
 ifStatement ::= IF expression THEN statement { ELSE statement }
 assigStatement ::= identifier ASSIGN expression
+
+SEMI ::= ';'
+COLON ::= ':'
+DOT ::= '.'
+LEFT_BRACKET ::= '('
+RIGHT_BRACKET ::= ')'
+

@@ -95,8 +95,19 @@ func drawStmtTree(_ stmtList: [StatementNode],_ tabNumber: Int = 0) -> String {
             let repeatStmt = (stmt as! RepeatStmt)
             result += exprTree(repeatStmt.condition)
             result += "\(drawBlockTree(repeatStmt.block, tabNumber + 1))"
+        case is ProcFuncCall:
+            let procFuncCallStmt = (stmt as! ProcFuncCall)
+            result.removeLast()
+            result += " \(procFuncCallStmt.name) \n"
+            if(!procFuncCallStmt.paramList.isEmpty) {
+                result.removeLast()
+                result += "with params:\n"
+            }
+            for expr in procFuncCallStmt.paramList {
+                result += exprTree(expr)
+            }
         default:
-            result += "WTF?"
+            result += ""
         }
     }
     return result
@@ -130,6 +141,18 @@ func drawType(_ type: TypeNode,_ tabNumber: Int = 0) -> String {
     }
 }
 
+func drawParams(_ paramList: [String: Declaration], _ tabNumber: Int = 0) -> String {
+    let tabstr = String(repeating: " ", count: tabNumber)
+    var result = "\(tabstr)Params: "
+    for (key,value) in paramList {
+        result += "\(key) - \((value as! VarDecl).type.text), "
+    }
+    result.removeLast()
+    result.removeLast()
+    
+    return result
+}
+
 func drawDeclTree(_ declScope: DeclarationScope? = nil,_ tabNumber: Int = 0) -> String {
     if(declScope == nil) { return "" }
     
@@ -148,6 +171,14 @@ func drawDeclTree(_ declScope: DeclarationScope? = nil,_ tabNumber: Int = 0) -> 
         if value is TypeDecl {
             result += "\n\(tabstr) ⎬\(key) - \((value as! TypeDecl).type.text)(\(value.declType.rawValue))"
         }
+        
+        if value is ProcFuncDecl {
+            result += "\n\(tabstr) ⎬\(key) - \((value as! ProcFuncDecl).text)\n"
+            result += "\(drawParams((value as! ProcFuncDecl).params, tabNumber + 1))\n"
+            result += ((value as! ProcFuncDecl).returnType != nil) ? "\(tabstr) Return type: \((value as! ProcFuncDecl).returnType!.text)\n" : ""
+            result += "\(drawDeclTree(((value as! ProcFuncDecl).block as! Block).declScope, tabNumber + 1))\n"
+            result += "\(drawStmtTree(((value as! ProcFuncDecl).block as! Block).stmtList, tabNumber + 1))\n"
+        }
     }
     return result
 }
@@ -159,6 +190,20 @@ func drawExprTree(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
     }
     let expr:Expression! = expr!
     var result = "⎬\(expr.text)"
+    
+    if let funcDesign = expr as? FunctionDesig {
+        if(!funcDesign.paramList.isEmpty) {
+            result += " with params:\n"
+            for expr in funcDesign.paramList {
+                var tree = drawExprTree(expr, tabNumber + 1)
+                let tabstr = String(repeating: " ", count: tabNumber)
+                tree.removeFirst()
+                result += "\(tabstr) ⎬\(tree)\n"
+            }
+            result.removeLast()
+        }
+        
+    }
     
     if let binaryExpr = expr as? BinaryExpr {
         // Draw left

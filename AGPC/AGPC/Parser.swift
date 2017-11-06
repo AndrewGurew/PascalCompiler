@@ -34,45 +34,53 @@ class Parser {
         }
     }
     
-    private func parseProgram() -> StatementNode  {
+    private func require(_ tokens: [TokenType]) {
+        var result = ""
+        for token in tokens { result += token.rawValue + " or " }
+        result = result[0..<result.length - 4]
+        
+        if (tokens.index(of: tokenizer.currentToken().type) == nil) {
+            print("Expected \(result) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
+        }
+    }
+    
+    private func parseProgram(_ text: String) -> StatementNode  {
         let declScope = parseDeclaration()
         require(.BEGIN)
         tokenizer.nextToken()
-        let mainBlock = Block(tokenizer.currentToken().position, "Main Block", declScope)
-        mainBlock.stmtList = parseStmtBlock()
-        return mainBlock
+        return Block(tokenizer.currentToken().position, text, declScope, parseStmtBlock())
     }
     
     private func parseDeclaration() -> DeclarationScope? {
         let declarationScope = DeclarationScope()
-        for _ in 0..<tokenizer.lexems.count {
-            if(tokenizer.currentToken().type == .VAR) {
+        while(true) {
+            switch(tokenizer.currentToken().type) {
+            case .VAR:
                 declarationScope.declList.update(other: parseVarBlock())
-            }
-            if(tokenizer.currentToken().type == .CONST) {
+            case .CONST:
                 declarationScope.declList.update(other: parsConstBlock())
-            }
-            if(tokenizer.currentToken().type == .TYPE) {
+            case .TYPE:
                 declarationScope.declList.update(other: parseTypeBlock())
-            }
-            if(tokenizer.currentToken().type == .BEGIN) {
-                break
+            case .PROCEDURE, .FUNCTION:
+                declarationScope.declList.update(other: parseProc())
+            default:
+                require([.BEGIN, .ENDOFFILE])
+                return declarationScope.declList.isEmpty ? nil : declarationScope
             }
         }
-        return declarationScope.declList.isEmpty ? nil : declarationScope
     }
     
     private func parseVarBlock() -> [String: Declaration]? {
         var result = [String: Declaration]()
         tokenizer.nextToken()
-    
         while (tokenizer.currentToken().type == .ID) {
-            let IDs = getIndefenders()
+            let Identifiers = getIdentifiers()
             let type = parseType()
-            for i in 0..<IDs.name.count {
-                let decl = VarDecl(IDs.pos[i], IDs.name[i], type)
-                result.update(other: [IDs.name[i]: decl])
+            for id in Identifiers {
+                result.update(other: [id.name: VarDecl(id.pos, id.name, type)])
             }
+            require(.SEMICOLON)
+            tokenizer.nextToken()
         }
         return result.isEmpty ? nil : result
     }
@@ -80,13 +88,11 @@ class Parser {
     private func parsConstBlock() -> [String: Declaration]? {
         var result = [String: Declaration]()
         tokenizer.nextToken()
-
         while(tokenizer.currentToken().type == .ID) {
-            let IDs = getIndefenders()
+            let Identifiers = getIdentifiers()
             let expr = parseExpr()
-            for i in 0..<IDs.name.count {
-                let decl = ConstDecl(IDs.pos[i], IDs.name[i], expr!)
-                result.update(other: [IDs.name[i]: decl])
+            for id in Identifiers{
+                result.update(other: [id.name: ConstDecl(id.pos, id.name, expr!)])
             }
             require(.SEMICOLON)
             tokenizer.nextToken()
@@ -102,17 +108,76 @@ class Parser {
             tokenizer.nextToken()
             require(.EQUAL)
             tokenizer.nextToken()
-            let type = parseType()
-            
-            let decl = TypeDecl(newType.position, newType.text, type)
+            let decl = TypeDecl(newType.position, newType.text, parseType())
             result.update(other: [newType.text: decl])
+            require(.SEMICOLON)
+            tokenizer.nextToken()
         }
         
         return result.isEmpty ? nil : result
     }
     
+    private func parseParams() -> [String: Declaration] {
+        var result = [String: Declaration]()
+        tokenizer.nextToken()
+        while (tokenizer.currentToken().type == .ID) {
+            let Identifiers = getIdentifiers()
+            let type = parseType()
+            for id in Identifiers {
+                result.update(other: [id.name: VarDecl(id.pos, id.name, type)])
+            }
+            
+            if(tokenizer.currentToken().type == .R_BRACKET) {
+                break;
+            } else {
+                require(.SEMICOLON)
+                tokenizer.nextToken()
+            }
+        }
+        return result
+    }
+    
+    private func parseProc() -> [String: Declaration]? {
+        let isFunction = tokenizer.currentToken().type == .FUNCTION
+        let position = tokenizer.currentToken().position
+        var text = "Procedure"
+        var returnType: TypeNode? = nil
+        tokenizer.nextToken()
+        require(.ID)
+        let procName = tokenizer.currentToken().text
+        tokenizer.nextToken()
+        require(.L_BRACKET)
+        let params = parseParams()
+        require(.R_BRACKET)
+        tokenizer.nextToken()
+        if(isFunction) {
+            require(.COLON)
+            tokenizer.nextToken()
+            returnType = parseSimpleType()
+            require(.SEMICOLON)
+            text = "Function"
+        } else {
+            require(.SEMICOLON)
+        }
+        tokenizer.nextToken()
+        
+        if(tokenizer.currentToken().type == .FORWARD) {
+            tokenizer.nextToken()
+            require(.SEMICOLON)
+            tokenizer.nextToken()
+            return [procName: ProcFuncDecl(position, text, Block(tokenizer.currentToken().position, "Foward", nil, []), params, returnType)]
+        } else {
+            let block = parseProgram("Procedure Block")
+            require(.END)
+            tokenizer.nextToken()
+            return [procName: ProcFuncDecl(position, text, block, params, returnType)]
+        }
+        
+    }
+    
     private func parseType() -> TypeNode {
-        switch tokenizer.currentToken().type {
+        let token = tokenizer.currentToken().type
+        switch token {
         case .RECORD:
             return parseRecordType()
         case .ARRAY:
@@ -129,10 +194,7 @@ class Parser {
         for (key, value) in parseVarBlock()! {
             record.idList.update(other: [key: (value as! VarDecl).type])
         }
-        
         require(.END)
-        tokenizer.nextToken()
-        require(.SEMICOLON)
         tokenizer.nextToken()
         
         return record
@@ -142,9 +204,6 @@ class Parser {
     private func parseSimpleType() -> TypeNode {
         let token = tokenizer.currentToken()
         tokenizer.nextToken()
-        require(.SEMICOLON)
-        tokenizer.nextToken()
-        
         switch token.type {
         case .INT:
             return SimpleType(token.position, .INT)
@@ -174,12 +233,10 @@ class Parser {
         return ArrayType(position, type, startIndex, finIndex)
     }
     
-    private func getIndefenders() -> (name: [String], pos: [(Int, Int)]) {
-        var result = [String]()
-        var positions = [(Int, Int)]()
+    private func getIdentifiers() -> [(name: String, pos: (Int, Int))] {
+        var result = [(name: String, pos: (Int, Int))]()
         while (tokenizer.currentToken().type == .ID) {
-            result.append(tokenizer.currentToken().text)
-            positions.append(tokenizer.currentToken().position)
+            result.append((tokenizer.currentToken().text, tokenizer.currentToken().position))
             tokenizer.nextToken()
             if(tokenizer.currentToken().type == .COMMA) {
                 tokenizer.nextToken()
@@ -189,19 +246,19 @@ class Parser {
             }
         }
         
-        return (result, positions)
+        return result
     }
     
     private func parseStmtBlock() -> [StatementNode] {
         var stmtList = [StatementNode]()
-        //tokenizer.nextToken()
         while (true) {
-            if(tokenizer.currentToken().type == .END || tokenizer.currentToken().type == .UNTIL) {
-                //tokenizer.nextToken()
-                break
-            }
             let stmt = parseStmt()
-            stmtList.append(stmt!)
+            if(stmt == nil) {
+                require([.END, .UNTIL])
+                break
+            } else {
+                stmtList.append(stmt!)
+            }
         }
         return stmtList
     }
@@ -209,11 +266,10 @@ class Parser {
     private func parseStmt() -> StatementNode? {
         switch tokenizer.currentToken().type {
         case .ID:
-            return parseAssign()
+            return parseID()
         case .BEGIN:
             tokenizer.nextToken()
-            let block = Block(tokenizer.currentToken().position, "Block")
-            block.stmtList = parseStmtBlock()
+            let block = Block(tokenizer.currentToken().position, "Block", nil, parseStmtBlock())
             tokenizer.nextToken()
             return block
         case .IF:
@@ -225,6 +281,7 @@ class Parser {
         case .REPEAT:
             return parseRepeat()
         default:
+           // require([.ID, .BEGIN, .IF, .FOR, .WHILE, .REPEAT])
             return nil
         }
     }
@@ -261,11 +318,40 @@ class Parser {
         return IfElseStmt(pos, condition!, stmtNode, elseNode)
     }
     
-    private func parseAssign(_ parentType: TokenType = .BEGIN) -> StatementNode {
+    private func parseID(_ parentType: TokenType = .BEGIN) -> StatementNode {
         require(.ID)
         let pos = tokenizer.currentToken().position
         let id = tokenizer.currentToken().text
         tokenizer.nextToken()
+        if (tokenizer.currentToken().type == .L_BRACKET) {
+            return parseCall(pos, id)
+        }
+        else {
+       //else if (tokenizer.currentToken().type == .ASSIGN) {
+            return parseAssign(pos, id, parentType)
+        }
+    }
+    
+    private func parseCall(_ pos: (Int, Int),_ name: String,_ inExpr: Bool = false) -> StatementNode {
+        require(.L_BRACKET)
+        tokenizer.nextToken()
+        var paramList = [Expression]()
+        while (tokenizer.currentToken().type != .R_BRACKET) {
+            paramList.append(parseExpr()!)
+            if(tokenizer.currentToken().type == .COMMA) {
+                tokenizer.nextToken()
+            }
+        }
+        require(.R_BRACKET)
+        if(!inExpr) {
+            tokenizer.nextToken()
+            require(.SEMICOLON)
+        }
+        tokenizer.nextToken()
+        return ProcFuncCall(pos, name, paramList)
+    }
+    
+    private func parseAssign(_ pos: (Int, Int),_ name: String,_ parentType: TokenType = .BEGIN) -> StatementNode {
         require(.ASSIGN)
         tokenizer.nextToken()
         let expr = parseExpr()!
@@ -273,14 +359,14 @@ class Parser {
             require(.SEMICOLON)
             tokenizer.nextToken()
         }
-        return AssignStmt(pos, expr, id)
+        return AssignStmt(pos, expr, name)
     }
     
     func parseFor() -> StatementNode {
         require(.FOR)
         let position = tokenizer.currentToken().position
         tokenizer.nextToken()
-        let startValue = parseAssign(.FOR)
+        let startValue = parseID(.FOR)
         require(.TO)
         tokenizer.nextToken()
         let finishValue = parseExpr()!
@@ -303,9 +389,7 @@ class Parser {
     
     private func parseExpr() -> Expression? {
         var result = parseSimpleExpr()
-        if(result == nil) {
-            return nil
-        }
+        if(result == nil) { return nil }
         while(tokenizer.currentToken().type == .MORE || tokenizer.currentToken().type == .LESS ||
             tokenizer.currentToken().type == .MORE_EQUAL || tokenizer.currentToken().type == .LESS_EQUAL ||
             tokenizer.currentToken().type == .EQUAL) {
@@ -320,9 +404,7 @@ class Parser {
     
     private func parseSimpleExpr() -> Expression?  {
         var result = parseTerm()
-        if (result == nil) {
-            return nil
-        }
+        if (result == nil) { return nil }
         
         while(tokenizer.currentToken().type == .PLUS || tokenizer.currentToken().type == .MINUS ||
             tokenizer.currentToken().type == .OR) {
@@ -337,9 +419,7 @@ class Parser {
     
     private func parseTerm() -> Expression? {
         var result = parseFactor()
-        if (result == nil) {
-            return nil
-        }
+        if (result == nil) { return nil }
             
         while(tokenizer.currentToken().type == .MULT || tokenizer.currentToken().type == .DIV ||
             tokenizer.currentToken().type == .AND) {
@@ -359,15 +439,13 @@ class Parser {
             tokenizer.nextToken()
             return UnaryExpr(operation.position, operation.text, child: parseTerm()!)
         case .ID:
-            let result = IDExpr(name: tokenizer.currentToken().text, tokenizer.currentToken().position)
-            tokenizer.nextToken()
-            return result
+            return parseDescription()
         case .INT:
-            let result = IntegerExp(value: UInt64(tokenizer.currentToken().value)!, tokenizer.currentToken().position)
+            let result = IntegerExpr(value: UInt64(tokenizer.currentToken().value)!, tokenizer.currentToken().position)
             tokenizer.nextToken()
             return result
         case .DOUBLE:
-            let result = DoubleExp(value: Double(tokenizer.currentToken().value)!, tokenizer.currentToken().position)
+            let result = DoubleExpr(value: Double(tokenizer.currentToken().value)!, tokenizer.currentToken().position)
             tokenizer.nextToken()
             return result
         case .L_BRACKET:
@@ -377,12 +455,25 @@ class Parser {
                 return nil
             }
             require(.R_BRACKET)
-  
             tokenizer.nextToken()
             return result
         default:
-            print("Unknown symbol in expression")
+            errorMessages.append("Unexpected symbol in \(tokenizer.currentToken().text) in \(tokenizer.currentToken().position)")
+            print("Unexpected symbol in \(tokenizer.currentToken().text) in \(tokenizer.currentToken().position)")
             return nil
+        }
+    }
+    
+    private func parseDescription() -> Expression {
+        require(.ID)
+        let name = tokenizer.currentToken().text
+        let pos = tokenizer.currentToken().position
+        tokenizer.nextToken()
+        if(tokenizer.currentToken().type == .L_BRACKET) {
+            let funcCall = parseCall(pos, name, true)
+            return FunctionDesig(pos,name, (funcCall as! ProcFuncCall).paramList)
+        } else  {
+            return IDExpr(name, pos)
         }
     }
     
@@ -391,7 +482,7 @@ class Parser {
     }
     
     public func testAllStmt() -> String {
-        self.testBlock = parseProgram()
+        self.testBlock = parseProgram("Main block")
         return drawBlockTree(self.testBlock)
     }
     
