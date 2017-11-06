@@ -103,9 +103,12 @@ case .HELP:
     print("\t-l: Lexical code analysis")
     print("\t-e: Expression parse")
 case .TEST:
+    var testNumber = 0
+    var failedTestsNumber = 0
     for testPart in testParts {
         print("\n\(testPart.text)")
         let allTextFiles = extractAllFile(atPath: testPart.testPath, withExtension: "pas")
+        testNumber += allTextFiles.count
         for file in allTextFiles {
             do {
                 let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
@@ -115,7 +118,12 @@ case .TEST:
                 let ansText = try String(contentsOf: NSURL.fileURL(withPath: outPut))
                 
                 var testResult = "Test number \(allTextFiles.index(of: file)! + 1) - "
-                (result == ansText) ? testResult.append("OK") : testResult.append("NO")
+                if (result == ansText) {
+                    testResult.append("OK")
+                } else {
+                    failedTestsNumber+=1
+                    testResult.append("NO")
+                }
                 print(testResult)
                 
             } catch {
@@ -123,6 +131,8 @@ case .TEST:
             }
         }
     }
+    
+    print("-----------------------\nTest count:\(testNumber)\nPassed: \(testNumber - failedTestsNumber) Failed: \(failedTestsNumber)\n")
 case .GEN_TEST_ANSWERS:
     for testPart in testParts {
         let allTextFiles = extractAllFile(atPath: testPart.testPath, withExtension: "pas")
@@ -165,12 +175,15 @@ default:
     }
 }
 //let testText  = """
-//var
-//a: record
-//a:integer;
-//end;
+//Procedure kek(b:integer);
+//var a:integer;
 //begin
-//end.
+//a:=1;
+//end
+//
+//begin
+//a:=2;
+//end
 //"""
 //let LexAnalyzer = Tokenizer(text: testText)
 //let ExpressionParser = Parser(tokenizer: LexAnalyzer)
