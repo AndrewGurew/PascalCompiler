@@ -74,7 +74,7 @@ private var keyWordInfo:[String: TokenType] = [
     "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT, "do": .DO,
     "or": .OR, "until": .UNTIL, "type": .TYPE, "to": .TO, "of": .OF,
     "integer": .INT, "double": .DOUBLE, "then": .THEN, "repeat": .REPEAT,
-    "record": .RECORD
+    "record": .RECORD, "forward": .FORWARD
 ]
 
 private var types:[TokenType] = [.INT, .DOUBLE, .STRING]
