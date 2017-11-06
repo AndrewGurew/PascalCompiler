@@ -45,7 +45,6 @@ expression ::= simple expression {(<=|>=|=|<|>) simple expression}
 simple expression ::= term {(+|-|OR) term}
 term ::= factor {(*|/|AND) factor} 
 factor ::= (LEFT_BRACKET expression RIGHT_BRACKET) | identifier | constNumber | functionDesignator
-
 functionDesignator ::= identifier LPAREN [callParList] RPAREN
 
 statement ::=  whileStatement | repeatStatement | forStatement | ifStatement | assignStatement | compoundStatement | procedureCall
