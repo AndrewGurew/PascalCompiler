@@ -1,0 +1,24 @@
+Declaration
+ ⎬b - Integer(Var)
+ ⎬test - Function
+ Params
+ Return type: Integer
+ Declaration
+  ⎬test1 - Function
+  Params
+  Return type: Integer
+  Declaration
+   ⎬a - Integer(Var)
+  ⎬ Assign
+   ⎬c
+   ⎬3
+
+
+  ⎬a - Integer(Var)
+ ⎬ Assign
+  ⎬e
+  ⎬3
+
+
+Main block
+End of Main block

@@ -1,0 +1,12 @@
+Declaration
+ ⎬foo - Procedure
+ Params: a - Double, c - Integer
+ Declaration
+  ⎬f - Integer(Var)
+  ⎬t - Integer(Type)
+ ⎬ Assign
+  ⎬f
+  ⎬+
+   ⎬a
+   ⎬c
+

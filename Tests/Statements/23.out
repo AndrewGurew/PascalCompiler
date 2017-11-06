@@ -1,0 +1,16 @@
+Main block
+ ⎬ If-Else statement
+  ⎬<
+   ⎬a
+   ⎬1
+  ⎬ Assign
+   ⎬a
+   ⎬+
+    ⎬foo with params:
+     ⎬+
+      ⎬a
+      ⎬b
+     ⎬bar with params:
+      ⎬1
+    ⎬1
+End of Main block

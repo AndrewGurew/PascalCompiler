@@ -1,0 +1,3 @@
+procedure bar();
+begin
+end

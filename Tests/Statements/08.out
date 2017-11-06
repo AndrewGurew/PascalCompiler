@@ -1,17 +1,17 @@
-Main Block
- ⎬ If-Esle statement
+Main block
+ ⎬ If-Else statement
   ⎬<
    ⎬i
    ⎬1
-  ⎬ If-Esle statement
+  ⎬ If-Else statement
    ⎬<
     ⎬i
     ⎬1
-   ⎬ If-Esle statement
+   ⎬ If-Else statement
     ⎬<
      ⎬i
      ⎬1
     ⎬ Assign
      ⎬a
      ⎬1
-End of Main Block
+End of Main block

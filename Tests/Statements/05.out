@@ -1,14 +1,14 @@
-Main Block
+Main block
  ⎬ Assign
   ⎬a
   ⎬+
    ⎬2
    ⎬2
- ⎬ If-Esle statement
+ ⎬ If-Else statement
   ⎬>=
    ⎬a
    ⎬4
   ⎬ Assign
    ⎬a
    ⎬0
-End of Main Block
+End of Main block

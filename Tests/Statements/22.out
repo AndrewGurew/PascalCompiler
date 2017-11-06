@@ -1,0 +1,12 @@
+Main block
+ ⎬ Assign
+  ⎬a
+  ⎬+
+   ⎬foo with params:
+    ⎬+
+     ⎬a
+     ⎬b
+    ⎬bar with params:
+     ⎬1
+   ⎬1
+End of Main block

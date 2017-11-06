@@ -1,6 +1,6 @@
 Declaration
  ⎬a - Integer(Var)
-Main Block
+Main block
  ⎬ Assign
   ⎬a
   ⎬-
@@ -9,4 +9,4 @@ Main Block
     ⎬+
      ⎬2
      ⎬3
-End of Main Block
+End of Main block
