@@ -80,7 +80,8 @@ class RecordType: TypeNode {
 
 class Declaration {
     enum DeclType: String {
-        case VAR = "Var", TYPE = "Type",
+        case
+        VAR = "Var", TYPE = "Type",
         CONST = "Const", PROCEDURE = "Procedure"
     }
     
@@ -203,6 +204,7 @@ class Expression {
         case UNARY, BINARY, INT, DOUBLE, ID, FUNCTION
     }
     
+    var type: TypeNode? = nil
     var text: String
     var kind: Kind
     var position:(col: Int, row: Int)
@@ -257,7 +259,7 @@ class DoubleExpr: Expression {
     }
 }
 
-class FunctionDesig: Expression {
+class FuncDesignator: Expression {
     var name: String
     var paramList = [Expression]()
     init(_ position: (Int, Int),_ name: String,_ paramList:[Expression] = []) {

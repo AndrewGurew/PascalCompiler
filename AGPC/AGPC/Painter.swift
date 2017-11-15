@@ -191,7 +191,7 @@ func drawExprTree(_ expr: Expression? = nil,_ tabNumber: Int = 0) -> String {
     let expr:Expression! = expr!
     var result = "⎬\(expr.text)"
     
-    if let funcDesign = expr as? FunctionDesig {
+    if let funcDesign = expr as? FuncDesignator {
         if(!funcDesign.paramList.isEmpty) {
             result += " with params:\n"
             for expr in funcDesign.paramList {

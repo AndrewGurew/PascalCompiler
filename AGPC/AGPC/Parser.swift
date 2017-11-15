@@ -12,6 +12,9 @@ extension Dictionary {
     mutating func update(other:Dictionary?) {
         if(other != nil) {
             for (key,value) in other! {
+                if self.index(forKey: key) != nil {
+                    errorMessages.append("Duplicate declaration of \"\(key)\"")
+                }
                 self.updateValue(value, forKey:key)
             }
         }
@@ -23,6 +26,27 @@ class Parser {
     private var testDecl:DeclarationScope?
     private var testBlock:StatementNode?
     
+    var varStack = [DeclarationScope]()
+    
+//    private func check(in dict: [String: Declaration], name: String) {
+//        if dict.index(forKey: name) != nil {
+//            errorMessages.append("Duplicate declaration of \"\(name)\"")
+//        }
+//    }
+    
+    private func check(name: String) {
+        if varStack.isEmpty {
+            errorMessages.append("Unknown identifier \(name)")
+            return
+        }
+        for i in varStack.count - 1...0 {
+            if varStack[i].declList.index(forKey: name) != nil {
+                return
+            }
+        }
+        errorMessages.append("Unknown identifier \(name)")
+    }
+    
     init(tokenizer: Tokenizer) {
         self.tokenizer = tokenizer
     }
@@ -30,7 +54,6 @@ class Parser {
     private func require(_ token: TokenType) {
         if(token != tokenizer.currentToken().type) {
             errorMessages.append("Expected: \(token.rawValue) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
-            print("Expected \(token.rawValue) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
         }
     }
     
@@ -40,15 +63,25 @@ class Parser {
         result = result[0..<result.length - 4]
         
         if (tokens.index(of: tokenizer.currentToken().type) == nil) {
-            print("Expected \(result) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
+            errorMessages.append("Expected \(result) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
         }
     }
     
     private func parseProgram(_ text: String) -> StatementNode  {
+        var appended = false
+        let pos = tokenizer.currentToken().position
         let declScope = parseDeclaration()
+        if (declScope != nil) {
+            varStack.append(declScope!);
+            appended = true
+        }
         require(.BEGIN)
         tokenizer.nextToken()
-        return Block(tokenizer.currentToken().position, text, declScope, parseStmtBlock())
+        let stamts = parseStmtBlock()
+        if (appended) {
+            varStack.removeLast()
+        }
+        return Block(pos, text, declScope, stamts)
     }
     
     private func parseDeclaration() -> DeclarationScope? {
@@ -145,6 +178,7 @@ class Parser {
         tokenizer.nextToken()
         require(.ID)
         let procName = tokenizer.currentToken().text
+        
         tokenizer.nextToken()
         require(.L_BRACKET)
         let params = parseParams()
@@ -322,6 +356,7 @@ class Parser {
         require(.ID)
         let pos = tokenizer.currentToken().position
         let id = tokenizer.currentToken().text
+        check(name: id)
         tokenizer.nextToken()
         if (tokenizer.currentToken().type == .L_BRACKET) {
             return parseCall(pos, id)
@@ -428,7 +463,6 @@ class Parser {
             tokenizer.nextToken()
             result = BinaryExpr(pos, text, leftChild: result!, rightChild: parseFactor()!)
         }
-        
         return result
     }
     
@@ -459,7 +493,6 @@ class Parser {
             return result
         default:
             errorMessages.append("Unexpected symbol in \(tokenizer.currentToken().text) in \(tokenizer.currentToken().position)")
-            print("Unexpected symbol in \(tokenizer.currentToken().text) in \(tokenizer.currentToken().position)")
             return nil
         }
     }
@@ -468,27 +501,37 @@ class Parser {
         require(.ID)
         let name = tokenizer.currentToken().text
         let pos = tokenizer.currentToken().position
+        check(name: name)
         tokenizer.nextToken()
         if(tokenizer.currentToken().type == .L_BRACKET) {
             let funcCall = parseCall(pos, name, true)
-            return FunctionDesig(pos,name, (funcCall as! ProcFuncCall).paramList)
+            return FuncDesignator(pos,name, (funcCall as! ProcFuncCall).paramList)
         } else  {
             return IDExpr(name, pos)
         }
     }
     
+    private func printErrors() -> String {
+        var result = ""
+        for error in errorMessages {
+            result += error + "\n"
+        }
+        errorMessages.removeAll()
+        return result
+    }
+    
     public func testExpressions() -> String {
-        return drawExprTree(parseExpr())
+        return printErrors() + drawExprTree(parseExpr())
     }
     
     public func testAllStmt() -> String {
         self.testBlock = parseProgram("Main block")
-        return drawBlockTree(self.testBlock)
+        return printErrors() + drawBlockTree(self.testBlock)
     }
     
     public func testStmt() -> String {
         self.testDecl = parseDeclaration()
-        return drawDeclTree(self.testDecl)
+        return printErrors() + drawDeclTree(self.testDecl)
     }
 }
 
