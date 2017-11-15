@@ -1,6 +1,5 @@
 var 
-  b: integer;
-  
+  a: integer;
 function test(): integer;
 var
 a: integer;
@@ -8,10 +7,10 @@ a: integer;
 	var
   	a: integer;
 	begin
-  		c := 3;
+  		a := 3;
 	end
 begin
-  e := 3;
+  a := 3;
 end
 
 begin

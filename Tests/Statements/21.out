@@ -1,5 +1,4 @@
 Declaration
- ⎬b - Integer(Var)
  ⎬test - Function
  Params
  Return type: Integer
@@ -10,15 +9,16 @@ Declaration
   Declaration
    ⎬a - Integer(Var)
   ⎬ Assign
-   ⎬c
+   ⎬a
    ⎬3
 
 
   ⎬a - Integer(Var)
  ⎬ Assign
-  ⎬e
+  ⎬a
   ⎬3
 
 
+ ⎬a - Integer(Var)
 Main block
 End of Main block
