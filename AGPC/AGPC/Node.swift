@@ -220,18 +220,34 @@ class Expression {
 class BinaryExpr: Expression {
     let leftChild: Expression
     let rightChild: Expression
+    
+    private func getType() {
+        if (self.text == "/") {
+            super.type = SimpleType(self.position, .DOUBLE)
+        } else {
+            super.type = resultType(with: leftChild, and: rightChild, position: position)
+        }
+    }
+    
     init(_ position: (Int, Int),_ text: String, leftChild: Expression, rightChild: Expression) {
         self.leftChild = leftChild
         self.rightChild = rightChild
         super.init(position, .BINARY, text)
+        getType()
     }
 }
 
 class UnaryExpr: Expression {
     let child: Expression
+    
+    private func getType() {
+        super.type = child.type
+    }
+    
     init(_ position: (Int, Int),_ text: String, child: Expression) {
         self.child = child
         super.init(position, .UNARY, text)
+        getType()
     }
 }
 

@@ -9,51 +9,14 @@ import Foundation
 
 public var errorMessages = [String]()
 
-extension String {
-    var length: Int {
-        return self.characters.count
-    }
-    
-    subscript (i: Int) -> String {
-        return self[i..<i + 1]
-    }
-    
-    func substring(fromIndex: Int) -> String {
-        return self[min(fromIndex, length) ..< length]
-    }
-    
-    func substring(toIndex: Int) -> String {
-        return self[0 ..< max(0, toIndex)]
-    }
-    
-    var asciiArray: [UInt32] {
-        return unicodeScalars.filter{$0.isASCII}.map{$0.value}
-    }
-    
-    subscript (r: Range<Int>) -> String {
-        let range = Range(uncheckedBounds: (lower: max(0, min(length, r.lowerBound)),
-                                            upper: min(length, max(0, r.upperBound))))
-        let start = index(startIndex, offsetBy: range.lowerBound)
-        let end = index(start, offsetBy: range.upperBound - range.lowerBound)
-        return String(self[start ..< end])
-    }
-}
-
-extension Character {
-    var asciiValue: Int {
-        let value = String(self).unicodeScalars.filter{$0.isASCII}.first?.value
-        return Int(value!)
-    }
-}
-
 class Tokenizer {
-    private var index = 0
+    private var _currentToken: Token?
+    private var text: String
     
     init(text: String) {
         self.text = text
         self.text.append(" \0")
         initTable()
-        analyze()
     }
     
     private enum State: String {
@@ -64,18 +27,19 @@ class Tokenizer {
         
         static var count: Int { return State.END.hashValue + 1}
     }
-    
-    private var text: String
     private var currentState: State = .BEGIN
     private var newState: State = .BEGIN
-    var lexems = [Token]()
-    
     private var stateTable = Array(repeating: Array<State>(repeating: .END, count: 128), count: State.count)
 
-    func nextToken() { self.index+=1 }
+    func nextToken() {
+        self._currentToken = self.analyze()
+    }
     
     func currentToken() -> Token {
-        return lexems[self.index]
+        if(self._currentToken == nil) {
+            nextToken()
+        }
+        return self._currentToken!
     }
     
     // MARK: Init state table
@@ -175,71 +139,69 @@ class Tokenizer {
         stateTable[State.DOT.hashValue][Character(".").asciiValue] = .DOUBLE_DOT
 
     }
+
+    private var i = 0
+    private var symbolPosition = (row: 1, col: 1)
+    private var currentCol = 1
     
-    private func analyze(){
-        var i = 0
-        var symbolPosition = (row: 1, col: 1)
-        var currentCol = 1
+    private func analyze() -> Token {
         var lexemText = ""
-        
-        while(i != text.characters.count) {
+        while(true) {
             let symbol = Character(text[i])
             currentState = newState
             newState = stateTable[currentState.hashValue][symbol.asciiValue]
-            
             switch(newState) {
             case .END:
+                var result:Token = Token(lexemText, .UNKNOWN, symbolPosition)
                 switch(currentState) {
                 case .WORD:
                     let lexem = getKeyWordType(lexemText.lowercased())
-                    lexem == nil ? lexems.append(Token(lexemText, .ID, symbolPosition)) :
-                        lexems.append(Token(lexemText, lexem!, symbolPosition))
+                    result =  (lexem == nil) ? Token(lexemText, .ID, symbolPosition) : Token(lexemText, lexem!, symbolPosition)
                 case .SHIFT:
                     newState = .BEGIN
                 case .DOUBLE_NUMBER_DOT:
                     i-=1
                     currentCol-=1
                     lexemText = lexemText[0..<lexemText.count - 1]
-                    lexems.append(Token(lexemText, .INT, symbolPosition))
+                    result = Token(lexemText, .INT, symbolPosition)
                 case .DOT:
-                    lexems.append(Token(lexemText, .DOT, symbolPosition))
+                    result = Token(lexemText, .DOT, symbolPosition)
                 case .DOUBLE_DOT:
-                    lexems.append(Token(lexemText, .D_DOT, symbolPosition))
+                    result = Token(lexemText, .D_DOT, symbolPosition)
                 case .INTEGER:
-                    lexems.append(Token(lexemText, .INT, symbolPosition))
+                    result = Token(lexemText, .INT, symbolPosition)
                 case .DOUBLE_NUMBER:
-                    lexems.append(Token(lexemText, .DOUBLE, symbolPosition))
+                    result = Token(lexemText, .DOUBLE, symbolPosition)
                 case .EXP_NUMBER:
-                    lexems.append(Token(lexemText, .DOUBLE, symbolPosition, String(Double(lexemText)!)))
+                    result = Token(lexemText, .DOUBLE, symbolPosition, String(Double(lexemText)!))
                 case .HEX_INT:
-                    lexems.append(Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "$", with: ""), nil, 16)))))
+                    result = Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "$", with: ""), nil, 16))))
                 case .BINARY_INT:
-                    lexems.append(Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "%", with: ""), nil, 2)))))
+                    result = Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "%", with: ""), nil, 2))))
                 case .OCTAL_INT:
-                    lexems.append(Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "&", with: ""), nil, 8)))))
+                    result = Token(lexemText, .INT, symbolPosition, String(Int(strtoul(lexemText.replacingOccurrences(of: "&", with: ""), nil, 8))))
                 case .SPECIAL_MAX, .SPECIAL, .SLASH, .SPECIAL_DERELICT:
-                    lexems.append(Token(lexemText, getType(lexemText), symbolPosition))
+                    result = Token(lexemText, getType(lexemText), symbolPosition)
                 case .STRING:
                     lexemText.append(symbol)
                     i+=1
-                    lexems.append(Token(lexemText, .STRING, symbolPosition, lexemText.replacingOccurrences(of: "'", with: "")))
+                    result = Token(lexemText, .STRING, symbolPosition, lexemText.replacingOccurrences(of: "'", with: ""))
                 case .COMMENT_LONG:
                     lexemText.append(symbol)
                     i+=1
-                    lexems.append(Token(lexemText, .LONG_COMMENT, symbolPosition))
+                    result = Token(lexemText, .LONG_COMMENT, symbolPosition)
                 case .COMMENT:
-                    lexems.append(Token(lexemText, .COMMENT, symbolPosition))
+                    result = Token(lexemText, .COMMENT, symbolPosition)
                 default:
-                    errorMessages.append("Unknown symbol - \"\(symbol)\" in \(symbolPosition.row, currentCol) position")
-                    lexemText = ""
+                    errorMessages.append("\(symbolPosition.row, currentCol) - unknown symbol: \"\(symbol)\"")
+                    lexemText.removeAll()
                     i+=1
                     currentCol+=1
                     newState = .BEGIN
                 }
-                lexemText = ""
-                i-=1
-                currentCol-=1
+                lexemText.removeAll()
                 newState = .BEGIN
+                return result
             case .SHIFT:
                 if(symbol == "\n"){
                     symbolPosition.row+=1
@@ -247,7 +209,7 @@ class Tokenizer {
                 }
                 newState = .BEGIN
             case .ENDOFFILE:
-                lexems.append(Token("EndOfFile", .ENDOFFILE, symbolPosition))
+                return Token("EndOfFile", .ENDOFFILE, symbolPosition)
             default:
                 if (lexemText.isEmpty){
                     symbolPosition = (symbolPosition.row, currentCol)
@@ -257,5 +219,15 @@ class Tokenizer {
             i+=1
             currentCol+=1
         }
+    }
+    
+    func test() -> String {
+        var text: String = lexemTable(self.currentToken());
+        while(self.currentToken().type != .ENDOFFILE) {
+            nextToken()
+            text.append(lexemTable(self.currentToken()))
+        }
+        initialDraw = true
+        return text
     }
 }

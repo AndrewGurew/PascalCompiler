@@ -10,13 +10,19 @@ import Foundation
 
 func lexTabale(progText: String) -> String {
     let lexAnalyzer = Tokenizer(text: progText)
-    return lexemTable(lexAnalyzer.lexems)
+    return lexAnalyzer.test();
 }
 
 func exTree(progText: String) -> String {
     let lexAnalyzer = Tokenizer(text: progText)
     let expressionParser = Parser(tokenizer: lexAnalyzer)
     return expressionParser.testExpressions()
+}
+
+func exType(progText: String) -> String {
+    let lexAnalyzer = Tokenizer(text: progText)
+    let expressionParser = Parser(tokenizer: lexAnalyzer)
+    return expressionParser.testExprTypes()
 }
 
 func declTree(progText: String) -> String {
@@ -55,7 +61,8 @@ let testParts:[Test] = [
     Test("Lexical tests:\n", lexTabale, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Lex"),
     Test("Expression tests:\n", exTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Expressions"),
     Test("Declaration tests:\n", declTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Declarations"),
-    Test("Statement tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Statements")
+    Test("Statement tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Statements"),
+    Test("Expression type tests:\n", exType, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/ExprType")
 ]
 
 var mod:Mod = .RELEASE
@@ -110,6 +117,7 @@ case .TEST:
         let allTextFiles = extractAllFile(atPath: testPart.testPath, withExtension: "pas")
         testNumber += allTextFiles.count
         for file in allTextFiles {
+            errorMessages.removeAll()
             do {
                 let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
                 let result = testPart.method(progText)
@@ -122,6 +130,7 @@ case .TEST:
                     testResult.append("OK")
                 } else {
                     failedTestsNumber+=1
+                    print(progText)
                     testResult.append("NO")
                 }
                 print(testResult)
@@ -137,7 +146,8 @@ case .GEN_TEST_ANSWERS:
     for testPart in testParts {
         let allTextFiles = extractAllFile(atPath: testPart.testPath, withExtension: "pas")
         for file in allTextFiles {
-                    print(file)
+            errorMessages.removeAll()
+            print(file)
             do {
                 let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
                 let outPut = (file.replacingOccurrences(of: ".pas", with: ".out"))
@@ -163,7 +173,7 @@ default:
             let LexAnalyzer = Tokenizer(text: progText)
             
             if(keys.index(of: "-l") != nil) {
-                print(lexemTable(LexAnalyzer.lexems))
+                print(LexAnalyzer.test())
             }
             if(keys.index(of: "-e") != nil) {
                 let ExpressionParser = Parser(tokenizer: LexAnalyzer)
@@ -175,19 +185,10 @@ default:
     }
 }
 //let testText  = """
-//Procedure kek(b:integer);
-//var a:integer;
-//begin
-//a:=1;
-//end
-//
-//begin
-//a:=2;
-//end
+//a = array[1 ..5] of integer;
 //"""
 //let LexAnalyzer = Tokenizer(text: testText)
-//let ExpressionParser = Parser(tokenizer: LexAnalyzer)
-//print(ExpressionParser.testAllStmt())
+//print(LexAnalyzer.test())
 
 
 

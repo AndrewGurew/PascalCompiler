@@ -37,7 +37,7 @@ enum TokenType: String {
     D_DOT = "Double dot"
     
     //Types
-    case INT = "Integer", DOUBLE = "Double", STRING = "String"
+    case INT = "Integer", DOUBLE = "Double", STRING = "String", BOOL = "Boolean"
     
     //Keywords
     case PROCEDURE = "Procedure", RECORD = "Record", IF = "If", THEN = "Then",
@@ -46,7 +46,7 @@ enum TokenType: String {
     ARRAY = "Array", OF = "Of", CONST = "Const", TRUE = "True", PROGRAMM = "Programm",
     FALSE = "False", AND = "And", NOT = "Not", OR = "Or", DOWNTO = "Downto", EOF = "EOF",
     WHILE = "While", BEGIN = "Begin", END = "End", FORWARD = "Forward", DO = "Do",
-    FUNCTION = "Function"
+    FUNCTION = "Function", UNKNOWN = "Unknown"
     
     //Other
     case ID = "Id", COMMENT = "Comments", LONG_COMMENT = "Long comments",
@@ -74,13 +74,39 @@ private var keyWordInfo:[String: TokenType] = [
     "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT, "do": .DO,
     "or": .OR, "until": .UNTIL, "type": .TYPE, "to": .TO, "of": .OF,
     "integer": .INT, "double": .DOUBLE, "then": .THEN, "repeat": .REPEAT,
-    "record": .RECORD, "forward": .FORWARD
+    "record": .RECORD, "forward": .FORWARD, "boolean": .BOOL
 ]
 
-private var types:[TokenType] = [.INT, .DOUBLE, .STRING]
+private var types:[TokenType] = [.INT, .DOUBLE, .STRING, .BOOL]
 
 func getType(_ key: String) -> TokenType {
     return symbolsInfo[key]!
+}
+
+func resultType(with oper1: Expression, and oper2: Expression, position: (Int, Int)) -> TypeNode? {
+    
+    if !(oper1.type is SimpleType) || !(oper2.type is SimpleType) {
+        errorMessages.append("Unexpected type in \(position)")
+        return nil
+    }
+    
+    let index1 = (oper1.type as! SimpleType).kind.rawValue + (oper2.type as! SimpleType).kind.rawValue
+    let index2 = (oper2.type as! SimpleType).kind.rawValue + (oper1.type as! SimpleType).kind.rawValue
+
+    let typeTable:[String: TypeNode] = [
+        SimpleType.Kind.DOUBLE.rawValue + SimpleType.Kind.DOUBLE.rawValue: SimpleType(position, .DOUBLE),
+        SimpleType.Kind.INT.rawValue + SimpleType.Kind.DOUBLE.rawValue: SimpleType(position, .DOUBLE),
+        SimpleType.Kind.INT.rawValue + SimpleType.Kind.INT.rawValue: SimpleType(position, .INT)
+    ]
+
+    if (typeTable.index(forKey: index1) != nil) {
+        return typeTable[index1]!
+    } else if (typeTable.index(forKey: index2) != nil) {
+        return typeTable[index2]!
+    } else {
+        errorMessages.append("Unexpected type in \(position)")
+        return nil
+    }
 }
 
 func check(tokenType: TokenType) -> Bool {

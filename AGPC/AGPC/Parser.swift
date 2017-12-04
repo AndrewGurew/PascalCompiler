@@ -8,46 +8,49 @@
 
 import Foundation
 
-extension Dictionary {
-    mutating func update(other:Dictionary?) {
-        if(other != nil) {
-            for (key,value) in other! {
-                if self.index(forKey: key) != nil {
-                    errorMessages.append("Duplicate declaration of \"\(key)\"")
-                }
-                self.updateValue(value, forKey:key)
-            }
-        }
-    }
-}
-
 class Parser {
     private var tokenizer:Tokenizer
     private var testDecl:DeclarationScope?
     private var testBlock:StatementNode?
     
     var varStack = [DeclarationScope]()
+    var testExpr = false
     
-//    private func check(in dict: [String: Declaration], name: String) {
-//        if dict.index(forKey: name) != nil {
-//            errorMessages.append("Duplicate declaration of \"\(name)\"")
-//        }
-//    }
-    
-    private func check(name: String) {
-        if varStack.isEmpty {
-            errorMessages.append("Unknown identifier \(name)")
-            return
+    private func getIDType(name: String) -> TypeNode? {
+        if (testExpr) {
+            return SimpleType((1,1), .INT)
         }
-        for i in varStack.count - 1...0 {
-            if varStack[i].declList.index(forKey: name) != nil {
-                return
+        let variable = check(name: name)
+        
+        if(variable == nil) {
+            return SimpleType((1,1), .INT)
+        }
+        
+        if (variable is VarDecl) {
+            return (variable as! VarDecl).type
+        } else if (variable is ProcFuncDecl)  {
+            return (variable as! ProcFuncDecl).returnType!
+        } else {
+            return (variable as! ConstDecl).value.type!
+        }
+    }
+    
+    private func check(name: String) -> Declaration? {
+        if (varStack.isEmpty) {
+            errorMessages.append("Unknown identifier \(name)")
+            return nil
+        }
+        for i in 0..<varStack.count {
+            if (varStack[varStack.count - 1 - i].declList.index(forKey: name) != nil) {
+                return varStack[varStack.count - 1 - i].declList[name]
             }
         }
         errorMessages.append("Unknown identifier \(name)")
+        return nil
     }
     
     init(tokenizer: Tokenizer) {
+        testExpr = false
         self.tokenizer = tokenizer
     }
     
@@ -56,6 +59,25 @@ class Parser {
             errorMessages.append("Expected: \(token.rawValue) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
         }
     }
+    
+    private func requireType(_ type: TypeNode,_ expectedType: SimpleType.Kind,_ posintion: (Int, Int)) {
+        if !(type is SimpleType) {
+            errorMessages.append("Expected simple type in \(posintion)")
+        }
+        if((type as! SimpleType).kind != expectedType) {
+            errorMessages.append("Expected \(expectedType.rawValue) not \((type as! SimpleType).kind.rawValue) in \(posintion)")
+        }
+    }
+    
+//    private func require(_ type: SimpleType.Kind) {
+////        if !(type is SimpleType) {
+////            errorMessages.append("Expected simple type in \(tokenizer.currentToken().position)")
+////        }
+////
+////        if(token != tokenizer.currentToken().type) {
+////            errorMessages.append("Expected: \(type. .rawValue) in \(tokenizer.currentToken().position) before \(tokenizer.currentToken().text)")
+////        }
+//    }
     
     private func require(_ tokens: [TokenType]) {
         var result = ""
@@ -70,23 +92,26 @@ class Parser {
     private func parseProgram(_ text: String) -> StatementNode  {
         var appended = false
         let pos = tokenizer.currentToken().position
+        //if (declScope != nil) {
+//            let tmp = DeclarationScope()
+//            varStack.append(tmp);
+//            appended = true
+//        //}
         let declScope = parseDeclaration()
-        if (declScope != nil) {
-            varStack.append(declScope!);
-            appended = true
-        }
         require(.BEGIN)
         tokenizer.nextToken()
         let stamts = parseStmtBlock()
-        if (appended) {
+//        if (appended) {
             varStack.removeLast()
-        }
+//        }
         return Block(pos, text, declScope, stamts)
     }
     
     private func parseDeclaration() -> DeclarationScope? {
         let declarationScope = DeclarationScope()
+        varStack.append(declarationScope);
         while(true) {
+            varStack[varStack.count - 1] = declarationScope
             switch(tokenizer.currentToken().type) {
             case .VAR:
                 declarationScope.declList.update(other: parseVarBlock())
@@ -182,6 +207,9 @@ class Parser {
         tokenizer.nextToken()
         require(.L_BRACKET)
         let params = parseParams()
+        let paramsScope = DeclarationScope()
+        paramsScope.declList = params
+        varStack.append(paramsScope)
         require(.R_BRACKET)
         tokenizer.nextToken()
         if(isFunction) {
@@ -204,6 +232,7 @@ class Parser {
             let block = parseProgram("Procedure Block")
             require(.END)
             tokenizer.nextToken()
+            varStack.removeLast()
             return [procName: ProcFuncDecl(position, text, block, params, returnType)]
         }
         
@@ -394,6 +423,7 @@ class Parser {
             require(.SEMICOLON)
             tokenizer.nextToken()
         }
+        requireType(expr.type!, (getIDType(name: name) as! SimpleType).kind , pos)
         return AssignStmt(pos, expr, name)
     }
     
@@ -471,15 +501,17 @@ class Parser {
         case .MINUS, .PLUS:
             let operation = tokenizer.currentToken()
             tokenizer.nextToken()
-            return UnaryExpr(operation.position, operation.text, child: parseTerm()!)
+            return UnaryExpr(operation.position, operation.text, child: parseFactor()!)
         case .ID:
             return parseDescription()
         case .INT:
             let result = IntegerExpr(value: UInt64(tokenizer.currentToken().value)!, tokenizer.currentToken().position)
+            result.type = SimpleType(tokenizer.currentToken().position, .INT)
             tokenizer.nextToken()
             return result
         case .DOUBLE:
             let result = DoubleExpr(value: Double(tokenizer.currentToken().value)!, tokenizer.currentToken().position)
+            result.type = SimpleType(tokenizer.currentToken().position, .DOUBLE)
             tokenizer.nextToken()
             return result
         case .L_BRACKET:
@@ -501,15 +533,20 @@ class Parser {
         require(.ID)
         let name = tokenizer.currentToken().text
         let pos = tokenizer.currentToken().position
-        check(name: name)
         tokenizer.nextToken()
         if(tokenizer.currentToken().type == .L_BRACKET) {
             let funcCall = parseCall(pos, name, true)
-            return FuncDesignator(pos,name, (funcCall as! ProcFuncCall).paramList)
+            let result = FuncDesignator(pos,name, (funcCall as! ProcFuncCall).paramList)
+            result.type = getIDType(name: name)
+            return result
         } else  {
-            return IDExpr(name, pos)
+            let result = IDExpr(name, pos)
+            result.type = getIDType(name: name)
+            return result
         }
     }
+    
+    // MARK: Test functions
     
     private func printErrors() -> String {
         var result = ""
@@ -521,7 +558,12 @@ class Parser {
     }
     
     public func testExpressions() -> String {
+        testExpr = true
         return printErrors() + drawExprTree(parseExpr())
+    }
+    
+    public func testExprTypes() -> String {
+        return printErrors() + (parseExpr()?.type?.text)!
     }
     
     public func testAllStmt() -> String {

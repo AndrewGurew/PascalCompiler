@@ -8,29 +8,37 @@
 
 import Foundation
 
-func lexemTable(_ lexems: [Token]) ->  String {
+var initialDraw = true
+func lexemTable(_ lexem: Token) ->  String {
     let column1PadLength = 20
     let columnDefaultPadLength = 20
     
-    var errors = ""
-    for error in errorMessages {
-        errors += error + "\n"
-    }
-    
-    let headerString = "Position".padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + "Type".padding(toLength: column1PadLength + 5, withPad: " ", startingAt: 0) +
-        "Text".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
-        "Value".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
-    
-    let lineString = "".padding(toLength: headerString.characters.count, withPad: "-", startingAt: 0)
-    
-    var dataString = ""
-    for lexem in lexems {
+    let drawData = { () -> String in
+        var dataString = ""
         let number = "(\(lexem.position.row),\(lexem.position.col))"
         dataString += number.padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + lexem.type.rawValue.padding(toLength: columnDefaultPadLength + 5, withPad: " ", startingAt: 0) + lexem.text.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
             lexem.value.padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
-        dataString.append("\n")
+        return "\(dataString)"
     }
-    return "\(errors)\(headerString)\n\(lineString)\n\(dataString)"
+
+    if(initialDraw) {
+        var errors = ""
+        for error in errorMessages {
+            errors += error + "\n"
+        }
+        
+        let headerString = "Position".padding(toLength: column1PadLength, withPad: " ", startingAt: 0) + "Type".padding(toLength: column1PadLength + 5, withPad: " ", startingAt: 0) +
+            "Text".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0) +
+            "Value".padding(toLength: columnDefaultPadLength, withPad: " ", startingAt: 0)
+        
+        let lineString = "".padding(toLength: headerString.characters.count, withPad: "-", startingAt: 0)
+        
+        
+        initialDraw = false
+        return "\(errors)\(headerString)\n\(lineString)\n\(drawData())\n"
+    } else {
+        return "\(drawData())\n"
+    }
 }
 
 func drawBlockTree(_ stmtNode: StatementNode? = nil,_ tabNumber: Int = 0) -> String {
