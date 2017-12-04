@@ -4,9 +4,9 @@ Declaration
       ⎬-
        ⎬3
        ⎬3(Const)
- ⎬a - -
-      ⎬*
+ ⎬a - *
+      ⎬-
        ⎬+
-       ⎪⎬2
-       ⎪⎬3
-       ⎬2(Const)
+        ⎬2
+        ⎬3
+      ⎬2(Const)

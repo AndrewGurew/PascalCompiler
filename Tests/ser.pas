@@ -1,5 +1,8 @@
-var
-a:double;
+#
+var 
+a,c:integer;
+b,f:double;
 begin
-a:=1+foo(); 
+b:=a;
+f:=c;
 end

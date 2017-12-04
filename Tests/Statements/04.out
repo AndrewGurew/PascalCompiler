@@ -3,10 +3,10 @@ Declaration
 Main block
  ⎬ Assign
   ⎬a
-  ⎬-
-   ⎬*
+  ⎬*
+   ⎬-
     ⎬4
-    ⎬+
-     ⎬2
-     ⎬3
+   ⎬+
+    ⎬2
+    ⎬3
 End of Main block

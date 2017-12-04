@@ -1,0 +1,14 @@
+Expected Integer not Double in (7, 2)
+Declaration
+ ⎬a - Integer(Var)
+ ⎬foo - Function
+ Params
+ Return type: Double
+
+
+
+Main block
+ ⎬ Assign
+  ⎬a
+  ⎬foo
+End of Main block

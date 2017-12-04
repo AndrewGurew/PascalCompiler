@@ -1,3 +1,3 @@
-int#
+int
 // coments
-a:=|
+a:=

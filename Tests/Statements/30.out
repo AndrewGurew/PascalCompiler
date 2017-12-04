@@ -1,0 +1,13 @@
+Declaration
+ ⎬a - Integer(Var)
+ ⎬foo - Function
+ Params
+ Return type: Integer
+
+
+
+Main block
+ ⎬ Assign
+  ⎬a
+  ⎬foo
+End of Main block

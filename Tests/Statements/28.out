@@ -1,0 +1,15 @@
+Expected Integer not Double in (5, 2)
+Expected Integer not Double in (6, 2)
+Declaration
+ ⎬b - Double(Var)
+ ⎬f - Double(Var)
+ ⎬a - Integer(Var)
+ ⎬c - Integer(Var)
+Main block
+ ⎬ Assign
+  ⎬a
+  ⎬b
+ ⎬ Assign
+  ⎬c
+  ⎬f
+End of Main block

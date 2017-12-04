@@ -1,5 +1,4 @@
-Unknown identifier a
-Unknown identifier c
+Expected Integer not Double in (5, 2)
 Declaration
  ⎬foo - Procedure
  Params: a - Double, c - Integer

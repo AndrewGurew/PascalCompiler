@@ -1,6 +1,5 @@
-Unknown identifier a
-Duplicate declaration of "a"
 Declaration
- ⎬a - Array
+ ⎬b - Array
   from a
   to 7 of Double(Var)
+ ⎬a - 5(Const)

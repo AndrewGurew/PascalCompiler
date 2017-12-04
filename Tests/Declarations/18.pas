@@ -1,5 +1,5 @@
 var
 a: record
-b:integer;
-c:double;
+	b:integer;
+	c:double;
 end;
