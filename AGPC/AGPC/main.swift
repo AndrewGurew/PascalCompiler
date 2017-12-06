@@ -8,33 +8,33 @@
 
 import Foundation
 
-func lexTabale(progText: String) -> String {
+func lexTabale(progText: String) throws -> String {
     let lexAnalyzer = Tokenizer(text: progText)
-    return lexAnalyzer.test();
+    return try lexAnalyzer.test();
 }
 
-func exTree(progText: String) -> String {
+func exTree(progText: String) throws -> String {
     let lexAnalyzer = Tokenizer(text: progText)
     let expressionParser = Parser(tokenizer: lexAnalyzer)
-    return expressionParser.testExpressions()
+    return try expressionParser.testExpressions()
 }
 
-func exType(progText: String) -> String {
+func exType(progText: String) throws -> String {
     let lexAnalyzer = Tokenizer(text: progText)
     let expressionParser = Parser(tokenizer: lexAnalyzer)
-    return expressionParser.testExprTypes()
+    return try expressionParser.testExprTypes()
 }
 
-func declTree(progText: String) -> String {
+func declTree(progText: String) throws -> String {
     let lexAnalyzer = Tokenizer(text: progText)
     let stmtParser = Parser(tokenizer: lexAnalyzer)
-    return stmtParser.testStmt()
+    return try stmtParser.testStmt()
 }
 
-func stmtTree(progText: String) -> String {
+func stmtTree(progText: String) throws -> String {
     let lexAnalyzer = Tokenizer(text: progText)
     let stmtParser = Parser(tokenizer: lexAnalyzer)
-    return stmtParser.testAllStmt()
+    return try stmtParser.testAllStmt()
 }
 
 enum Mod {
@@ -44,7 +44,7 @@ enum Mod {
     case HELP
 }
 
-typealias Method = (String) -> String
+typealias Method = (String) throws -> String
 
 struct Test {
     var text: String
@@ -69,6 +69,21 @@ var mod:Mod = .RELEASE
 var keys = [String]()
 var fileName:String?
 
+func usualMod(progText: String) throws -> String {
+    let LexAnalyzer = Tokenizer(text: progText)
+    var result = ""
+    
+    if(keys.index(of: "-l") != nil) {
+        result = try LexAnalyzer.test()
+    }
+    if(keys.index(of: "-e") != nil) {
+        let ExpressionParser = Parser(tokenizer: LexAnalyzer)
+        result = try ExpressionParser.testAllStmt()
+    }
+    
+    return result
+}
+
 if(CommandLine.arguments.count <= 1) {
     print("Pascal compiler.\nCreated by Andrey Gurev on 2017.\nCopyright © 2017 Andrey Gurev. All rights reserved.")
 } else {
@@ -84,6 +99,26 @@ if(CommandLine.arguments.count <= 1) {
         for i in 2..<CommandLine.arguments.count {
             keys.append(CommandLine.arguments[i].lowercased())
         }
+    }
+}
+
+func getResult(_ method: Method,_ progText: String) -> String {
+    do {
+        return try method(progText)
+    } catch ParseErrors.unknownSymbol(let pos, let text) {
+        return unknownSymbolMessage(pos, text)
+    } catch ParseErrors.unknownIdentifier(let pos, let text) {
+        return unknownIdentifierMessage(pos, text)
+    } catch ParseErrors.unexpectedSymbolBefore(let pos, let expected, let text) {
+        return unexpectedSymbolBeforeMessage(pos, expected, text)
+    } catch ParseErrors.duplicateDeclaration(let pos, let text) {
+        return duplicateDeclarationMessage(pos, text)
+    } catch ParseErrors.unexpectedSymbol(let pos, let text) {
+        return unexpectedSymbolMessage(pos, text)
+    } catch ParseErrors.other(let text) {
+        return otherMessage(text)
+    } catch {
+        return unknownErrorMessage()
     }
 }
 
@@ -118,12 +153,13 @@ case .TEST:
         testNumber += allTextFiles.count
         for file in allTextFiles {
             errorMessages.removeAll()
+            
             do {
                 let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
-                let result = testPart.method(progText)
-                
                 let outPut = (file.replacingOccurrences(of: ".pas", with: ".out"))
                 let ansText = try String(contentsOf: NSURL.fileURL(withPath: outPut))
+            
+                let result = getResult(testPart.method, progText)
                 
                 var testResult = "Test number \(allTextFiles.index(of: file)! + 1) - "
                 if (result == ansText) {
@@ -134,7 +170,6 @@ case .TEST:
                     testResult.append("NO")
                 }
                 print(testResult)
-                
             } catch {
                 print("Error loading contents of:", file, error)
             }
@@ -151,7 +186,9 @@ case .GEN_TEST_ANSWERS:
             do {
                 let progText = try String(contentsOf: NSURL.fileURL(withPath: file))
                 let outPut = (file.replacingOccurrences(of: ".pas", with: ".out"))
-                let result = testPart.method(progText)
+                
+                let result = getResult(testPart.method, progText)
+                
                 do {
                     try result.write(to: NSURL.fileURL(withPath: outPut), atomically: true, encoding: .utf8)
                 }
@@ -170,15 +207,7 @@ default:
             let path = fileManager.currentDirectoryPath
             let progText = try String(contentsOf: NSURL.fileURL(withPath: path + "/" + fileName!))
             print(progText)
-            let LexAnalyzer = Tokenizer(text: progText)
-            
-            if(keys.index(of: "-l") != nil) {
-                print(LexAnalyzer.test())
-            }
-            if(keys.index(of: "-e") != nil) {
-                let ExpressionParser = Parser(tokenizer: LexAnalyzer)
-                print(ExpressionParser.testAllStmt())
-            }
+            print(getResult(usualMod, progText))
         }
     } catch {
         print("Error loading contents of:", fileName!, error)

@@ -31,13 +31,13 @@ class Tokenizer {
     private var newState: State = .BEGIN
     private var stateTable = Array(repeating: Array<State>(repeating: .END, count: 128), count: State.count)
 
-    func nextToken() {
-        self._currentToken = self.analyze()
+    func nextToken() throws {
+        self._currentToken = try self.analyze()
     }
     
     func currentToken() -> Token {
         if(self._currentToken == nil) {
-            nextToken()
+            try! self.nextToken()
         }
         return self._currentToken!
     }
@@ -141,10 +141,10 @@ class Tokenizer {
     }
 
     private var i = 0
-    private var symbolPosition = (row: 1, col: 1)
+    private var symbolPosition = (row: 1, col: 2)
     private var currentCol = 1
     
-    private func analyze() -> Token {
+    private func analyze() throws -> Token {
         var lexemText = ""
         while(true) {
             let symbol = Character(text[i])
@@ -152,7 +152,7 @@ class Tokenizer {
             newState = stateTable[currentState.hashValue][symbol.asciiValue]
             switch(newState) {
             case .END:
-                var result:Token = Token(lexemText, .UNKNOWN, symbolPosition)
+                var result:Token?
                 switch(currentState) {
                 case .WORD:
                     let lexem = getKeyWordType(lexemText.lowercased())
@@ -193,15 +193,11 @@ class Tokenizer {
                 case .COMMENT:
                     result = Token(lexemText, .COMMENT, symbolPosition)
                 default:
-                    errorMessages.append("\(symbolPosition.row, currentCol) - unknown symbol: \"\(symbol)\"")
-                    lexemText.removeAll()
-                    i+=1
-                    currentCol+=1
-                    newState = .BEGIN
+                    throw ParseErrors.unexpectedSymbol(symbolPosition, String(symbol))
                 }
                 lexemText.removeAll()
                 newState = .BEGIN
-                return result
+                return result!
             case .SHIFT:
                 if(symbol == "\n"){
                     symbolPosition.row+=1
@@ -221,10 +217,10 @@ class Tokenizer {
         }
     }
     
-    func test() -> String {
+    func test() throws -> String {
         var text: String = lexemTable(self.currentToken());
         while(self.currentToken().type != .ENDOFFILE) {
-            nextToken()
+            try nextToken()
             text.append(lexemTable(self.currentToken()))
         }
         initialDraw = true

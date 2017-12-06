@@ -12,7 +12,6 @@ class StatementNode {
     enum Kind {
         case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT, CALL
     }
-    
     var text: String
     var kind: Kind
     var position:(col: Int, row: Int)
@@ -105,12 +104,14 @@ class VarDecl: Declaration {
 
 class ProcFuncDecl: Declaration {
     var params = [String: Declaration]()
+    var isForward: Bool
     var returnType: TypeNode? = nil
     var block:StatementNode
-    init(_ position: (Int, Int), _ text: String,_ block: StatementNode,_ params: [String: Declaration] = [:],_ returnType: TypeNode? = nil){
+    init(_ position: (Int, Int), _ text: String,_ block: StatementNode,_ params: [String: Declaration] = [:],_ returnType: TypeNode? = nil,_ isForward:Bool = false){
         self.block = block
         self.returnType = returnType
         self.params = params
+        self.isForward = isForward
         super.init(position, text, .PROCEDURE)
     }
 }

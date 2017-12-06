@@ -9,11 +9,11 @@
 import Foundation
 
 extension Dictionary {
-    mutating func update(other:Dictionary?) {
+    mutating func update(other:Dictionary?) throws {
         if(other != nil) {
             for (key,value) in other! {
                 if self.index(forKey: key) != nil {
-                    errorMessages.append("Duplicate declaration of \"\(key)\"")
+                    throw ParseErrors.duplicateDeclaration((value as! Declaration).position, key as! String)
                 }
                 self.updateValue(value, forKey:key)
             }
