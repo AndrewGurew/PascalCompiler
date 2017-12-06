@@ -1,8 +1,1 @@
-Expected Integer not Double in (4, 2)
-Declaration
- ⎬a - Integer(Var)
-Main block
- ⎬ Assign
-  ⎬a
-  ⎬0.5
-End of Main block
+(4, 2) - expected Integer not Double

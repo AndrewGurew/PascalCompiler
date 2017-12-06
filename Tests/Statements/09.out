@@ -1,15 +1,1 @@
-Unknown identifier a
-Unknown identifier a
-Main block
- ⎬ While satement
-  ⎬=
-   ⎬1
-   ⎬1
-  ⎬ Repeat satement
-   ⎬=
-    ⎬2
-    ⎬2
-   ⎬ Assign
-    ⎬a
-    ⎬1
-End of Main block
+(4, 4) - identifier a is not declared

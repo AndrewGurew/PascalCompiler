@@ -1,16 +1,1 @@
-Expected Integer not Double in (5, 2)
-Declaration
- ⎬foo - Function
- Params: b - Double, a - Integer
- Return type: Double
- Declaration
-  ⎬c - Integer(Var)
- ⎬ Assign
-  ⎬c
-  ⎬+
-   ⎬a
-   ⎬b
-
-
-Main block
-End of Main block
+(5, 2) - expected Integer not Double

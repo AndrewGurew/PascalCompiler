@@ -1,13 +1,1 @@
-Unknown identifier foo
-Unknown identifier b
-Unknown identifier a
-Main block
- ⎬ Procedure or Function Call foo with params:
-  ⎬1
-  ⎬+
-   ⎬1
-   ⎬1
-  ⎬+
-   ⎬b
-   ⎬a
-End of Main block
+(2, 12) - identifier b is not declared

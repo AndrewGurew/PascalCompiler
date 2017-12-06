@@ -1,14 +1,1 @@
-Unknown identifier i
-Unknown identifier i
-Unknown identifier n
-Unknown identifier a
-Unknown identifier a
-Main block
- ⎬ For satement
-  ⎬i
-  ⎬1
-  ⎬n
-  ⎬ Assign
-   ⎬a
-   ⎬3
-End of Main block
+(2, 6) - identifier i is not declared

@@ -1,8 +1,6 @@
-#
-var 
-a,c:integer;
-b,f:double;
+procedure foo(a:double; c:integer);
+var f:integer;
+type t = integer;
 begin
-b:=a;
-f:=c;
+f:=a+c;
 end

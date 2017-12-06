@@ -1,5 +1,1 @@
-Duplicate declaration of "a"
-Declaration
- ⎬a - Integer(Var)
-Main block
-End of Main block
+(2, 4) - duplicate declaration of a

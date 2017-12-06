@@ -1,13 +1,1 @@
-Expected Integer not Double in (5, 2)
-Declaration
- ⎬foo - Procedure
- Params: a - Double, c - Integer
- Declaration
-  ⎬f - Integer(Var)
-  ⎬t - Integer(Type)
- ⎬ Assign
-  ⎬f
-  ⎬+
-   ⎬a
-   ⎬c
-
+(5, 2) - expected Integer not Double

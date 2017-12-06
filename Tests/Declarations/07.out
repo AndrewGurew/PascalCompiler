@@ -1,11 +1,1 @@
-Duplicate declaration of "b"
-Declaration
- ⎬b - +
-      ⎬5
-      ⎬/
-       ⎬5
-       ⎬-
-        ⎬2(Const)
- ⎬f - Double(Var)
- ⎬a - Integer(Var)
- ⎬c - 3(Const)
+(3, 2) - duplicate declaration of b
