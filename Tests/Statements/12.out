@@ -1,1 +1,13 @@
-(2, 6) - identifier i is not declared
+Declaration
+ ⎬i - Integer(Var)
+ ⎬a - Integer(Var)
+ ⎬n - Integer(Var)
+Main block
+ ⎬ For satement
+  ⎬i
+  ⎬1
+  ⎬n
+  ⎬ Assign
+   ⎬a
+   ⎬3
+End of Main block

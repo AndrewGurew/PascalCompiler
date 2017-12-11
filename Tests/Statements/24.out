@@ -1,1 +1,13 @@
-(2, 2) - duplicate declaration of a
+Declaration
+ ⎬a - Integer(Var)
+ ⎬foo - Function
+ Params
+ Return type: Integer
+
+
+
+Main block
+ ⎬ Assign
+  ⎬a
+  ⎬foo
+End of Main block

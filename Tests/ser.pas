@@ -1,6 +1,5 @@
-procedure foo(a:double; c:integer);
-var f:integer;
-type t = integer;
+var
+a:double;
 begin
-f:=a+c;
-end
+a:=1 / 2;
+end.

@@ -1,3 +1,10 @@
+Declaration
+ ⎬foo - Function
+ Params: a - Integer
+ Return type: Integer
+
+
+
 Main block
  ⎬ Procedure or Function Call foo with params:
   ⎬1

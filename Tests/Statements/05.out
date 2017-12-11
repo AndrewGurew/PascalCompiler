@@ -1,1 +1,16 @@
-(2, 2) - identifier a is not declared
+Declaration
+ ⎬a - Integer(Var)
+Main block
+ ⎬ Assign
+  ⎬a
+  ⎬+
+   ⎬2
+   ⎬2
+ ⎬ If-Else statement
+  ⎬>=
+   ⎬a
+   ⎬4
+  ⎬ Assign
+   ⎬a
+   ⎬0
+End of Main block

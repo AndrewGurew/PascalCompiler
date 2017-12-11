@@ -1,1 +1,27 @@
-(2, 9) - identifier a is not declared
+Declaration
+ ⎬b - Integer(Var)
+ ⎬a - Integer(Var)
+ ⎬bar - Function
+ Params: c - Integer
+ Return type: Integer
+
+
+
+ ⎬foo - Function
+ Params: d - Integer, c - Integer
+ Return type: Integer
+
+
+
+Main block
+ ⎬ Assign
+  ⎬a
+  ⎬+
+   ⎬foo with params:
+    ⎬+
+     ⎬a
+     ⎬b
+    ⎬bar with params:
+     ⎬1
+   ⎬1
+End of Main block

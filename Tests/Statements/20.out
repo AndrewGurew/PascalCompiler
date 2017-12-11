@@ -1,1 +1,19 @@
-(2, 12) - identifier b is not declared
+Declaration
+ ⎬b - Integer(Var)
+ ⎬a - Integer(Var)
+ ⎬foo - Function
+ Params: d - Integer, c - Integer, f - Integer
+ Return type: Integer
+
+
+
+Main block
+ ⎬ Procedure or Function Call foo with params:
+  ⎬1
+  ⎬+
+   ⎬1
+   ⎬1
+  ⎬+
+   ⎬b
+   ⎬a
+End of Main block

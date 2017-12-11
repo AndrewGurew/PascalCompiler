@@ -1,3 +1,4 @@
+var a,i:integer;
 begin
 repeat
 	i:= i + 1;

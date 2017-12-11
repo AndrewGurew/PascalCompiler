@@ -1,3 +1,10 @@
+Declaration
+ ⎬foo - Function
+ Params
+ Return type: Integer
+
+
+
 Main block
  ⎬ Procedure or Function Call foo 
 End of Main block

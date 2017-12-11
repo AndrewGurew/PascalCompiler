@@ -1,5 +1,4 @@
-var 
-a:integer;
+procedure bar(a:double; c:integer); forward;
 begin
-a:=0.5;
-end
+bar();
+end.

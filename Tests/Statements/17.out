@@ -1,1 +1,19 @@
-(2, 5) - identifier a is not declared
+Declaration
+ ⎬a - Integer(Var)
+Main block
+ ⎬ If-Else statement
+  ⎬or
+   ⎬<
+   ⎪⎬a
+   ⎪⎬3
+   ⎬and
+    ⎬>
+    ⎪⎬a
+    ⎪⎬0
+    ⎬=
+     ⎬a
+     ⎬3
+  ⎬ Assign
+   ⎬a
+   ⎬3
+End of Main block

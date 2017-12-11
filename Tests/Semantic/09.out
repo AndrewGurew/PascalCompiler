@@ -1,0 +1,13 @@
+Declaration
+ ⎬b - Double(Var)
+ ⎬f - Double(Var)
+ ⎬a - Integer(Var)
+ ⎬c - Integer(Var)
+Main block
+ ⎬ Assign
+  ⎬b
+  ⎬a
+ ⎬ Assign
+  ⎬f
+  ⎬c
+End of Main block

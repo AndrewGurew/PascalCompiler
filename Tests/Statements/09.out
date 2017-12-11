@@ -1,1 +1,15 @@
-(4, 4) - identifier a is not declared
+Declaration
+ ⎬a - Integer(Var)
+Main block
+ ⎬ While satement
+  ⎬=
+   ⎬1
+   ⎬1
+  ⎬ Repeat satement
+   ⎬=
+    ⎬2
+    ⎬2
+   ⎬ Assign
+    ⎬a
+    ⎬1
+End of Main block

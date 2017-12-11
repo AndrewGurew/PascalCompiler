@@ -1,13 +1,1 @@
-⎬-
- ⎬foo with params:
-  ⎬+
-   ⎬1
-   ⎬2
-  ⎬+
-   ⎬a
-   ⎬b
-  ⎬c
- ⎬bar with params:
-  ⎬-
-   ⎬1
-   ⎬1
+(1, 1) - identifier foo is not declared
