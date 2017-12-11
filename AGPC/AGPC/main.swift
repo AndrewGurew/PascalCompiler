@@ -34,7 +34,7 @@ func declTree(progText: String) throws -> String {
 func stmtTree(progText: String) throws -> String {
     let lexAnalyzer = Tokenizer(text: progText)
     let stmtParser = Parser(tokenizer: lexAnalyzer)
-    return try stmtParser.testAllStmt()
+    return try stmtParser.testProgram()
 }
 
 enum Mod {
@@ -62,7 +62,8 @@ let testParts:[Test] = [
     Test("Expression tests:\n", exTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Expressions"),
     Test("Declaration tests:\n", declTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Declarations"),
     Test("Statement tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Statements"),
-    Test("Expression type tests:\n", exType, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/ExprType")
+    Test("Expression type tests:\n", exType, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/ExprType"),
+    Test("Semantic tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Semantic")
 ]
 
 var mod:Mod = .RELEASE
@@ -78,7 +79,7 @@ func usualMod(progText: String) throws -> String {
     }
     if(keys.index(of: "-e") != nil) {
         let ExpressionParser = Parser(tokenizer: LexAnalyzer)
-        result = try ExpressionParser.testAllStmt()
+        result = try ExpressionParser.testProgram()
     }
     
     return result

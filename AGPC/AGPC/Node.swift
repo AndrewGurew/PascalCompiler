@@ -222,19 +222,19 @@ class BinaryExpr: Expression {
     let leftChild: Expression
     let rightChild: Expression
     
-    private func getType() {
+    private func getType() throws {
         if (self.text == "/") {
             super.type = SimpleType(self.position, .DOUBLE)
         } else {
-            super.type = resultType(with: leftChild, and: rightChild, position: position)
+            super.type = try resultType(with: leftChild, and: rightChild, position: position, self.text)
         }
     }
     
-    init(_ position: (Int, Int),_ text: String, leftChild: Expression, rightChild: Expression) {
+    init(_ position: (Int, Int),_ text: String, leftChild: Expression, rightChild: Expression) throws {
         self.leftChild = leftChild
         self.rightChild = rightChild
         super.init(position, .BINARY, text)
-        getType()
+        try getType()
     }
 }
 

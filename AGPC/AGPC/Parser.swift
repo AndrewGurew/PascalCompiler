@@ -12,61 +12,9 @@ class Parser {
     private var tokenizer:Tokenizer
     private var varStack = [DeclarationScope]()
     
+    
     init(tokenizer: Tokenizer) {
-        testExpr = false
         self.tokenizer = tokenizer
-    }
-    
-    private func getIDType(name: String,_ pos: (Int, Int)) throws -> TypeNode? {
-        if (testExpr) {
-            return SimpleType(pos, .INT)
-        }
-        
-        let variable = try check(name: name, pos)
-        
-        if (variable is VarDecl) {
-            return (variable as! VarDecl).type
-        } else if (variable is ProcFuncDecl)  {
-            return (variable as! ProcFuncDecl).returnType!
-        } else {
-            return (variable as! ConstDecl).value.type!
-        }
-    }
-    
-    private func check(name: String,_ pos: (Int, Int)) throws -> Declaration? {
-        if (varStack.isEmpty) {
-            throw ParseErrors.unknownIdentifier(pos, name)
-        }
-        for i in 0..<varStack.count {
-            if (varStack[varStack.count - 1 - i].declList.index(forKey: name) != nil) {
-                return varStack[varStack.count - 1 - i].declList[name]
-            }
-        }
-        throw ParseErrors.unknownIdentifier(pos, name)
-    }
-    
-    private func require(_ token: TokenType) throws {
-        if(token != tokenizer.currentToken().type) {
-            throw ParseErrors.unexpectedSymbolBefore(tokenizer.currentToken().position, token.rawValue, tokenizer.currentToken().text)
-        }
-    }
-    
-    private func require(_ tokens: [TokenType]) throws {
-        var result = ""
-        for token in tokens { result += token.rawValue + " or " }
-        result = result[0..<result.length - 4]
-        if (tokens.index(of: tokenizer.currentToken().type) == nil) {
-            throw ParseErrors.unexpectedSymbolBefore(tokenizer.currentToken().position, result, tokenizer.currentToken().text)
-        }
-    }
-    
-    private func requireType(_ type: TypeNode,_ expectedType: SimpleType.Kind,_ posintion: (Int, Int)) throws {
-        if !(type is SimpleType) {
-            throw ParseErrors.other("\(posintion) - expected simple type")
-        }
-        if((type as! SimpleType).kind != expectedType) {
-            throw ParseErrors.other("\(posintion) - expected \(expectedType.rawValue) not \((type as! SimpleType).kind.rawValue)")
-        }
     }
     
     private func parseProgram(_ text: String) throws -> StatementNode  {
@@ -375,9 +323,7 @@ class Parser {
         try tokenizer.nextToken()
         var paramList = [Expression]()
         while (tokenizer.currentToken().type != .R_BRACKET) {
-            
             let expr = try parseExpr()
-            
             paramList.append(expr)
             if(tokenizer.currentToken().type == .COMMA) {
                 try tokenizer.nextToken()
@@ -388,22 +334,23 @@ class Parser {
             try tokenizer.nextToken()
             try require(.SEMICOLON)
         }
+        
         try tokenizer.nextToken()
-        return ProcFuncCall(pos, name, paramList)
+        let result = ProcFuncCall(pos, name, paramList)
+        try checkCall(Of: result)
+        return result
     }
     
     private func parseAssign(_ pos: (Int, Int),_ name: String,_ parentType: TokenType = .BEGIN) throws -> StatementNode {
         try require(.ASSIGN)
         try tokenizer.nextToken()
-        //let expr = parseExpr()
-        
         let expr = try parseExpr()
         
         if(parentType == .BEGIN) {
             try require(.SEMICOLON)
             try tokenizer.nextToken()
         }
-        try requireType(expr.type!, (getIDType(name: name, pos) as! SimpleType).kind , pos)
+        try requireType(expr.type!, getIDType(name: name, pos)! , pos)
         return AssignStmt(pos, expr, name)
     }
     
@@ -441,7 +388,7 @@ class Parser {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             try tokenizer.nextToken()
-            result = BinaryExpr(pos, text, leftChild: result, rightChild: try parseSimpleExpr())
+            result = try BinaryExpr(pos, text, leftChild: result, rightChild: try parseSimpleExpr())
         }
         
         return result
@@ -455,7 +402,7 @@ class Parser {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             try tokenizer.nextToken()
-            result = BinaryExpr(pos, text, leftChild: result, rightChild: try parseTerm())
+            result = try BinaryExpr(pos, text, leftChild: result, rightChild: try parseTerm())
         }
        
         return result
@@ -468,7 +415,7 @@ class Parser {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             try tokenizer.nextToken()
-            result = BinaryExpr(pos, text, leftChild: result, rightChild: try parseFactor())
+            result = try BinaryExpr(pos, text, leftChild: result, rightChild: try parseFactor())
         }
         return result
     }
@@ -534,12 +481,137 @@ class Parser {
         return (try parseExpr().type?.text)!
     }
     
-    public func testAllStmt() throws -> String {
+    public func testProgram() throws -> String {
         return drawBlockTree(try parseProgram("Main block"))
     }
     
     public func testStmt() throws -> String {
         return drawDeclTree(try parseDeclaration())
+    }
+    
+    func getIDType(name: String,_ pos: (Int, Int)) throws -> TypeNode? {
+        if (testExpr) {
+            return SimpleType(pos, .INT)
+        }
+        
+        let variable = try check(name: name, pos)
+        
+        if (variable is VarDecl) {
+            return (variable as! VarDecl).type
+        } else if (variable is ProcFuncDecl)  {
+            return (variable as! ProcFuncDecl).returnType!
+        } else {
+            return (variable as! ConstDecl).value.type!
+        }
+    }
+    
+    func check(name: String,_ pos: (Int, Int)) throws -> Declaration {
+        if (varStack.isEmpty) {
+            throw ParseErrors.unknownIdentifier(pos, name)
+        }
+        for i in 0..<varStack.count {
+            if (varStack[varStack.count - 1 - i].declList.index(forKey: name) != nil) {
+                return varStack[varStack.count - 1 - i].declList[name]!
+            }
+        }
+        throw ParseErrors.unknownIdentifier(pos, name)
+    }
+    
+    func require(_ token: TokenType) throws {
+        if(token != tokenizer.currentToken().type) {
+            throw ParseErrors.unexpectedSymbolBefore(tokenizer.currentToken().position, token.rawValue, tokenizer.currentToken().text)
+        }
+    }
+    
+    func require(_ tokens: [TokenType]) throws {
+        var result = ""
+        for token in tokens { result += token.rawValue + " or " }
+        result = result[0..<result.length - 4]
+        if (tokens.index(of: tokenizer.currentToken().type) == nil) {
+            throw ParseErrors.unexpectedSymbolBefore(tokenizer.currentToken().position, result, tokenizer.currentToken().text)
+        }
+    }
+    
+    func checkCall(Of call:ProcFuncCall) throws {
+        let proc = try check(name: call.name, call.position)
+        if (proc.declType != .PROCEDURE) {
+            throw ParseErrors.unknownSymbol(call.position, call.name)
+        }
+        if ((proc as! ProcFuncDecl).params.count != call.paramList.count) {
+            throw ParseErrors.other("\(call.position) - different number of argument in \(call.name)")
+        }
+    
+        for i in 0..<(proc as! ProcFuncDecl).params.count {
+            let key = Array((proc as! ProcFuncDecl).params.keys)[i]
+            let variable = (proc as! ProcFuncDecl).params[key]
+            
+            if ((variable as! VarDecl).type is SimpleType) {
+                if !(call.paramList[i].type is SimpleType) {
+                    throw ParseErrors.other("\(call.position) - expected simple type in \(call) arguments")
+                } else {
+                    try requireType(call.paramList[i].type!, (variable as! VarDecl).type, call.position)
+                }
+            } else {
+                if ((variable as! VarDecl).type.nodeKind != call.paramList[i].type?.nodeKind) {
+                    throw ParseErrors.unexpectedType(call.position, (call.paramList[i].type?.text)!)
+                }
+            }
+        }
+    }
+    
+}
+
+// MARK: Semantic
+
+func resultType(with oper1: Expression, and oper2: Expression, position: (Int, Int),_ text: String) throws -> TypeNode? {
+    
+    if !(oper1.type is SimpleType){
+        throw ParseErrors.unexpectedType(position, (oper1.type?.text)!)
+    }
+    if !(oper2.type is SimpleType) {
+        throw ParseErrors.unexpectedType(position, (oper2.type?.text)!)
+    }
+    
+    let index1 = (oper1.type as! SimpleType).kind.rawValue + (oper2.type as! SimpleType).kind.rawValue
+    let index2 = (oper2.type as! SimpleType).kind.rawValue + (oper1.type as! SimpleType).kind.rawValue
+    
+    let typeTable:[String: TypeNode] = [
+        SimpleType.Kind.DOUBLE.rawValue + SimpleType.Kind.DOUBLE.rawValue: SimpleType(position, .DOUBLE),
+        SimpleType.Kind.INT.rawValue + SimpleType.Kind.DOUBLE.rawValue: SimpleType(position, .DOUBLE),
+        SimpleType.Kind.INT.rawValue + SimpleType.Kind.INT.rawValue: SimpleType(position, .INT)
+    ]
+    
+    if (typeTable.index(forKey: index1) != nil) {
+        return typeTable[index1]!
+    } else if (typeTable.index(forKey: index2) != nil) {
+        return typeTable[index2]!
+    } else {
+        throw ParseErrors.other("\(position) - operator \(text) have't overload for \((oper1.type?.text)!) and \((oper2.type?.text)!)")
+    }
+}
+
+func possibleTypes(ofType type: TypeNode,_ position:(Int, Int)) throws -> [SimpleType.Kind] {
+    if !(type is SimpleType) {
+        throw ParseErrors.other("\(position) - expected simple type")
+    }
+    
+    if((type as! SimpleType).kind == .INT) {
+        return [.INT]
+    }
+    if((type as! SimpleType).kind == .DOUBLE) {
+        return [.INT, .DOUBLE]
+    }
+    
+    throw ParseErrors.unexpectedType(position, type.text)
+}
+
+func requireType(_ type: TypeNode,_ expectedType: TypeNode,_ position: (Int, Int)) throws {
+    if !(type is SimpleType) {
+        throw ParseErrors.other("\(position) - expected simple type")
+    }
+    
+    if (try possibleTypes(ofType: expectedType, position).index(of: (type as! SimpleType).kind) == nil) {
+         throw ParseErrors.other("\(position) - expected \((expectedType as! SimpleType).kind.rawValue) not \((type as! SimpleType).kind.rawValue)")
     }
 }
 

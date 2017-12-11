@@ -4,7 +4,7 @@
 //
 //  Created by Andrey Gurev on 04.12.2017.
 //  Copyright © 2017 Andrey Gurev. All rights reserved.
-//
+//  
 
 import Foundation
 
@@ -16,6 +16,7 @@ enum ParseErrors: Error {
     case duplicateDeclaration((Int, Int), String)
     case other(String)
     case unknownError()
+    case unexpectedType((Int, Int), String)
 }
 
 func unknownSymbolMessage(_ pos: (Int, Int),_ text: String) -> String  {
@@ -36,6 +37,10 @@ func unexpectedSymbolMessage(_ pos: (Int, Int),_ text:String) -> String {
 
 func duplicateDeclarationMessage(_ pos: (Int, Int),_ text: String) -> String {
     return "\(pos) - duplicate declaration of \(text)"
+}
+
+func unexpectedTypeMessage(_ pos: (Int, Int),_ text: String) -> String {
+    return "\(pos) - unexpected type \(text)"
 }
 
 func otherMessage(_ text: String) -> String {
