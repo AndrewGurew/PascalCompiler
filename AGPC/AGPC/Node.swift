@@ -21,6 +21,10 @@ class StatementNode {
         self.position = position
         self.kind = kind
     }
+    
+    func generate() -> String {
+        return ""
+    }
 }
 
 class ProcFuncCall: StatementNode {
@@ -30,6 +34,16 @@ class ProcFuncCall: StatementNode {
         self.paramList = paramList
         self.name = name
         super.init(position, .CALL, "Procedure or Function Call")
+    }
+}
+
+class WritelnCall: ProcFuncCall {
+    var globalDeclare: String = "@hello = private constant [2 x i8] c\"%d\"\ndeclare i32 @printf(i8*, ...)\n";
+    var ptrDeclare: String = "%ptr = bitcast [2 x i8] * @hello to i8*\n"
+    
+    override func generate() -> String {
+        let command = ptrDeclare + "call i32 (i8*, ...) @printf(i8* %ptr, i32 \(paramList[0].llvmVarName!))\n"
+        return paramList[0].generate() + command
     }
 }
 
@@ -92,6 +106,10 @@ class Declaration {
         self.text = text
         self.position = position
     }
+    
+    func generate() -> String {
+        return ""
+    }
 }
 
 class VarDecl: Declaration {
@@ -99,6 +117,10 @@ class VarDecl: Declaration {
     init(_ position: (Int, Int), _ text: String,_ type: TypeNode) {
         self.type = type
         super.init(position, text, .VAR)
+    }
+    override func generate() -> String {
+        let alloc = "%\(text) = alloca i32, align 4\n"
+        return alloc
     }
 }
 
@@ -198,6 +220,12 @@ class AssignStmt: StatementNode {
         self.expr = expr
         super.init(position, .ASSIGN, "Assign")
     }
+    
+    override func generate() -> String {
+        let expressonCode = expr.generate()
+        let store = "store i32 \(expr.llvmVarName!), i32* %\(id), align 4\n"
+        return expressonCode + store
+    }
 }
 
 class Expression {
@@ -207,6 +235,7 @@ class Expression {
     
     var type: TypeNode? = nil
     var text: String
+    var llvmVarName: String?
     var kind: Kind
     var position:(col: Int, row: Int)
     
@@ -215,6 +244,10 @@ class Expression {
         self.position = position
         
         self.kind = kind
+    }
+    
+    func generate() -> String {
+        return ""
     }
 }
 
@@ -230,10 +263,26 @@ class BinaryExpr: Expression {
         }
     }
     
+    override func generate() -> String {
+        var oper = ""
+        switch self.text {
+        case "-": oper = "sub nsw"
+        case "*": oper = "mul nsw"
+        case "/": oper = "fdiv"
+        case "mod": oper = "srem" //fsrem
+        case "div": oper = "sdiv"
+        default: oper = "add nsw"
+        }
+        let command = self.leftChild.generate() + self.rightChild.generate() + "\(llvmVarName!) = \(oper) i32 \(self.leftChild.llvmVarName!), \(self.rightChild.llvmVarName!)\n"
+        
+        return command
+    }
+    
     init(_ position: (Int, Int),_ text: String, leftChild: Expression, rightChild: Expression) throws {
         self.leftChild = leftChild
         self.rightChild = rightChild
         super.init(position, .BINARY, text)
+        self.llvmVarName = "%s\(position.0)-\(position.1)"
         try getType()
     }
 }
@@ -257,6 +306,11 @@ class IDExpr: Expression {
     init(_ name: String,_ position: (Int, Int)) {
         self.name = name
         super.init(position, .ID, self.name)
+        self.llvmVarName = "%s\(position.0)-\(position.1)"
+    }
+    
+    override func generate() -> String {
+        return "\(llvmVarName!) = load i32, i32* %\(name), align 4\n"
     }
 }
 
@@ -265,6 +319,7 @@ class IntegerExpr: Expression {
     init(value: UInt64,_ position: (Int, Int)) {
         self.value = value
         super.init(position, .INT, String(self.value))
+        self.llvmVarName = String(value)
     }
 }
 

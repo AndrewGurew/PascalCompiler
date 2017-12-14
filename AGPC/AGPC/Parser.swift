@@ -17,7 +17,7 @@ class Parser {
         self.tokenizer = tokenizer
     }
     
-    private func parseProgram(_ text: String) throws -> StatementNode  {
+    func parseProgram(_ text: String) throws -> StatementNode  {
         let pos = tokenizer.currentToken().position
         let declScope = try parseDeclaration()
         try require(.BEGIN)
@@ -336,9 +336,13 @@ class Parser {
         }
         
         try tokenizer.nextToken()
-        let result = ProcFuncCall(pos, name, paramList)
-        try checkCall(Of: result)
-        return result
+        if(name.lowercased() == "write" || name.lowercased() == "writeln") {
+            return WritelnCall(pos, name, paramList)
+        } else {
+            let result = ProcFuncCall(pos, name, paramList)
+            try checkCall(Of: result)
+            return result
+        }
     }
     
     private func parseAssign(_ pos: (Int, Int),_ name: String,_ parentType: TokenType = .BEGIN) throws -> StatementNode {
@@ -489,6 +493,8 @@ class Parser {
         return drawDeclTree(try parseDeclaration())
     }
     
+    // MARK: Semantic
+    
     func getIDType(name: String,_ pos: (Int, Int)) throws -> TypeNode? {
         if (testExpr) {
             return SimpleType(pos, .INT)
@@ -560,8 +566,6 @@ class Parser {
     }
     
 }
-
-// MARK: Semantic
 
 func resultType(with oper1: Expression, and oper2: Expression, position: (Int, Int),_ text: String) throws -> TypeNode? {
     
