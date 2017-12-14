@@ -1,5 +1,7 @@
 var
-a:double;
+a:integer;
+
 begin
-a:=1 / 2;
+a:=1;
+writeln(10/3);
 end.
