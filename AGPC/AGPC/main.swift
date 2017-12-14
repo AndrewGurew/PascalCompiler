@@ -37,6 +37,13 @@ func stmtTree(progText: String) throws -> String {
     return try stmtParser.testProgram()
 }
 
+func codeGen(progText: String) throws -> String {
+    let lexAnalyzer = Tokenizer(text: progText)
+    let parser = Parser(tokenizer: lexAnalyzer)
+    let generator = CodeGenerator(block: try parser.parseProgram("main") as! Block)
+    return generator.run()
+}
+
 enum Mod {
     case RELEASE
     case TEST
@@ -63,7 +70,8 @@ let testParts:[Test] = [
     Test("Declaration tests:\n", declTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Declarations"),
     Test("Statement tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Statements"),
     Test("Expression type tests:\n", exType, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/ExprType"),
-    Test("Semantic tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Semantic")
+    Test("Semantic tests:\n", stmtTree, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Semantic"),
+    Test("Code generation tests:\n", codeGen, "/Users/Andrey/Desktop/Swift/PascalCompiler/Tests/Generate")
 ]
 
 var mod:Mod = .RELEASE
@@ -71,15 +79,20 @@ var keys = [String]()
 var fileName:String?
 
 func usualMod(progText: String) throws -> String {
-    let LexAnalyzer = Tokenizer(text: progText)
+    let lexAnalyzer = Tokenizer(text: progText)
     var result = ""
     
     if(keys.index(of: "-l") != nil) {
-        result = try LexAnalyzer.test()
+        result = try lexAnalyzer.test()
     }
     if(keys.index(of: "-e") != nil) {
-        let ExpressionParser = Parser(tokenizer: LexAnalyzer)
+        let ExpressionParser = Parser(tokenizer: lexAnalyzer)
         result = try ExpressionParser.testProgram()
+    }
+    if(keys.index(of: "-r") != nil) {
+        let parser = Parser(tokenizer: lexAnalyzer)
+        let generator = CodeGenerator(block: try parser.parseProgram("main") as! Block)
+        result = generator.run()
     }
     
     return result
@@ -214,11 +227,20 @@ default:
         print("Error loading contents of:", fileName!, error)
     }
 }
-//let testText  = """
-//a = array[1 ..5] of integer;
-//"""
-//let LexAnalyzer = Tokenizer(text: testText)
-//print(LexAnalyzer.test())
+
+let testText  = """
+var a,c,b:integer;
+begin
+b:=200;
+c:=200;
+a:=b+c;
+write(a);
+end
+"""
+let lexAnalyzer = Tokenizer(text: testText)
+let parser = Parser(tokenizer: lexAnalyzer)
+let generator = CodeGenerator(block: try parser.parseProgram("main") as! Block)
+print(generator.run())
 
 
 

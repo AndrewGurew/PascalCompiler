@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		552419FC1F9CD785000E4421 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552419FB1F9CD785000E4421 /* Node.swift */; };
+		552A14C41FE1593800AF4BE9 /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552A14C31FE1593800AF4BE9 /* Generator.swift */; };
 		555552601FD52501001ADB27 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5555525F1FD52501001ADB27 /* Extensions.swift */; };
 		555552621FD5377E001ADB27 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 555552611FD5377E001ADB27 /* Errors.swift */; };
 		5555601B1F9060D6006BB03E /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5555601A1F9060D6006BB03E /* Parser.swift */; };
@@ -31,6 +32,7 @@
 
 /* Begin PBXFileReference section */
 		552419FB1F9CD785000E4421 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		552A14C31FE1593800AF4BE9 /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
 		5555525F1FD52501001ADB27 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		555552611FD5377E001ADB27 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		5555601A1F9060D6006BB03E /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 				552419FB1F9CD785000E4421 /* Node.swift */,
 				5555601A1F9060D6006BB03E /* Parser.swift */,
 				5565CB1E1FA749A4004DB495 /* Painter.swift */,
+				552A14C31FE1593800AF4BE9 /* Generator.swift */,
 				5555525F1FD52501001ADB27 /* Extensions.swift */,
 				555552611FD5377E001ADB27 /* Errors.swift */,
 			);
@@ -147,6 +150,7 @@
 				5565CB1F1FA749A4004DB495 /* Painter.swift in Sources */,
 				555552621FD5377E001ADB27 /* Errors.swift in Sources */,
 				5581ADBD1F87250F009ABB57 /* Tokenizer.swift in Sources */,
+				552A14C41FE1593800AF4BE9 /* Generator.swift in Sources */,
 				5555601B1F9060D6006BB03E /* Parser.swift in Sources */,
 				555552601FD52501001ADB27 /* Extensions.swift in Sources */,
 			);
