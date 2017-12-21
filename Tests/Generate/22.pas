@@ -1,7 +1,7 @@
 var a:double;
-b:integer;
+b:integer; 
 begin
-b:= (1 = 2);
-a:=b / 2;
+a:= 2.2;
+b:=1;
 writeln(a,b);
 end
