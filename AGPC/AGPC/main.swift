@@ -228,19 +228,17 @@ default:
     }
 }
 
-let testText  = """
-var a,c,b:integer;
-begin
-b:=200;
-c:=200;
-a:=b+c;
-write(a);
-end
-"""
-let lexAnalyzer = Tokenizer(text: testText)
-let parser = Parser(tokenizer: lexAnalyzer)
-let generator = CodeGenerator(block: try parser.parseProgram("main") as! Block)
-print(generator.run())
+//let testText  = """
+//var a:double;
+//begin
+//a:= (2 + 3 - 2 * 4 + (1-1)) div 2;
+//writeln(a);
+//end
+//"""
+//let lexAnalyzer = Tokenizer(text: testText)
+//let parser = Parser(tokenizer: lexAnalyzer)
+//let generator = CodeGenerator(block: try parser.parseProgram("main") as! Block)
+//print(generator.run())
 
 
 

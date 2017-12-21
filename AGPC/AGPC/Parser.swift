@@ -8,6 +8,8 @@
 
 import Foundation
 
+var testExpr = false
+
 class Parser {
     private var tokenizer:Tokenizer
     private var varStack = [DeclarationScope]()
@@ -307,13 +309,11 @@ class Parser {
         try require(.ID)
         let pos = tokenizer.currentToken().position
         let id = tokenizer.currentToken().text
-        //check(name: id)
         try tokenizer.nextToken()
         if (tokenizer.currentToken().type == .L_BRACKET) {
             return try parseCall(pos, id)
         }
         else {
-       //else if (tokenizer.currentToken().type == .ASSIGN) {
             return try parseAssign(pos, id, parentType)
         }
     }
@@ -415,7 +415,7 @@ class Parser {
     private func parseTerm() throws -> Expression {
         var result = try parseFactor()
         while(tokenizer.currentToken().type == .MULT || tokenizer.currentToken().type == .DIV ||
-            tokenizer.currentToken().type == .AND) {
+            tokenizer.currentToken().type == .AND || tokenizer.currentToken().type == .MOD) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             try tokenizer.nextToken()
@@ -474,11 +474,12 @@ class Parser {
     
     private var testDecl:DeclarationScope?
     private var testBlock:StatementNode?
-    private var testExpr = false
     
     public func testExpressions() throws -> String {
         testExpr = true
-        return drawExprTree(try parseExpr())
+        let result = drawExprTree(try parseExpr())
+        testExpr = false
+        return result
     }
     
     public func testExprTypes() throws -> String {
@@ -574,6 +575,11 @@ func resultType(with oper1: Expression, and oper2: Expression, position: (Int, I
     }
     if !(oper2.type is SimpleType) {
         throw ParseErrors.unexpectedType(position, (oper2.type?.text)!)
+    }
+    
+    if ((text == "and" || text == "or" || text == "div" || text == "mod")&&((oper2.type as! SimpleType).kind == .DOUBLE ||
+        (oper1.type as! SimpleType).kind == .DOUBLE)) {
+        throw ParseErrors.other("\(position) - operator \(text) is not overloaded for \((oper1.type as! SimpleType).kind.rawValue) and \((oper2.type as! SimpleType).kind.rawValue)")
     }
     
     let index1 = (oper1.type as! SimpleType).kind.rawValue + (oper2.type as! SimpleType).kind.rawValue

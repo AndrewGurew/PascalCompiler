@@ -38,12 +38,28 @@ class ProcFuncCall: StatementNode {
 }
 
 class WritelnCall: ProcFuncCall {
-    var globalDeclare: String = "@hello = private constant [2 x i8] c\"%d\"\ndeclare i32 @printf(i8*, ...)\n";
-    var ptrDeclare: String = "%ptr = bitcast [2 x i8] * @hello to i8*\n"
+    var globalDeclare: String = "";
+    var ptrDeclare: String = ""
     
     override func generate() -> String {
-        let command = ptrDeclare + "call i32 (i8*, ...) @printf(i8* %ptr, i32 \(paramList[0].llvmVarName!))\n"
-        return paramList[0].generate() + command
+        var format = ""
+        var outputVariables = ""
+        var codeByVariables = ""
+        if(paramList.isEmpty) { return "" }
+        
+        for param in paramList {
+            format += ((param.llvmVariable!.type == "double") ? "%lf" : "%d") + " "
+            codeByVariables += param.generate()
+            outputVariables += "\(param.llvmVariable!.type) \(param.llvmVariable!.name)" + ","
+        }
+        outputVariables.removeLast()
+        
+        globalDeclare = "@hello = private constant [\(format.length) x i8] c\"\(format)\"\ndeclare i32 @printf(i8*, ...)\n";
+        ptrDeclare = "%ptr = bitcast [\(format.length) x i8] * @hello to i8*\n"
+        
+        
+        let command = ptrDeclare + "call i32 (i8*, ...) @printf(i8* %ptr, \(outputVariables))\n"
+        return codeByVariables + command
     }
 }
 
@@ -117,10 +133,24 @@ class VarDecl: Declaration {
     init(_ position: (Int, Int), _ text: String,_ type: TypeNode) {
         self.type = type
         super.init(position, text, .VAR)
+        llvmVarStack.updateValue(LlvmVariable(text, getLLVMType()), forKey: text)
     }
     override func generate() -> String {
-        let alloc = "%\(text) = alloca i32, align 4\n"
-        return alloc
+        let alloc = "%\(text) = alloca \(llvmVarStack[text]!.type), align 4\n"
+        let store = "store \(llvmVarStack[text]!.type) \(llvmVarStack[text]!.type == "i32" ? "0" : "0.0"), \(llvmVarStack[text]!.type)* %\(text), align 4\n"
+        return alloc + store
+    }
+    
+    private func getLLVMType() -> String {
+        if let _type = (self.type as? SimpleType) {
+            switch (_type.kind) {
+            case .DOUBLE: return "double"
+            default:
+                return "i32"
+            }
+        } else {
+            return "UN"
+        }
     }
 }
 
@@ -223,8 +253,22 @@ class AssignStmt: StatementNode {
     
     override func generate() -> String {
         let expressonCode = expr.generate()
-        let store = "store i32 \(expr.llvmVarName!), i32* %\(id), align 4\n"
-        return expressonCode + store
+        var storeValue = ((expr.kind == .INT) ? "i32 " : "double ") + expr.llvmVariable!.name
+        var cast = ""
+        if (expr.kind != .INT && expr.kind != .DOUBLE) {
+            if(expr.llvmVariable!.type != llvmVarStack[id]!.type) {
+                cast = "\(expr.llvmVariable!.name)cast = sitofp \(expr.llvmVariable!.type) \(expr.llvmVariable!.name) to \(llvmVarStack[id]!.type)\n"
+                storeValue = "\(llvmVarStack[id]!.type) \(expr.llvmVariable!.name)cast"
+            } else {
+                storeValue = "\(expr.llvmVariable!.type) \(expr.llvmVariable!.name)"
+            }
+        } else {
+            if(expr.kind == .INT && llvmVarStack[id]!.type == "double") {
+                storeValue = "double " + expr.llvmVariable!.name + ".0"
+            }
+        }
+        let store = "store \(storeValue), \(llvmVarStack[id]!.type)* %\(id), align 4\n"
+        return expressonCode + cast + store
     }
 }
 
@@ -235,7 +279,7 @@ class Expression {
     
     var type: TypeNode? = nil
     var text: String
-    var llvmVarName: String?
+    var llvmVariable: LlvmVariable?
     var kind: Kind
     var position:(col: Int, row: Int)
     
@@ -265,25 +309,68 @@ class BinaryExpr: Expression {
     
     override func generate() -> String {
         var oper = ""
-        switch self.text {
-        case "-": oper = "sub nsw"
-        case "*": oper = "mul nsw"
-        case "/": oper = "fdiv"
-        case "mod": oper = "srem" //fsrem
-        case "div": oper = "sdiv"
-        default: oper = "add nsw"
+        let _type = (self.type! as! SimpleType).kind
+        switch (self.text) {
+        case "-":
+            oper = (_type == .DOUBLE) ? "fsub" : "sub"
+        case "*":
+            oper = (_type == .DOUBLE) ? "fsmul" : "mul"
+        case "/":
+            oper = "fdiv"
+        case "mod":
+            oper = "srem"
+        case "div":
+            oper = "sdiv"
+        case "and", "or":
+            oper = self.text
+        default:
+            oper = (_type == .DOUBLE) ? "fadd" : "add"
         }
-        let command = self.leftChild.generate() + self.rightChild.generate() + "\(llvmVarName!) = \(oper) i32 \(self.leftChild.llvmVarName!), \(self.rightChild.llvmVarName!)\n"
+        
+        var right = self.rightChild.llvmVariable!.name
+        var left = self.leftChild.llvmVariable!.name
+        var cast = ""
+        
+        if(_type == .DOUBLE) {
+            if(self.rightChild.kind == .INT) {
+                right += ".0"
+            } else if(self.rightChild.llvmVariable!.type == "i32") {
+                cast += "\(llvmVariable!.name)cast = sitofp i32 \(right) to double\n"
+                right = "\(llvmVariable!.name)cast"
+            }
+            
+            if(self.leftChild.kind == .INT) {
+                left += ".0"
+            } else if(self.leftChild.llvmVariable!.type == "i32") {
+                cast += "\(llvmVariable!.name)cast = sitofp i32 \(left) to double\n"
+                left = "\(llvmVariable!.name)cast"
+            }
+        }
+        
+        let command = self.leftChild.generate() + self.rightChild.generate() + cast + "\(llvmVariable!.name) = \(oper) \(getLLVMType()) \(left), \(right)\n"
         
         return command
+    }
+    
+    private func getLLVMType() -> String {
+        if let _type = (self.type as? SimpleType) {
+            switch (_type.kind) {
+            case .DOUBLE: return "double"
+            default:
+                return "i32"
+            }
+        } else {
+            return "UN"
+        }
     }
     
     init(_ position: (Int, Int),_ text: String, leftChild: Expression, rightChild: Expression) throws {
         self.leftChild = leftChild
         self.rightChild = rightChild
         super.init(position, .BINARY, text)
-        self.llvmVarName = "%s\(position.0)-\(position.1)"
         try getType()
+        self.llvmVariable = LlvmVariable("%s\(position.0)-\(position.1)", getLLVMType())
+        llvmVarStack.updateValue(LlvmVariable(llvmVariable!.name, getLLVMType()), forKey: llvmVariable!.name)
     }
 }
 
@@ -294,10 +381,17 @@ class UnaryExpr: Expression {
         super.type = child.type
     }
     
+    override func generate() -> String {
+        return (self.text == "+") ? "" : "\(self.llvmVariable!.name) = \((child.llvmVariable?.type == "i32") ? "sub nsw" : "fsub") \(child.llvmVariable!.type) \((child.llvmVariable?.type == "i32") ? "0" : "0.0"), \(child.llvmVariable!.name)\n"
+    }
+    
     init(_ position: (Int, Int),_ text: String, child: Expression) {
         self.child = child
         super.init(position, .UNARY, text)
         getType()
+        if !(testExpr) {
+            self.llvmVariable = (self.text == "+") ? child.llvmVariable : LlvmVariable("%s\(position.0)-\(position.1)", child.llvmVariable!.type)
+        }
     }
 }
 
@@ -306,11 +400,13 @@ class IDExpr: Expression {
     init(_ name: String,_ position: (Int, Int)) {
         self.name = name
         super.init(position, .ID, self.name)
-        self.llvmVarName = "%s\(position.0)-\(position.1)"
+        if !(testExpr) {
+            self.llvmVariable = LlvmVariable("%s\(position.0)-\(position.1)", llvmVarStack[name]!.type)
+        }
     }
     
     override func generate() -> String {
-        return "\(llvmVarName!) = load i32, i32* %\(name), align 4\n"
+        return "\(llvmVariable!.name) = load \(llvmVarStack[name]!.type), \(llvmVarStack[name]!.type)* %\(name), align 4\n"
     }
 }
 
@@ -319,7 +415,7 @@ class IntegerExpr: Expression {
     init(value: UInt64,_ position: (Int, Int)) {
         self.value = value
         super.init(position, .INT, String(self.value))
-        self.llvmVarName = String(value)
+        self.llvmVariable = LlvmVariable(String(value), "i32")
     }
 }
 
@@ -328,6 +424,7 @@ class DoubleExpr: Expression {
     init(value: Double,_ position: (Int, Int)) {
         self.value = value
         super.init(position, .DOUBLE, String(self.value))
+        self.llvmVariable = LlvmVariable(String(value), "double")
     }
 }
 

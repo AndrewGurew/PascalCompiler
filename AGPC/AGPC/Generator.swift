@@ -4,10 +4,20 @@
 //
 //  Created by Andrey Gurev on 13.12.2017.
 //  Copyright © 2017 Andrey Gurev. All rights reserved.
-//
+
 
 import Foundation
 
+struct LlvmVariable {
+    var name: String
+    var type: String
+    init(_ name:String,_ type: String) {
+        self.name = name
+        self.type = type
+    }
+}
+
+var llvmVarStack:[String:LlvmVariable] = [:]
 
 class CodeGenerator {
     private let mainBlock: Block
@@ -64,6 +74,7 @@ class CodeGenerator {
     
     public func run() -> String {
         generate()
+        llvmVarStack = [:]
         let path = "/Users/Andrey/Desktop/Swift/PascalCompiler/AGPC/llvm/"
         
         do {
@@ -88,10 +99,10 @@ class CodeGenerator {
 
         for mess in runCommand(cmd: "\(path)./a.out").output {
             result += mess
-            result.removeLast()
-            result.append("\n")
+            if(result.last?.asciiValue == 1) {
+                result.removeLast()
+            }
         }
-        result.removeLast()
         return error + result;
     }
     
