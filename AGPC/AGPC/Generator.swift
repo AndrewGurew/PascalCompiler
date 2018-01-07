@@ -29,9 +29,10 @@ class CodeGenerator {
     }
     
     public func generate() {
+        initGenerator()
         self.llvmText = "define i32 @main() \n{"
         self.llvmText += generateDeclaration(declScope: self.mainBlock.declScope)
-        self.llvmText += generateStatements(list: self.mainBlock.stmtList)
+        self.llvmText += generateStatements(block: self.mainBlock)
         self.llvmText += "ret i32 0 \n}"
         
         self.llvmText = globalDeclare + self.llvmText
@@ -121,14 +122,9 @@ class CodeGenerator {
         return result
     }
     
-    private func generateStatements(list:[StatementNode]) -> String {
-        var result = ""
-        for stmt in list {
-            result += stmt.generate()
-            if let call = (stmt as? WritelnCall) {
-                self.globalDeclare += call.globalDeclare
-            }
-        }
+    private func generateStatements(block: Block) -> String {
+        let result = block.generate()
+        self.globalDeclare = _globalDeclare + "declare i32 @printf(i8*, ...)\n"
         return result
     }
 }

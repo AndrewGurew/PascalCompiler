@@ -229,10 +229,12 @@ default:
 }
 
 //let testText  = """
-//var a:double;
+//var a:integer;
 //begin
-//a:= (2 + 3 - 2 * 4 + (1-1)) div 2;
+//a:=1;
+//if(a = 1) then begin
 //writeln(a);
+//end
 //end
 //"""
 //let lexAnalyzer = Tokenizer(text: testText)

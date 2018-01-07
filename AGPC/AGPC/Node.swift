@@ -8,6 +8,18 @@
 
 import Foundation
 
+var _globalDeclare = ""
+var labelIndex = 0
+var writelnDeclared:[Int:Bool] = [:]
+var printPointerDeclared = false
+
+func initGenerator()  {
+    _globalDeclare = ""
+    labelIndex = 0
+    writelnDeclared = [:]
+    printPointerDeclared = false
+}
+
 class StatementNode {
     enum Kind {
         case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT, CALL
@@ -38,7 +50,6 @@ class ProcFuncCall: StatementNode {
 }
 
 class WritelnCall: ProcFuncCall {
-    var globalDeclare: String = "";
     var ptrDeclare: String = ""
     
     override func generate() -> String {
@@ -54,11 +65,16 @@ class WritelnCall: ProcFuncCall {
         }
         outputVariables.removeLast()
         
-        globalDeclare = "@hello = private constant [\(format.length) x i8] c\"\(format)\"\ndeclare i32 @printf(i8*, ...)\n";
-        ptrDeclare = "%ptr = bitcast [\(format.length) x i8] * @hello to i8*\n"
+        if (writelnDeclared.index(forKey: paramList.count) == nil) || (writelnDeclared[paramList.count] == false) {
+            _globalDeclare += "@hello\(paramList.count) = private constant [\(format.length) x i8] c\"\(format)\"\n";
+            writelnDeclared[paramList.count] = true
+        }
+        
+        ptrDeclare = "%ptr\(self.position.col) = bitcast [\(format.length) x i8] * @hello\(paramList.count) to i8*\n"
+        labelIndex+=1
         
         
-        let command = ptrDeclare + "call i32 (i8*, ...) @printf(i8* %ptr, \(outputVariables))\n"
+        let command = ptrDeclare + "call i32 (i8*, ...) @printf(i8* %ptr\(self.position.col), \(outputVariables))\n"
         return codeByVariables + command
     }
 }
@@ -196,6 +212,14 @@ class Block: StatementNode {
         self.stmtList = stmtList
         super.init(position, .BLOCK, text)
     }
+    
+    override func generate() -> String {
+        var result = ""
+        for stmt in self.stmtList {
+            result += stmt.generate()
+        }
+        return result
+    }
 }
 
 class ForStmt: StatementNode {
@@ -239,6 +263,28 @@ class IfElseStmt: StatementNode {
         self.block = block
         self.elseBlock = elseBlock
         super.init(position, .IFELSE, "If-Else statement")
+    }
+    
+    override func generate() -> String {
+        labelIndex+=1
+        var result = ""
+        var elseBlockResult = ""
+        var ifBlockResult = ""
+        result += condition.generate()
+        var br = "br i1 \(condition.llvmVariable!.name), label %\(labelIndex), "
+        ifBlockResult += "; <label>:\(labelIndex)\n"
+        ifBlockResult += block.generate()
+        labelIndex+=1
+        br += "label %\(labelIndex)\n"
+        if(elseBlock != nil) {
+            labelIndex+=1
+            elseBlockResult = "; <label>:\(labelIndex - 1)\n"
+            elseBlockResult += self.elseBlock!.generate()
+            elseBlockResult += "br label %\(labelIndex)\n"
+        }
+        
+        ifBlockResult += "br label %\(labelIndex)\n"
+        return result + br + ifBlockResult + elseBlockResult + "; <label>:\(labelIndex)\n"
     }
 }
 
@@ -323,6 +369,8 @@ class BinaryExpr: Expression {
             oper = "sdiv"
         case "and", "or":
             oper = self.text
+        case "=":
+            oper = "icmp eq"
         default:
             oper = (_type == .DOUBLE) ? "fadd" : "add"
         }
