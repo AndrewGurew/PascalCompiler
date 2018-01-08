@@ -370,7 +370,17 @@ class BinaryExpr: Expression {
         case "and", "or":
             oper = self.text
         case "=":
-            oper = "icmp eq"
+            oper = (_type == .DOUBLE) ? "fcmp oeq" : "icmp eq"
+        case "<>":
+            oper = (_type == .DOUBLE) ? "fcmp one" : "icmp ne"
+        case ">":
+            oper = (_type == .DOUBLE) ? "fcmp ogt" : "icmp sgt"
+        case ">=":
+            oper = (_type == .DOUBLE) ? "fcmp oge" : "icmp sge"
+        case "<":
+            oper = (_type == .DOUBLE) ? "fcmp olt" : "icmp slt"
+        case "<=":
+            oper = (_type == .DOUBLE) ? "fcmp ole" : "icmp sle"
         default:
             oper = (_type == .DOUBLE) ? "fadd" : "add"
         }

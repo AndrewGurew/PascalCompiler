@@ -388,7 +388,7 @@ class Parser {
         
         while(tokenizer.currentToken().type == .MORE || tokenizer.currentToken().type == .LESS ||
             tokenizer.currentToken().type == .MORE_EQUAL || tokenizer.currentToken().type == .LESS_EQUAL ||
-            tokenizer.currentToken().type == .EQUAL) {
+            tokenizer.currentToken().type == .EQUAL || tokenizer.currentToken().type == .NOT_EQUAL) {
             let pos = tokenizer.currentToken().position
             let text = tokenizer.currentToken().text
             try tokenizer.nextToken()
