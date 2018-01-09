@@ -232,6 +232,37 @@ class ForStmt: StatementNode {
         self.finishValue = finishValue
         super.init(position, .FOR, "For satement")
     }
+    
+    override func generate() -> String {
+        labelIndex+=1
+        var initLabel = "br label %\(labelIndex)\n"
+        initLabel += "; <label>:\(labelIndex)\n"
+        initLabel += startValue.generate()
+        labelIndex+=1
+        initLabel += "br label %\(labelIndex)\n"
+        
+        
+        
+        let conditonIndex = labelIndex
+        var condition = "; <label>:\(labelIndex)\n"
+        condition += "%index\(self.position.col) = load i32, i32* %\((startValue as! AssignStmt).id), align 4\n"
+        condition += finishValue.generate()
+        condition += "%s\(self.position.col)-\(self.position.row) = icmp sle i32 %index\(self.position.col), \(finishValue.llvmVariable!.name)\n"
+        condition += "br i1 %s\(self.position.col)-\(self.position.row), label %\(labelIndex + 1), "
+        
+        labelIndex+=1
+        var blockLabel = "; <label>:\(labelIndex)\n"
+        blockLabel += self.block.generate()
+        blockLabel += "%result\(self.position.col) = add i32 %index\(self.position.col), 1\n"
+        blockLabel += "store i32 %result\(self.position.col), i32* %\((startValue as! AssignStmt).id), align 4\n"
+        
+        blockLabel += "br label %\(conditonIndex)\n"
+        labelIndex += 1
+        blockLabel += "; <label>:\(labelIndex)\n"
+        condition += "label %\(labelIndex)\n"
+        
+        return initLabel + condition + blockLabel
+    }
 }
 
 class WhileStmt: StatementNode {
