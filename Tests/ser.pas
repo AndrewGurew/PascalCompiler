@@ -1,13 +1,7 @@
-var a:integer;
+var a,b,c:integer;
 begin
-a:=1;
-if(a <> 1.1) then 
-	writeln(a);
-else
-	writeln(0);
+for a:=1 to 0 do 
+	b:=1;
+writeln(a);
 
-if(a <> 1) then 
-	writeln(a);
-else
-	writeln(0);
 end
