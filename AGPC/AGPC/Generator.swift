@@ -211,8 +211,17 @@ class LLBr: Llvm {
     }
 }
 
-class LLBreak: LLBr {
+class LLTransition: LLBr {
+    enum TransKind {
+        case CONTINUE, BREAK
+    }
     var lablel: LLLabel?
+    var kind: TransKind
+    
+    init(kind: TransKind) {
+        self.kind = kind
+        super.init()
+    }
     
     func setJumpPoit(point: LLLabel) {
         self.lablel = point
@@ -220,14 +229,23 @@ class LLBreak: LLBr {
     }
 }
 
-func createBreak(_ blockArr: inout [Llvm],_ exitPint: LLLabel) {
+func createBreak(_ blockArr: inout [Llvm],_ exitPint: LLLabel, _ conditionPoint: LLLabel) {
     var remove = false
     var len = blockArr.count
     var i = 0
     while (i < blockArr.count) {
-        if let llb = (blockArr[i] as? LLBreak)  {
-            if (llb.lablel == nil) {
+        if let llb = (blockArr[i] as? LLTransition)  {
+            if (llb.lablel == nil && llb.kind == .BREAK && !remove) {
                 llb.setJumpPoit(point: exitPint)
+                remove = true
+                i += 1
+                continue
+            }
+        }
+        
+        if let llc = (blockArr[i] as? LLTransition)  {
+            if (llc.lablel == nil && llc.kind == .CONTINUE && !remove) {
+                llc.setJumpPoit(point: conditionPoint)
                 remove = true
                 i += 1
                 continue

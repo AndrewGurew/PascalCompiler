@@ -232,7 +232,7 @@ class Transition: StatementNode {
     }
     
     override func generate() -> [Llvm] {
-        return [LLBreak()]
+        return [LLTransition(kind: (self.tkind == .BREAK) ? .BREAK : .CONTINUE)]
     }
 }
 
@@ -251,18 +251,29 @@ class ForStmt: StatementNode {
         let initJump = LLLabel()
         var resulrArr:[Llvm] = [LLBr(initJump), initJump]
         resulrArr.append(contentsOf: startValue.generate())
+        
+        
+        resulrArr.append(LLLoad("%iniIndex\(self.position.col)", .I32, .I32, "\((startValue as! AssignStmt).id)"))
+        resulrArr.append(LLExpression(.SUB, .I32, "%iniIndex\(self.position.col)", "1", "%iresult\(self.position.col)"))
+        resulrArr.append(LLStore("%iresult\(self.position.col)", .I32, "\((startValue as! AssignStmt).id)"))
+        
+        
         let comditionJump = LLLabel()
         resulrArr.append(LLBr(comditionJump))
         
+        
+
         var conditionArr:[Llvm] = [comditionJump, LLLoad("%index\(self.position.col)", .I32, .I32, "\((startValue as! AssignStmt).id)")]
         conditionArr.append(contentsOf: finishValue.generate())
-        conditionArr.append(LLExpression(.SLE, .I32, "%index\(self.position.col)", "\(finishValue.llvmVariable!.name)", "%s\(self.position.col)-\(self.position.row)"))
+        
+        conditionArr.append(LLExpression(.ADD, .I32, "%index\(self.position.col)", "1", "%result\(self.position.col)"))
+        conditionArr.append(LLStore("%result\(self.position.col)", .I32, "\((startValue as! AssignStmt).id)"))
+        
+        conditionArr.append(LLExpression(.NE, .I32, "%index\(self.position.col)", "\(finishValue.llvmVariable!.name)", "%s\(self.position.col)-\(self.position.row)"))
         let jumpBlock = LLLabel()
         
         var blockArr:[Llvm] = [jumpBlock]
         blockArr.append(contentsOf: self.block.generate())
-        blockArr.append(LLExpression(.ADD, .I32, "%index\(self.position.col)", "1", "%result\(self.position.col)"))
-        blockArr.append(LLStore("%result\(self.position.col)", .I32, "\((startValue as! AssignStmt).id)"))
         blockArr.append(LLBr(comditionJump))
         
         let exitJump = LLLabel()
@@ -273,7 +284,7 @@ class ForStmt: StatementNode {
         resulrArr.append(contentsOf: conditionArr)
         resulrArr.append(contentsOf: blockArr)
         
-        createBreak(&resulrArr, exitJump)
+        createBreak(&resulrArr, exitJump, comditionJump)
         
         return resulrArr
     }
@@ -304,7 +315,7 @@ class WhileStmt: StatementNode {
         resulrArr.append(LLBr((condition.llvmVariable!.name), blockJump, exitJump))
         resulrArr.append(contentsOf: blockArr)
         
-        createBreak(&resulrArr, exitJump)
+        createBreak(&resulrArr, exitJump, conditionJump)
     
         return resulrArr
     }
@@ -324,14 +335,16 @@ class RepeatStmt: StatementNode {
         var resultArr:[Llvm] = [LLBr(blockJump ), blockJump]
         resultArr.append(contentsOf: self.block.generate())
         
-        let exitJump = LLLabel()
-        
+        let conditionJump = LLLabel()
+        resultArr.append(LLBr(conditionJump))
+        resultArr.append(conditionJump)
         resultArr.append(contentsOf: self.condition.generate())
+        let exitJump = LLLabel()
         resultArr.append(LLBr((condition.llvmVariable!.name), blockJump, exitJump))
         
         resultArr.append(exitJump)
         
-        createBreak(&resultArr, exitJump)
+        createBreak(&resultArr, exitJump, conditionJump)
         
  
         return resultArr
