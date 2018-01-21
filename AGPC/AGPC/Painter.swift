@@ -114,6 +114,9 @@ func drawStmtTree(_ stmtList: [StatementNode],_ tabNumber: Int = 0) -> String {
             for expr in procFuncCallStmt.paramList {
                 result += exprTree(expr)
             }
+        case is Transition:
+            let transStmt = (stmt as! Transition)
+           // result += "\(tabstr)⎬ \(transStmt.tkind.rawValue)"
         default:
             result += ""
         }

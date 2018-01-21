@@ -10,7 +10,7 @@ import Foundation
 
 class StatementNode {
     enum Kind {
-        case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT, CALL
+        case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT, CALL, TRANSITION
     }
     var text: String
     var kind: Kind
@@ -38,6 +38,26 @@ class ProcFuncCall: StatementNode {
 }
 
 class WritelnCall: ProcFuncCall {
+    var ptrDeclare: String = ""
+    
+    override func generate() -> [Llvm] {
+        var format: [String] = []
+        var resultArr: [Llvm] = []
+        var params: [(LLVarType, String)] = []
+        if(paramList.isEmpty) { return [] }
+        
+        for param in paramList {
+            format.append(((param.llvmVariable!.type.rawValue == "double") ? "%lf" : "%d") + " ")
+            resultArr.append(contentsOf: param.generate())
+            params.append((param.llvmVariable!.type, param.llvmVariable!.name))
+        }
+        
+        resultArr.append(LLWriteln(format, params, self.position.col))
+        return resultArr
+    }
+}
+
+class ExitCall: ProcFuncCall {
     var ptrDeclare: String = ""
     
     override func generate() -> [Llvm] {
@@ -200,6 +220,22 @@ class Block: StatementNode {
     }
 }
 
+class Transition: StatementNode {
+    enum TransKind: String {
+        case BREAK = "Break", CONTINUE = "Continue"
+    }
+    
+    var tkind: TransKind;
+    init(_ position: (Int, Int),_ tkind: TransKind) {
+        self.tkind = tkind
+        super.init(position, .TRANSITION, self.tkind.rawValue)
+    }
+    
+    override func generate() -> [Llvm] {
+        return [LLBreak()]
+    }
+}
+
 class ForStmt: StatementNode {
     var startValue: StatementNode
     var finishValue: Expression
@@ -228,12 +264,16 @@ class ForStmt: StatementNode {
         blockArr.append(LLExpression(.ADD, .I32, "%index\(self.position.col)", "1", "%result\(self.position.col)"))
         blockArr.append(LLStore("%result\(self.position.col)", .I32, "\((startValue as! AssignStmt).id)"))
         blockArr.append(LLBr(comditionJump))
+        
         let exitJump = LLLabel()
+
         blockArr.append(exitJump)
         conditionArr.append(LLBr("%s\(self.position.col)-\(self.position.row)", jumpBlock, exitJump))
         
         resulrArr.append(contentsOf: conditionArr)
         resulrArr.append(contentsOf: blockArr)
+        
+        createBreak(&resulrArr, exitJump)
         
         return resulrArr
     }
@@ -258,10 +298,13 @@ class WhileStmt: StatementNode {
         var blockArr:[Llvm] = [blockJump]
         blockArr.append(contentsOf: self.block.generate())
         let exitJump = LLLabel()
+        
         blockArr.append(contentsOf: [LLBr(conditionJump), exitJump])
         
         resulrArr.append(LLBr((condition.llvmVariable!.name), blockJump, exitJump))
         resulrArr.append(contentsOf: blockArr)
+        
+        createBreak(&resulrArr, exitJump)
     
         return resulrArr
     }
@@ -274,6 +317,24 @@ class RepeatStmt: StatementNode {
         self.condition = condition
         self.block = block
         super.init(position, .REPEAT, "Repeat satement")
+    }
+    
+    override func generate() -> [Llvm] {
+        let blockJump = LLLabel()
+        var resultArr:[Llvm] = [LLBr(blockJump ), blockJump]
+        resultArr.append(contentsOf: self.block.generate())
+        
+        let exitJump = LLLabel()
+        
+        resultArr.append(contentsOf: self.condition.generate())
+        resultArr.append(LLBr((condition.llvmVariable!.name), blockJump, exitJump))
+        
+        resultArr.append(exitJump)
+        
+        createBreak(&resultArr, exitJump)
+        
+ 
+        return resultArr
     }
 }
 

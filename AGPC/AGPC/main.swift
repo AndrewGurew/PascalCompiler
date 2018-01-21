@@ -229,12 +229,13 @@ default:
 }
 
 //let testText  = """
-//var a:integer;
+//var i:integer;
 //begin
-//a:=1;
-//if(a = 1) then begin
-//writeln(a);
-//end
+//repeat
+//i := i+1;
+//writeln(i);
+//break;
+//until (i = 10);
 //end
 //"""
 //let lexAnalyzer = Tokenizer(text: testText)

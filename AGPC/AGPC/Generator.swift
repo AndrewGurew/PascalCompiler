@@ -16,18 +16,6 @@ enum LLVarType: String {
     case I32 = "i32", DOUBLE = "double", UN = "UN"
 }
 
-var _globalDeclare = ""
-var labelIndex = 0
-var writelnDeclared:[Int:Bool] = [:]
-var printPointerDeclared = false
-
-func initGenerator()  {
-    _globalDeclare = ""
-    labelIndex = 0
-    writelnDeclared = [:]
-    printPointerDeclared = false
-}
-
 class Llvm {
     let type: CommandType
     init(type: CommandType) {
@@ -190,8 +178,8 @@ class LLCast: Llvm {
 }
 
 class LLBr: Llvm {
-    private var resultCommand: String;
-    var jumpTo: LLLabel
+    private var resultCommand: String = ""
+    var jumpTo: LLLabel?
     var elseJumpTo: LLLabel?
     var conditionName: String?
     
@@ -199,18 +187,63 @@ class LLBr: Llvm {
         self.conditionName = condition
         self.jumpTo = jumpTo
         self.elseJumpTo = elseJumpTo
-        resultCommand = "br i1 \(condition), label %\(jumpTo.labelNumber), label %\(elseJumpTo.labelNumber)\n"
         super.init(type: .BR)
     }
     
     init(_ jumpTo: LLLabel) {
         self.jumpTo = jumpTo
-        resultCommand = "br label %\(jumpTo.labelNumber)\n"
+        super.init(type: .BR)
+    }
+    
+    init() {
         super.init(type: .BR)
     }
     
     override func getCommand() -> String {
+        if (jumpTo != nil && elseJumpTo != nil) {
+            resultCommand = "br i1 \(conditionName!), label %\(jumpTo!.labelNumber), label %\(elseJumpTo!.labelNumber)\n"
+        } else if (jumpTo != nil) {
+            resultCommand = "br label %\(jumpTo!.labelNumber)\n"
+        } else {
+            resultCommand = ""
+        }
         return resultCommand
+    }
+}
+
+class LLBreak: LLBr {
+    var lablel: LLLabel?
+    
+    func setJumpPoit(point: LLLabel) {
+        self.lablel = point
+        super.jumpTo = self.lablel
+    }
+}
+
+func createBreak(_ blockArr: inout [Llvm],_ exitPint: LLLabel) {
+    var remove = false
+    var len = blockArr.count
+    var i = 0
+    while (i < blockArr.count) {
+        if let llb = (blockArr[i] as? LLBreak)  {
+            if (llb.lablel == nil) {
+                llb.setJumpPoit(point: exitPint)
+                remove = true
+                i += 1
+                continue
+            }
+        }
+        
+        if (blockArr[i] is LLLabel) {
+            remove = false
+        } else {
+            if (remove) {
+                blockArr.remove(at: i)
+                len -= 1
+                continue
+            }
+        }
+        i += 1
     }
 }
 
@@ -223,10 +256,24 @@ struct LlvmVariable {
     }
 }
 
+var waitingForPoint:[LLLabel] = []
+
 var llvmVarStack:[String:LlvmVariable] = [:]
 struct Program {
     var declaration:[Llvm] = []
     var block:[Llvm] = []
+}
+
+var _globalDeclare = ""
+var labelIndex = 0
+var writelnDeclared:[Int:Bool] = [:]
+var printPointerDeclared = false
+
+func initGenerator()  {
+    _globalDeclare = ""
+    labelIndex = 0
+    writelnDeclared = [:]
+    printPointerDeclared = false
 }
 
 class CodeGenerator {

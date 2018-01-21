@@ -265,10 +265,24 @@ class Parser {
             return try parseWhile()
         case .REPEAT:
             return try parseRepeat()
+        case .BREAK, .CONTINUE:
+            return try parseTransition()
         default:
-           // try require([.ID, .BEGIN, .IF, .FOR, .WHILE, .REPEAT])
             return nil
         }
+    }
+    
+    
+    private func parseTransition() throws -> StatementNode {
+        try require([.BREAK, .CONTINUE])
+        let current = tokenizer.currentToken()
+        let pos = current.position
+        
+        try tokenizer.nextToken()
+        try require(.SEMICOLON)
+        try tokenizer.nextToken()
+        
+        return (current.type == .CONTINUE) ? Transition(pos, .CONTINUE) : Transition(pos, .BREAK)
     }
     
     private func parseRepeat() throws -> StatementNode {
@@ -338,7 +352,11 @@ class Parser {
         try tokenizer.nextToken()
         if(name.lowercased() == "write" || name.lowercased() == "writeln") {
             return WritelnCall(pos, name, paramList)
-        } else {
+        }
+        if(name.lowercased() == "exit") {
+            return ExitCall(pos, name, paramList)
+        }
+        else {
             let result = ProcFuncCall(pos, name, paramList)
             try checkCall(Of: result)
             return result

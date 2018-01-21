@@ -46,7 +46,7 @@ enum TokenType: String {
     ARRAY = "Array", OF = "Of", CONST = "Const", TRUE = "True", PROGRAMM = "Programm",
     FALSE = "False", AND = "And", NOT = "Not", OR = "Or", DOWNTO = "Downto", EOF = "EOF",
     WHILE = "While", BEGIN = "Begin", END = "End", FORWARD = "Forward", DO = "Do",
-    FUNCTION = "Function", UNKNOWN = "Unknown"
+    FUNCTION = "Function", UNKNOWN = "Unknown", EXIT = "Exit"
     
     //Other
     case ID = "Id", COMMENT = "Comments", LONG_COMMENT = "Long comments",
@@ -74,7 +74,7 @@ private var keyWordInfo:[String: TokenType] = [
     "procedure": .PROCEDURE, "mod": .MOD, "not": .NOT, "do": .DO,
     "or": .OR, "until": .UNTIL, "type": .TYPE, "to": .TO, "of": .OF,
     "integer": .INT, "double": .DOUBLE, "then": .THEN, "repeat": .REPEAT,
-    "record": .RECORD, "forward": .FORWARD, "boolean": .BOOL
+    "record": .RECORD, "forward": .FORWARD, "boolean": .BOOL, "continue" : .CONTINUE
 ]
 
 private var types:[TokenType] = [.INT, .DOUBLE, .STRING, .BOOL]
