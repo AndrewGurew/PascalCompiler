@@ -6,5 +6,5 @@ end
 var i:integer;
 begin
 i:=10;
-	bar(i);
+bar(i);
 end
