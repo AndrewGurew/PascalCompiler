@@ -150,13 +150,13 @@ class Parser {
             try tokenizer.nextToken()
             try require(.SEMICOLON)
             try tokenizer.nextToken()
-            return [procName: ProcFuncDecl(position, text, Block(tokenizer.currentToken().position, text, nil, []), params, returnType, true)]
+            return [procName: ProcFuncDecl(position, procName, text, Block(tokenizer.currentToken().position, text, nil, []), params, returnType, true)]
         } else {
             let block = try parseProgram("Procedure Block")
             try require(.END)
             try tokenizer.nextToken()
             varStack.removeLast()
-            return [procName: ProcFuncDecl(position, text, block, params, returnType)]
+            return [procName: ProcFuncDecl(position, procName, text, block, params, returnType)]
         }
         
     }

@@ -9,11 +9,11 @@
 import Foundation
 
 enum CommandType {
-    case BR, ALLOC, STORE, LABEL, CAST, EXPR, WRITE, LOAD
+    case BR, ALLOC, STORE, LABEL, CAST, EXPR, WRITE, LOAD, FUNC, FUNCEND, CALL
 }
 
 enum LLVarType: String {
-    case I32 = "i32", DOUBLE = "double", UN = "UN"
+    case I32 = "i32", DOUBLE = "double", UN = "UN", VOID = "void"
 }
 
 class Llvm {
@@ -24,6 +24,71 @@ class Llvm {
     
     func getCommand() -> String {
         preconditionFailure()
+    }
+}
+
+class LLCall: Llvm {
+    var paramList:[(LLVarType, String)]
+    var name: String
+    var returnType:LLVarType
+    init(_ paramList:[(LLVarType, String)],_ name:String,_ returnType: LLVarType) {
+        self.name = name
+        self.returnType = returnType
+        self.paramList = paramList
+        super.init(type: .CALL)
+    }
+    
+    override func getCommand() -> String {
+        var paramStr = "( "
+        for param in paramList {
+            paramStr += "\(param.0.rawValue)* %\(param.1),"
+        }
+        
+        paramStr.removeLast()
+        paramStr.append(")")
+        
+        return "call \(returnType.rawValue) @\(name) \(paramStr)\n"
+    }
+}
+
+class LLFunc: Llvm {
+    var returnType:LLVarType
+    var name:String
+    var paramList:[(LLVarType, String)]
+    
+    
+    init(_ returnType: LLVarType,_ name: String,_ paramList:[(LLVarType, String)]) {
+        self.returnType = returnType
+        self.name = name
+        self.paramList = paramList
+                //labelIndex -= 1
+        super.init(type: .FUNC)
+    }
+    
+    override func getCommand() -> String {
+        var paramStr = "( "
+        for param in paramList {
+            paramStr += "\(param.0.rawValue)* %\(param.1),"
+        }
+        
+        paramStr.removeLast()
+        paramStr.append(")")
+        
+        return "define \(returnType.rawValue) @\(name) \(paramStr) {\n"
+    }
+}
+
+class LLFuncEnd: Llvm {
+    var returnType:LLVarType
+    var returnValue: String?
+    init(_ returnType: LLVarType,_ returnValue: String? = nil) {
+        self.returnType = returnType
+        self.returnValue = returnValue
+        super.init(type: .FUNCEND)
+    }
+    
+    override func getCommand() -> String {
+        return "ret \(returnType.rawValue) \(returnValue ?? "")\n}\n"
     }
 }
 
@@ -278,6 +343,7 @@ var waitingForPoint:[LLLabel] = []
 
 var llvmVarStack:[String:LlvmVariable] = [:]
 struct Program {
+    var global:[Llvm] = []
     var declaration:[Llvm] = []
     var block:[Llvm] = []
 }
@@ -395,8 +461,11 @@ class CodeGenerator {
             return
         }
         for (_, value) in (declScope?.declList)! {
-            program.declaration.append(contentsOf: value.generate())
-            //result += value.generate()
+
+
+  
+                program.declaration.append(contentsOf: value.generate())
+            
         }
     }
     
@@ -407,8 +476,24 @@ class CodeGenerator {
     }
     
     private func toText() {
+        for gloabl in program.global {
+            self.globalDeclare += gloabl.getCommand()
+        }
+        
+        var gloabal = false
         for decl in program.declaration {
-            self.llvmText += decl.getCommand()
+            if !(gloabal) {
+            gloabal = (decl is LLFunc)
+            }
+            
+            if(gloabal) {
+                self.globalDeclare += decl.getCommand()
+            } else {
+                self.llvmText += decl.getCommand()
+            }
+            if (gloabal) {
+            gloabal = !(decl is LLFuncEnd)
+            }
         }
         
         for stmt in program.block {

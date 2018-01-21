@@ -8,6 +8,21 @@
 
 import Foundation
 
+private func convertType(_ initType: TypeNode?) -> LLVarType {
+    if(initType == nil) { return .VOID }
+    var result:LLVarType
+    switch (initType as! SimpleType).kind {
+    case .DOUBLE:
+        result = .DOUBLE
+    case .INT:
+        result = .I32
+    default:
+        result = .UN
+    }
+    
+    return result
+}
+
 class StatementNode {
     enum Kind {
         case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT, CALL, TRANSITION
@@ -34,6 +49,18 @@ class ProcFuncCall: StatementNode {
         self.paramList = paramList
         self.name = name
         super.init(position, .CALL, "Procedure or Function Call")
+    }
+    
+    override func generate() -> [Llvm] {
+        var LLparamList:[(LLVarType, String)] = []
+        var resultArr:[Llvm] = []
+        for param in self.paramList {
+            resultArr.append(contentsOf: param.generate())
+            LLparamList.append((convertType(param.type), param.text))
+        }
+        
+        resultArr.append(LLCall(LLparamList, name, llvmVarStack[name]!.type))
+        return resultArr
     }
 }
 
@@ -173,12 +200,38 @@ class ProcFuncDecl: Declaration {
     var isForward: Bool
     var returnType: TypeNode? = nil
     var block:StatementNode
-    init(_ position: (Int, Int), _ text: String,_ block: StatementNode,_ params: [String: Declaration] = [:],_ returnType: TypeNode? = nil,_ isForward:Bool = false){
+    var procName: String
+    init(_ position: (Int, Int),_ procName: String, _ text: String,_ block: StatementNode,_ params: [String: Declaration] = [:],_ returnType: TypeNode? = nil,_ isForward:Bool = false){
+        self.procName = procName
         self.block = block
         self.returnType = returnType
         self.params = params
         self.isForward = isForward
+        
+        llvmVarStack.updateValue(LlvmVariable(procName, convertType(self.returnType)), forKey: procName)
+        
         super.init(position, text, .PROCEDURE)
+    }
+    
+    override func generate() -> [Llvm] {
+        var LLparamList:[(LLVarType, String)] = []
+        var resultArr:[Llvm] = []
+        for param in self.params {
+            LLparamList.append(((convertType(((param.value as! VarDecl).type as! SimpleType)), param.key)))
+        }
+        
+        resultArr.append(LLFunc(convertType(returnType), procName, LLparamList))
+//
+        if !((block as! Block).declScope == nil) {
+            for (_, value) in ((block as! Block).declScope?.declList)! {
+                resultArr.append(contentsOf: value.generate())
+            }
+        }
+        
+        resultArr.append(contentsOf: self.block.generate())
+        resultArr.append(LLFuncEnd(convertType(returnType)))
+    
+        return resultArr
     }
 }
 
