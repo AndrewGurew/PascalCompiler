@@ -8,18 +8,6 @@
 
 import Foundation
 
-var _globalDeclare = ""
-var labelIndex = 0
-var writelnDeclared:[Int:Bool] = [:]
-var printPointerDeclared = false
-
-func initGenerator()  {
-    _globalDeclare = ""
-    labelIndex = 0
-    writelnDeclared = [:]
-    printPointerDeclared = false
-}
-
 class StatementNode {
     enum Kind {
         case IFELSE, FOR, WHILE, BLOCK, ASSIGN, REPEAT, CALL
@@ -34,8 +22,8 @@ class StatementNode {
         self.kind = kind
     }
     
-    func generate() -> String {
-        return ""
+    func generate() -> [Llvm] {
+        return []
     }
 }
 
@@ -52,30 +40,20 @@ class ProcFuncCall: StatementNode {
 class WritelnCall: ProcFuncCall {
     var ptrDeclare: String = ""
     
-    override func generate() -> String {
-        var format = ""
-        var outputVariables = ""
-        var codeByVariables = ""
-        if(paramList.isEmpty) { return "" }
+    override func generate() -> [Llvm] {
+        var format: [String] = []
+        var resultArr: [Llvm] = []
+        var params: [(LLVarType, String)] = []
+        if(paramList.isEmpty) { return [] }
         
         for param in paramList {
-            format += ((param.llvmVariable!.type == "double") ? "%lf" : "%d") + " "
-            codeByVariables += param.generate()
-            outputVariables += "\(param.llvmVariable!.type) \(param.llvmVariable!.name)" + ","
-        }
-        outputVariables.removeLast()
-        
-        if (writelnDeclared.index(forKey: paramList.count) == nil) || (writelnDeclared[paramList.count] == false) {
-            _globalDeclare += "@hello\(paramList.count) = private constant [\(format.length) x i8] c\"\(format)\"\n";
-            writelnDeclared[paramList.count] = true
+            format.append(((param.llvmVariable!.type.rawValue == "double") ? "%lf" : "%d") + " ")
+            resultArr.append(contentsOf: param.generate())
+            params.append((param.llvmVariable!.type, param.llvmVariable!.name))
         }
         
-        ptrDeclare = "%ptr\(self.position.col) = bitcast [\(format.length) x i8] * @hello\(paramList.count) to i8*\n"
-        labelIndex+=1
-        
-        
-        let command = ptrDeclare + "call i32 (i8*, ...) @printf(i8* %ptr\(self.position.col), \(outputVariables))\n"
-        return codeByVariables + command
+        resultArr.append(LLWriteln(format, params, self.position.col))
+        return resultArr
     }
 }
 
@@ -139,8 +117,8 @@ class Declaration {
         self.position = position
     }
     
-    func generate() -> String {
-        return ""
+    func generate() -> [Llvm] {
+        return []
     }
 }
 
@@ -151,21 +129,21 @@ class VarDecl: Declaration {
         super.init(position, text, .VAR)
         llvmVarStack.updateValue(LlvmVariable(text, getLLVMType()), forKey: text)
     }
-    override func generate() -> String {
-        let alloc = "%\(text) = alloca \(llvmVarStack[text]!.type), align 4\n"
-        let store = "store \(llvmVarStack[text]!.type) \(llvmVarStack[text]!.type == "i32" ? "0" : "0.0"), \(llvmVarStack[text]!.type)* %\(text), align 4\n"
-        return alloc + store
+    override func generate() -> [Llvm] {
+        let alloc = LLAlloc(text, llvmVarStack[text]!.type)
+        let store = LLStore("\(llvmVarStack[text]!.type == .I32 ? "0" : "0.0")", llvmVarStack[text]!.type, text)
+        return [alloc, store]
     }
     
-    private func getLLVMType() -> String {
+    private func getLLVMType() -> LLVarType {
         if let _type = (self.type as? SimpleType) {
             switch (_type.kind) {
-            case .DOUBLE: return "double"
+            case .DOUBLE: return .DOUBLE
             default:
-                return "i32"
+                return .I32
             }
         } else {
-            return "UN"
+            return .UN
         }
     }
 }
@@ -213,12 +191,12 @@ class Block: StatementNode {
         super.init(position, .BLOCK, text)
     }
     
-    override func generate() -> String {
-        var result = ""
+    override func generate() -> [Llvm] {
+        var resultApp:[Llvm] = []
         for stmt in self.stmtList {
-            result += stmt.generate()
+            resultApp.append(contentsOf: stmt.generate())
         }
-        return result
+        return resultApp
     }
 }
 
@@ -233,35 +211,31 @@ class ForStmt: StatementNode {
         super.init(position, .FOR, "For satement")
     }
     
-    override func generate() -> String {
-        labelIndex+=1
-        var initLabel = "br label %\(labelIndex)\n"
-        initLabel += "; <label>:\(labelIndex)\n"
-        initLabel += startValue.generate()
-        labelIndex+=1
-        initLabel += "br label %\(labelIndex)\n"
+    override func generate() -> [Llvm] {
+        let initJump = LLLabel()
+        var resulrArr:[Llvm] = [LLBr(initJump), initJump]
+        resulrArr.append(contentsOf: startValue.generate())
+        let comditionJump = LLLabel()
+        resulrArr.append(LLBr(comditionJump))
         
+        var conditionArr:[Llvm] = [comditionJump, LLLoad("%index\(self.position.col)", .I32, .I32, "\((startValue as! AssignStmt).id)")]
+        conditionArr.append(contentsOf: finishValue.generate())
+        conditionArr.append(LLExpression(.SLE, .I32, "%index\(self.position.col)", "\(finishValue.llvmVariable!.name)", "%s\(self.position.col)-\(self.position.row)"))
+        let jumpBlock = LLLabel()
         
+        var blockArr:[Llvm] = [jumpBlock]
+        blockArr.append(contentsOf: self.block.generate())
+        blockArr.append(LLExpression(.ADD, .I32, "%index\(self.position.col)", "1", "%result\(self.position.col)"))
+        blockArr.append(LLStore("%result\(self.position.col)", .I32, "\((startValue as! AssignStmt).id)"))
+        blockArr.append(LLBr(comditionJump))
+        let exitJump = LLLabel()
+        blockArr.append(exitJump)
+        conditionArr.append(LLBr("%s\(self.position.col)-\(self.position.row)", jumpBlock, exitJump))
         
-        let conditonIndex = labelIndex
-        var condition = "; <label>:\(labelIndex)\n"
-        condition += "%index\(self.position.col) = load i32, i32* %\((startValue as! AssignStmt).id), align 4\n"
-        condition += finishValue.generate()
-        condition += "%s\(self.position.col)-\(self.position.row) = icmp sle i32 %index\(self.position.col), \(finishValue.llvmVariable!.name)\n"
-        condition += "br i1 %s\(self.position.col)-\(self.position.row), label %\(labelIndex + 1), "
+        resulrArr.append(contentsOf: conditionArr)
+        resulrArr.append(contentsOf: blockArr)
         
-        labelIndex+=1
-        var blockLabel = "; <label>:\(labelIndex)\n"
-        blockLabel += self.block.generate()
-        blockLabel += "%result\(self.position.col) = add i32 %index\(self.position.col), 1\n"
-        blockLabel += "store i32 %result\(self.position.col), i32* %\((startValue as! AssignStmt).id), align 4\n"
-        
-        blockLabel += "br label %\(conditonIndex)\n"
-        labelIndex += 1
-        blockLabel += "; <label>:\(labelIndex)\n"
-        condition += "label %\(labelIndex)\n"
-        
-        return initLabel + condition + blockLabel
+        return resulrArr
     }
 }
 
@@ -272,6 +246,24 @@ class WhileStmt: StatementNode {
         self.condition = condition
         self.block = block
         super.init(position, .WHILE, "While satement")
+    }
+    
+    override func generate() -> [Llvm] {
+
+        let conditionJump = LLLabel()
+        var resulrArr:[Llvm] = [LLBr(conditionJump), conditionJump]
+        resulrArr.append(contentsOf: self.condition.generate())
+
+        let blockJump = LLLabel()
+        var blockArr:[Llvm] = [blockJump]
+        blockArr.append(contentsOf: self.block.generate())
+        let exitJump = LLLabel()
+        blockArr.append(contentsOf: [LLBr(conditionJump), exitJump])
+        
+        resulrArr.append(LLBr((condition.llvmVariable!.name), blockJump, exitJump))
+        resulrArr.append(contentsOf: blockArr)
+    
+        return resulrArr
     }
 }
 
@@ -296,26 +288,34 @@ class IfElseStmt: StatementNode {
         super.init(position, .IFELSE, "If-Else statement")
     }
     
-    override func generate() -> String {
-        labelIndex+=1
-        var result = ""
-        var elseBlockResult = ""
-        var ifBlockResult = ""
-        result += condition.generate()
-        var br = "br i1 \(condition.llvmVariable!.name), label %\(labelIndex), "
-        ifBlockResult += "; <label>:\(labelIndex)\n"
-        ifBlockResult += block.generate()
-        labelIndex+=1
-        br += "label %\(labelIndex)\n"
+    override func generate() -> [Llvm] {
+        var resultArr:[Llvm] = []
+        resultArr.append(contentsOf: condition.generate())
+        let jumpIf = LLLabel()
+        
+        var blockArr:[Llvm] = [jumpIf]
+        blockArr.append(contentsOf: block.generate())
+        
+        let jumpElse = LLLabel()
+        resultArr.append(LLBr(condition.llvmVariable!.name, jumpIf, jumpElse))
+        resultArr.append(contentsOf: blockArr)
+        
         if(elseBlock != nil) {
-            labelIndex+=1
-            elseBlockResult = "; <label>:\(labelIndex - 1)\n"
-            elseBlockResult += self.elseBlock!.generate()
-            elseBlockResult += "br label %\(labelIndex)\n"
+            var elseArr:[Llvm] = []
+            elseArr.append(jumpElse)
+            elseArr.append(contentsOf: elseBlock!.generate())
+            
+            let jumpExit = LLLabel()
+            elseArr.append(contentsOf: [LLBr(jumpExit), jumpExit])
+            
+            resultArr.append(LLBr(jumpExit))
+            resultArr.append(contentsOf: elseArr)
+
+        } else {
+            resultArr.append(contentsOf: [LLBr(jumpElse), jumpElse])
         }
         
-        ifBlockResult += "br label %\(labelIndex)\n"
-        return result + br + ifBlockResult + elseBlockResult + "; <label>:\(labelIndex)\n"
+        return resultArr
     }
 }
 
@@ -328,24 +328,25 @@ class AssignStmt: StatementNode {
         super.init(position, .ASSIGN, "Assign")
     }
     
-    override func generate() -> String {
-        let expressonCode = expr.generate()
-        var storeValue = ((expr.kind == .INT) ? "i32 " : "double ") + expr.llvmVariable!.name
-        var cast = ""
+    override func generate() -> [Llvm] {
+        var resultArr:[Llvm] = []
+        resultArr.append(contentsOf: expr.generate())
+        var storeValue = expr.llvmVariable!.name
         if (expr.kind != .INT && expr.kind != .DOUBLE) {
             if(expr.llvmVariable!.type != llvmVarStack[id]!.type) {
-                cast = "\(expr.llvmVariable!.name)cast = sitofp \(expr.llvmVariable!.type) \(expr.llvmVariable!.name) to \(llvmVarStack[id]!.type)\n"
-                storeValue = "\(llvmVarStack[id]!.type) \(expr.llvmVariable!.name)cast"
+                resultArr.append(LLCast(expr.llvmVariable!.name, expr.llvmVariable!.type, llvmVarStack[id]!.type))
+                storeValue = "\(expr.llvmVariable!.name)cast"
             } else {
-                storeValue = "\(expr.llvmVariable!.type) \(expr.llvmVariable!.name)"
+                storeValue = "\(expr.llvmVariable!.name)"
             }
         } else {
-            if(expr.kind == .INT && llvmVarStack[id]!.type == "double") {
-                storeValue = "double " + expr.llvmVariable!.name + ".0"
+            if(expr.kind == .INT && llvmVarStack[id]!.type == .DOUBLE) {
+                storeValue = expr.llvmVariable!.name + ".0"
             }
         }
-        let store = "store \(storeValue), \(llvmVarStack[id]!.type)* %\(id), align 4\n"
-        return expressonCode + cast + store
+        
+        resultArr.append(LLStore(storeValue, llvmVarStack[id]!.type, id))
+        return resultArr
     }
 }
 
@@ -367,8 +368,8 @@ class Expression {
         self.kind = kind
     }
     
-    func generate() -> String {
-        return ""
+    func generate() -> [Llvm] {
+        return []
     }
 }
 
@@ -384,72 +385,81 @@ class BinaryExpr: Expression {
         }
     }
     
-    override func generate() -> String {
-        var oper = ""
+    override func generate() -> [Llvm] {
+        var oper: LLExpression.Oper
         let _type = (self.type! as! SimpleType).kind
         switch (self.text) {
         case "-":
-            oper = (_type == .DOUBLE) ? "fsub" : "sub"
+            oper = (_type == .DOUBLE) ? .FSUB : .SUB
         case "*":
-            oper = (_type == .DOUBLE) ? "fsmul" : "mul"
+            oper = (_type == .DOUBLE) ? .FMUL : .MUL
         case "/":
-            oper = "fdiv"
+            oper = .FDIV
         case "mod":
-            oper = "srem"
+            oper = .SREM
         case "div":
-            oper = "sdiv"
-        case "and", "or":
-            oper = self.text
+            oper = .DIV
+        case "and":
+            oper = .AND
+        case "or":
+            oper = .OR
         case "=":
-            oper = (_type == .DOUBLE) ? "fcmp oeq" : "icmp eq"
+            oper = (_type == .DOUBLE) ? .FOEQ : .EQ
         case "<>":
-            oper = (_type == .DOUBLE) ? "fcmp one" : "icmp ne"
+            oper = (_type == .DOUBLE) ? .FONE : .NE
         case ">":
-            oper = (_type == .DOUBLE) ? "fcmp ogt" : "icmp sgt"
+            oper = (_type == .DOUBLE) ? .FOGT : .SGT
         case ">=":
-            oper = (_type == .DOUBLE) ? "fcmp oge" : "icmp sge"
+            oper = (_type == .DOUBLE) ? .FOGE : .SGE
         case "<":
-            oper = (_type == .DOUBLE) ? "fcmp olt" : "icmp slt"
+            oper = (_type == .DOUBLE) ? .FOLT : .SLT
         case "<=":
-            oper = (_type == .DOUBLE) ? "fcmp ole" : "icmp sle"
+            oper = (_type == .DOUBLE) ? .FOLE : .SLE
         default:
-            oper = (_type == .DOUBLE) ? "fadd" : "add"
+            oper = (_type == .DOUBLE) ? .FADD : .ADD
         }
         
         var right = self.rightChild.llvmVariable!.name
         var left = self.leftChild.llvmVariable!.name
-        var cast = ""
+        var cast:LLCast?
+
+        var resultArr:[Llvm] = []
         
         if(_type == .DOUBLE) {
             if(self.rightChild.kind == .INT) {
                 right += ".0"
-            } else if(self.rightChild.llvmVariable!.type == "i32") {
-                cast += "\(llvmVariable!.name)cast = sitofp i32 \(right) to double\n"
-                right = "\(llvmVariable!.name)cast"
+            } else if(self.rightChild.llvmVariable!.type == .I32) {
+                cast = LLCast(right, .I32, .DOUBLE)
+                right = cast!.name
             }
             
             if(self.leftChild.kind == .INT) {
                 left += ".0"
-            } else if(self.leftChild.llvmVariable!.type == "i32") {
-                cast += "\(llvmVariable!.name)cast = sitofp i32 \(left) to double\n"
-                left = "\(llvmVariable!.name)cast"
+            } else if(self.leftChild.llvmVariable!.type == .I32) {
+                cast = LLCast(left, .I32, .DOUBLE)
+                left = cast!.name
             }
         }
         
-        let command = self.leftChild.generate() + self.rightChild.generate() + cast + "\(llvmVariable!.name) = \(oper) \(getLLVMType()) \(left), \(right)\n"
+        resultArr.append(contentsOf: self.leftChild.generate())
+        resultArr.append(contentsOf: self.rightChild.generate())
+        if (cast != nil) {
+            resultArr.append(cast!)
+        }
+        resultArr.append(LLExpression(oper, getLLVMType(), left, right, llvmVariable!.name))
         
-        return command
+        return resultArr
     }
     
-    private func getLLVMType() -> String {
+    private func getLLVMType() -> LLVarType {
         if let _type = (self.type as? SimpleType) {
             switch (_type.kind) {
-            case .DOUBLE: return "double"
+            case .DOUBLE: return .DOUBLE
             default:
-                return "i32"
+                return .I32
             }
         } else {
-            return "UN"
+            return .UN
         }
     }
     
@@ -470,8 +480,14 @@ class UnaryExpr: Expression {
         super.type = child.type
     }
     
-    override func generate() -> String {
-        return (self.text == "+") ? "" : "\(self.llvmVariable!.name) = \((child.llvmVariable?.type == "i32") ? "sub nsw" : "fsub") \(child.llvmVariable!.type) \((child.llvmVariable?.type == "i32") ? "0" : "0.0"), \(child.llvmVariable!.name)\n"
+    override func generate() -> [Llvm] {
+        var resultArr: [Llvm] = []
+        if(self.text == "+") {
+            return []
+        }
+        
+        resultArr.append(LLExpression(((child.llvmVariable?.type == .I32) ? .SUB : .FSUB), (child.llvmVariable?.type)!, ((child.llvmVariable?.type == .I32) ? "0" : "0.0"), child.llvmVariable!.name, self.llvmVariable!.name))
+        return resultArr
     }
     
     init(_ position: (Int, Int),_ text: String, child: Expression) {
@@ -494,8 +510,8 @@ class IDExpr: Expression {
         }
     }
     
-    override func generate() -> String {
-        return "\(llvmVariable!.name) = load \(llvmVarStack[name]!.type), \(llvmVarStack[name]!.type)* %\(name), align 4\n"
+    override func generate() -> [Llvm] {
+        return [LLLoad(llvmVariable!.name, llvmVarStack[name]!.type, llvmVarStack[name]!.type, name)]
     }
 }
 
@@ -504,7 +520,7 @@ class IntegerExpr: Expression {
     init(value: UInt64,_ position: (Int, Int)) {
         self.value = value
         super.init(position, .INT, String(self.value))
-        self.llvmVariable = LlvmVariable(String(value), "i32")
+        self.llvmVariable = LlvmVariable(String(value), .I32)
     }
 }
 
@@ -513,7 +529,7 @@ class DoubleExpr: Expression {
     init(value: Double,_ position: (Int, Int)) {
         self.value = value
         super.init(position, .DOUBLE, String(self.value))
-        self.llvmVariable = LlvmVariable(String(value), "double")
+        self.llvmVariable = LlvmVariable(String(value), .DOUBLE)
     }
 }
 
